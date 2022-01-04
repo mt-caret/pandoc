@@ -20,7 +20,7 @@ import Text.Pandoc.Options (WriterOptions (..))
 import Text.Show.Pretty (ppDoc)
 import Text.PrettyPrint (renderStyle, Style(..), style, char)
 
--- | Prettyprint Pandoc document.
+-- Prettyprint Pandoc document.
 writeNative :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeNative opts (Pandoc meta blocks) = do
   let style' = style{ lineLength = writerColumns opts,

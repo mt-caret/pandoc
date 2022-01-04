@@ -16,7 +16,7 @@ module Text.Pandoc.Filter.Environment
 import Data.Default (Default (def))
 import Text.Pandoc.Options (ReaderOptions, WriterOptions)
 
--- | Environment in which a filter is run. This includes reader and
+-- Environment in which a filter is run. This includes reader and
 -- writer options.
 data Environment = Environment
   { envReaderOptions :: ReaderOptions

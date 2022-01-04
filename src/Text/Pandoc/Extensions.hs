@@ -43,7 +43,7 @@ import Text.Parsec
 import Data.Aeson.TH (deriveJSON)
 import Data.Aeson
 
--- | Individually selectable syntax extensions.
+-- Individually selectable syntax extensions.
 data Extension =
       Ext_abbreviations       -- ^ PHP markdown extra abbreviation definitions
     | Ext_all_symbols_escapable  -- ^ Make all non-alphanumerics escapable
@@ -173,7 +173,7 @@ enableExtension x (Extensions exts) = Extensions (setBit exts (fromEnum x))
 disableExtension :: Extension -> Extensions -> Extensions
 disableExtension x (Extensions exts) = Extensions (clearBit exts (fromEnum x))
 
--- | Extensions to be used with pandoc-flavored markdown.
+-- Extensions to be used with pandoc-flavored markdown.
 pandocExtensions :: Extensions
 pandocExtensions = extensionsFromList
   [ Ext_footnotes
@@ -224,7 +224,7 @@ pandocExtensions = extensionsFromList
   , Ext_smart
   ]
 
--- | Extensions to be used with plain text output.
+-- Extensions to be used with plain text output.
 plainExtensions :: Extensions
 plainExtensions = extensionsFromList
   [ Ext_table_captions
@@ -243,7 +243,7 @@ plainExtensions = extensionsFromList
   , Ext_strikeout
   ]
 
--- | Extensions to be used with PHP Markdown Extra.
+-- Extensions to be used with PHP Markdown Extra.
 phpMarkdownExtraExtensions :: Extensions
 phpMarkdownExtraExtensions = extensionsFromList
   [ Ext_footnotes
@@ -260,7 +260,7 @@ phpMarkdownExtraExtensions = extensionsFromList
   , Ext_spaced_reference_links
   ]
 
--- | Extensions to be used with github-flavored markdown.
+-- Extensions to be used with github-flavored markdown.
 githubMarkdownExtensions :: Extensions
 githubMarkdownExtensions = extensionsFromList
   [ Ext_pipe_tables
@@ -276,7 +276,7 @@ githubMarkdownExtensions = extensionsFromList
   , Ext_backtick_code_blocks
   ]
 
--- | Extensions to be used with multimarkdown.
+-- Extensions to be used with multimarkdown.
 multimarkdownExtensions :: Extensions
 multimarkdownExtensions = extensionsFromList
   [ Ext_pipe_tables
@@ -307,7 +307,7 @@ multimarkdownExtensions = extensionsFromList
   , Ext_raw_attribute
   ]
 
--- | Language extensions to be used with strict markdown.
+-- Language extensions to be used with strict markdown.
 strictExtensions :: Extensions
 strictExtensions = extensionsFromList
   [ Ext_raw_html
@@ -315,7 +315,7 @@ strictExtensions = extensionsFromList
   , Ext_spaced_reference_links
   ]
 
--- | Default extensions from format-describing string.
+-- Default extensions from format-describing string.
 getDefaultExtensions :: T.Text -> Extensions
 getDefaultExtensions "markdown_strict"   = strictExtensions
 getDefaultExtensions "markdown_phpextra" = phpMarkdownExtraExtensions
@@ -438,7 +438,7 @@ getDefaultExtensions _                 = extensionsFromList
                                           [Ext_auto_identifiers]
 
 
--- | Get all valid extensions for a format. This is used
+-- Get all valid extensions for a format. This is used
 -- mainly in checking format specifications for validity.
 getAllExtensions :: T.Text -> Extensions
 getAllExtensions f = universalExtensions <> getAll f
@@ -606,7 +606,7 @@ getAllExtensions f = universalExtensions <> getAll f
   getAll _                 = mempty
 
 
--- | Parse a format-specifying string into a markup format,
+-- Parse a format-specifying string into a markup format,
 -- a set of extensions to enable, and a set of extensions to disable.
 parseFormatSpec :: T.Text
                 -> Either ParseError (T.Text, [Extension], [Extension])

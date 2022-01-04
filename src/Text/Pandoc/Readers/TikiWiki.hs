@@ -34,7 +34,7 @@ import Text.Pandoc.Shared (safeRead)
 import Text.Pandoc.XML (fromEntities)
 import Text.Printf (printf)
 
--- | Read TikiWiki from an input string and return a Pandoc document.
+-- Read TikiWiki from an input string and return a Pandoc document.
 readTikiWiki :: (PandocMonad m, ToSources a)
           => ReaderOptions
           -> a
@@ -142,17 +142,17 @@ tableRow = try $ do
 
 -- Tables:
 --
--- ||foo||
+--foo||
 --
--- ||row1-column1|row1-column2||row2-column1|row2-column2||
+--row1-column1|row1-column2||row2-column1|row2-column2||
 --
--- ||row1-column1|row1-column2
+--row1-column1|row1-column2
 -- row2-column1|row2-column2||
 --
--- ||row1-column1|row1-column2
+--row1-column1|row1-column2
 -- row2-column1|row2-column2||row3-column1|row3-column2||
 --
--- || Orange | Apple     | more
+-- Orange | Apple     | more
 --  Bread  | Pie       | more
 --  Butter | Ice cream | and more ||
 --

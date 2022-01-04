@@ -33,7 +33,7 @@ ruleParser = do
 styleAttrParser :: Parser [(Text, Text)]
 styleAttrParser = many1 ruleParser
 
--- | Parses a style string, returning the CSS attributes.
+-- Parses a style string, returning the CSS attributes.
 -- Returns an empty list on failure.
 cssAttributes :: Text -> [(Text, Text)]
 cssAttributes styleString =
@@ -42,13 +42,13 @@ cssAttributes styleString =
     Left _  -> []
     Right x -> x
 
--- | takes a list of keys/properties and a CSS string and
+-- takes a list of keys/properties and a CSS string and
 -- returns the corresponding key-value-pairs.
 pickStylesToKVs :: [Text] -> Text -> [(Text, Text)]
 pickStylesToKVs props styleAttr =
   filter (\s -> fst s `elem` props) $ cssAttributes styleAttr
 
--- | takes a list of key/property synonyms and a CSS string and maybe
+-- takes a list of key/property synonyms and a CSS string and maybe
 -- returns the value of the first match (in order of the supplied list)
 pickStyleAttrProps :: [Text] -> Text -> Maybe Text
 pickStyleAttrProps lookupProps styleAttr = do

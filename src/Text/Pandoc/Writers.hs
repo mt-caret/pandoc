@@ -21,20 +21,20 @@ module Text.Pandoc.Writers
     , writeAsciiDoc
     , writeAsciiDoctor
     , writeBeamer
-    , writeBibTeX
-    , writeBibLaTeX
+    -- , writeBibTeX
+    -- , writeBibLaTeX
     , writeCommonMark
     , writeConTeXt
-    , writeCustom
-    , writeCslJson
+    -- , writeCustom
+    -- , writeCslJson
     , writeDZSlides
-    , writeDocbook4
-    , writeDocbook5
-    , writeDocx
+    -- , writeDocbook4
+    -- , writeDocbook5
+    -- , writeDocx
     , writeDokuWiki
-    , writeEPUB2
-    , writeEPUB3
-    , writeFB2
+    -- , writeEPUB2
+    -- , writeEPUB3
+    -- , writeFB2
     , writeIpynb
     , writeHaddock
     , writeHtml4
@@ -53,15 +53,15 @@ module Text.Pandoc.Writers
     , writeMarkdown
     , writeMarkua
     , writeMediaWiki
-    , writeMs
+    -- , writeMs
     , writeMuse
     , writeNative
-    , writeODT
+    -- , writeODT
     , writeOPML
-    , writeOpenDocument
+    -- , writeOpenDocument
     , writeOrg
     , writePlain
-    , writePowerpoint
+    -- , writePowerpoint
     , writeRST
     , writeRTF
     , writeRevealJs
@@ -89,16 +89,16 @@ import Text.Pandoc.Options
 import qualified Text.Pandoc.UTF8 as UTF8
 import Text.Pandoc.Error
 import Text.Pandoc.Writers.AsciiDoc
-import Text.Pandoc.Writers.BibTeX
+-- import Text.Pandoc.Writers.BibTeX
 import Text.Pandoc.Writers.CommonMark
 import Text.Pandoc.Writers.ConTeXt
-import Text.Pandoc.Writers.CslJson
-import Text.Pandoc.Writers.Custom
-import Text.Pandoc.Writers.Docbook
-import Text.Pandoc.Writers.Docx
+-- import Text.Pandoc.Writers.CslJson
+-- import Text.Pandoc.Writers.Custom
+-- import Text.Pandoc.Writers.Docbook
+-- import Text.Pandoc.Writers.Docx
 import Text.Pandoc.Writers.DokuWiki
-import Text.Pandoc.Writers.EPUB
-import Text.Pandoc.Writers.FB2
+-- import Text.Pandoc.Writers.EPUB
+-- import Text.Pandoc.Writers.FB2
 import Text.Pandoc.Writers.Ipynb
 import Text.Pandoc.Writers.Haddock
 import Text.Pandoc.Writers.HTML
@@ -109,14 +109,14 @@ import Text.Pandoc.Writers.LaTeX
 import Text.Pandoc.Writers.Man
 import Text.Pandoc.Writers.Markdown
 import Text.Pandoc.Writers.MediaWiki
-import Text.Pandoc.Writers.Ms
+-- import Text.Pandoc.Writers.Ms
 import Text.Pandoc.Writers.Muse
 import Text.Pandoc.Writers.Native
-import Text.Pandoc.Writers.ODT
-import Text.Pandoc.Writers.OpenDocument
+-- import Text.Pandoc.Writers.ODT
+-- import Text.Pandoc.Writers.OpenDocument
 import Text.Pandoc.Writers.OPML
 import Text.Pandoc.Writers.Org
-import Text.Pandoc.Writers.Powerpoint
+-- import Text.Pandoc.Writers.Powerpoint
 import Text.Pandoc.Writers.RST
 import Text.Pandoc.Writers.RTF
 import Text.Pandoc.Writers.TEI
@@ -128,18 +128,18 @@ import Text.Pandoc.Writers.ZimWiki
 data Writer m = TextWriter (WriterOptions -> Pandoc -> m Text)
               | ByteStringWriter (WriterOptions -> Pandoc -> m BL.ByteString)
 
--- | Association list of formats and writers.
+-- Association list of formats and writers.
 writers :: PandocMonad m => [ (Text, Writer m) ]
 writers = [
    ("native"       , TextWriter writeNative)
   ,("json"         , TextWriter writeJSON)
-  ,("docx"         , ByteStringWriter writeDocx)
-  ,("odt"          , ByteStringWriter writeODT)
-  ,("pptx"         , ByteStringWriter writePowerpoint)
-  ,("epub"         , ByteStringWriter writeEPUB3)
-  ,("epub2"        , ByteStringWriter writeEPUB2)
-  ,("epub3"        , ByteStringWriter writeEPUB3)
-  ,("fb2"          , TextWriter writeFB2)
+  -- ,("docx"         , ByteStringWriter writeDocx)
+  -- ,("odt"          , ByteStringWriter writeODT)
+  -- ,("pptx"         , ByteStringWriter writePowerpoint)
+  -- ,("epub"         , ByteStringWriter writeEPUB3)
+  -- ,("epub2"        , ByteStringWriter writeEPUB2)
+  -- ,("epub3"        , ByteStringWriter writeEPUB3)
+  -- ,("fb2"          , TextWriter writeFB2)
   ,("ipynb"        , TextWriter writeIpynb)
   ,("html"         , TextWriter writeHtml5String)
   ,("html4"        , TextWriter writeHtml4String)
@@ -150,22 +150,22 @@ writers = [
   ,("slideous"     , TextWriter writeSlideous)
   ,("dzslides"     , TextWriter writeDZSlides)
   ,("revealjs"     , TextWriter writeRevealJs)
-  ,("docbook"      , TextWriter writeDocbook5)
-  ,("docbook4"     , TextWriter writeDocbook4)
-  ,("docbook5"     , TextWriter writeDocbook5)
+  -- ,("docbook"      , TextWriter writeDocbook5)
+  -- ,("docbook4"     , TextWriter writeDocbook4)
+  -- ,("docbook5"     , TextWriter writeDocbook5)
   ,("jats"         , TextWriter writeJatsArchiving)
   ,("jats_articleauthoring", TextWriter writeJatsArticleAuthoring)
   ,("jats_publishing" , TextWriter writeJatsPublishing)
   ,("jats_archiving" , TextWriter writeJatsArchiving)
   ,("jira"         , TextWriter writeJira)
   ,("opml"         , TextWriter writeOPML)
-  ,("opendocument" , TextWriter writeOpenDocument)
+  -- ,("opendocument" , TextWriter writeOpenDocument)
   ,("latex"        , TextWriter writeLaTeX)
   ,("beamer"       , TextWriter writeBeamer)
   ,("context"      , TextWriter writeConTeXt)
   ,("texinfo"      , TextWriter writeTexinfo)
   ,("man"          , TextWriter writeMan)
-  ,("ms"           , TextWriter writeMs)
+  -- ,("ms"           , TextWriter writeMs)
   ,("markdown"     , TextWriter writeMarkdown)
   ,("markdown_strict" , TextWriter writeMarkdown)
   ,("markdown_phpextra" , TextWriter writeMarkdown)
@@ -188,13 +188,13 @@ writers = [
   ,("gfm"          , TextWriter writeCommonMark)
   ,("tei"          , TextWriter writeTEI)
   ,("muse"         , TextWriter writeMuse)
-  ,("csljson"      , TextWriter writeCslJson)
-  ,("bibtex"       , TextWriter writeBibTeX)
-  ,("biblatex"     , TextWriter writeBibLaTeX)
+  -- ,("csljson"      , TextWriter writeCslJson)
+  -- ,("bibtex"       , TextWriter writeBibTeX)
+  -- ,("biblatex"     , TextWriter writeBibLaTeX)
   ,("markua"       , TextWriter writeMarkua)
   ]
 
--- | Retrieve writer, extensions based on formatSpec (format+extensions).
+-- Retrieve writer, extensions based on formatSpec (format+extensions).
 getWriter :: PandocMonad m => Text -> m (Writer m, Extensions)
 getWriter s =
   case parseFormatSpec s of

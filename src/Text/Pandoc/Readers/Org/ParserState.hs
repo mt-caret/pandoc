@@ -58,38 +58,38 @@ import Text.Pandoc.Parsing (Future, HasIdentifierList (..),
                             askF, asksF, returnF, runF, trimInlinesF)
 import Text.Pandoc.Readers.LaTeX.Types (Macro)
 
--- | This is used to delay evaluation until all relevant information has been
+-- This is used to delay evaluation until all relevant information has been
 -- parsed and made available in the parser state.
 type F = Future OrgParserState
 
--- | An inline note / footnote containing the note key and its (inline) value.
+-- An inline note / footnote containing the note key and its (inline) value.
 type OrgNoteRecord = (Text, F Blocks)
--- | Table of footnotes
+-- Table of footnotes
 type OrgNoteTable = [OrgNoteRecord]
--- | Map of functions for link transformations.  The map key is refers to the
+-- Map of functions for link transformations.  The map key is refers to the
 -- link-type, the corresponding function transforms the given link string.
 type OrgLinkFormatters = M.Map Text (Text -> Text)
--- | Macro expander function
+-- Macro expander function
 type MacroExpander = [Text] -> Text
--- | Tag
+-- Tag
 newtype Tag = Tag { fromTag :: Text }
   deriving (Show, Eq, Ord)
 
--- | The states in which a todo item can be
+-- The states in which a todo item can be
 data TodoState = Todo | Done
   deriving (Eq, Ord, Show)
 
--- | A ToDo keyword like @TODO@ or @DONE@.
+-- A ToDo keyword like @TODO@ or @DONE@.
 data TodoMarker = TodoMarker
   { todoMarkerState :: TodoState
   , todoMarkerName  :: Text
   }
   deriving (Show, Eq)
 
--- | Collection of todo markers in the order in which items should progress
+-- Collection of todo markers in the order in which items should progress
 type TodoSequence = [TodoMarker]
 
--- | Org-mode parser state
+-- Org-mode parser state
 data OrgParserState = OrgParserState
   { orgStateAnchorIds            :: [Text]
   , orgStateEmphasisCharStack    :: [Char]
@@ -200,7 +200,7 @@ registerTodoSequence todoSeq st =
   let curSeqs = orgStateTodoSequences st
   in st{ orgStateTodoSequences = todoSeq : curSeqs }
 
--- | Get the current todo/done sequences. If no custom todo sequences have been
+-- Get the current todo/done sequences. If no custom todo sequences have been
 -- defined, return a list containing just the default todo/done sequence.
 activeTodoSequences :: OrgParserState -> [TodoSequence]
 activeTodoSequences st =
@@ -226,20 +226,20 @@ registerMacro (name, expander) st =
 -- Export Settings
 --
 
--- | Options for the way archived trees are handled.
+-- Options for the way archived trees are handled.
 data ArchivedTreesOption =
     ArchivedTreesExport       -- ^ Export the complete tree
   | ArchivedTreesNoExport     -- ^ Exclude archived trees from exporting
   | ArchivedTreesHeadlineOnly -- ^ Export only the headline, discard the contents
 
--- | Options for the handling of LaTeX environments and fragments.
+-- Options for the handling of LaTeX environments and fragments.
 -- Represents allowed values of Emacs variable @org-export-with-latex@.
 data TeXExport
   = TeXExport                 -- ^ Include raw TeX in the output
   | TeXIgnore                 -- ^ Ignore raw TeX
   | TeXVerbatim               -- ^ Keep everything in verbatim
 
--- | Export settings <http://orgmode.org/manual/Export-settings.html>
+-- Export settings <http://orgmode.org/manual/Export-settings.html>
 -- These settings can be changed via OPTIONS statements.
 data ExportSettings = ExportSettings
   { exportArchivedTrees    :: ArchivedTreesOption -- ^ How to treat archived trees

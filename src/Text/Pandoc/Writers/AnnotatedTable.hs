@@ -51,7 +51,7 @@ import           GHC.Generics                   ( Generic )
 import qualified Text.Pandoc.Builder           as B
 import           Text.Pandoc.Walk               ( Walkable (..) )
 
--- | An annotated table type, corresponding to the Pandoc 'B.Table'
+-- An annotated table type, corresponding to the Pandoc 'B.Table'
 -- constructor and the HTML @\<table\>@ element. It records the data
 -- of the columns that cells span, the cells in the row head, the row
 -- numbers of rows, and the column numbers of cells, in addition to
@@ -61,62 +61,62 @@ import           Text.Pandoc.Walk               ( Walkable (..) )
 data Table = Table B.Attr B.Caption [B.ColSpec] TableHead [TableBody] TableFoot
   deriving (Eq, Ord, Read, Show, Typeable, Data, Generic)
 
--- | An annotated table head, corresponding to a Pandoc 'B.TableHead'
+-- An annotated table head, corresponding to a Pandoc 'B.TableHead'
 -- and the HTML @\<thead\>@ element.
 data TableHead = TableHead B.Attr [HeaderRow]
   deriving (Eq, Ord, Read, Show, Typeable, Data, Generic)
 
--- | An annotated table body, with an intermediate head and body,
+-- An annotated table body, with an intermediate head and body,
 -- corresponding to a Pandoc 'B.TableBody' and the HTML @\<tbody\>@
 -- element.
 data TableBody = TableBody B.Attr B.RowHeadColumns [HeaderRow] [BodyRow]
   deriving (Eq, Ord, Read, Show, Typeable, Data, Generic)
 
--- | An annotated table foot, corresponding to a Pandoc 'B.TableFoot'
+-- An annotated table foot, corresponding to a Pandoc 'B.TableFoot'
 -- and the HTML @\<tfoot\>@ element.
 data TableFoot = TableFoot B.Attr [HeaderRow]
   deriving (Eq, Ord, Read, Show, Typeable, Data, Generic)
 
--- | An annotated header row, corresponding to a Pandoc 'B.Row' and
+-- An annotated header row, corresponding to a Pandoc 'B.Row' and
 -- the HTML @\<tr\>@ element, and also recording the row number of the
 -- row. All the cells in a 'HeaderRow' are header (@\<th\>@) cells.
 data HeaderRow = HeaderRow B.Attr RowNumber [Cell]
   deriving (Eq, Ord, Read, Show, Typeable, Data, Generic)
 
--- | An annotated body row, corresponding to a Pandoc 'B.Row' and the
+-- An annotated body row, corresponding to a Pandoc 'B.Row' and the
 -- HTML @\<tr\>@ element, and also recording its row number and
 -- separating the row head cells from the row body cells.
 data BodyRow = BodyRow B.Attr RowNumber RowHead RowBody
   deriving (Eq, Ord, Read, Show, Typeable, Data, Generic)
 
--- | The row number of a row. Note that rows are numbered continuously
+-- The row number of a row. Note that rows are numbered continuously
 -- from zero from the start of the table, so the first row in a table
 -- body, for instance, may have a large 'RowNumber'.
 newtype RowNumber = RowNumber Int
   deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, Num, Enum)
 
--- | The head of a body row; the portion of the row lying in the stub
+-- The head of a body row; the portion of the row lying in the stub
 -- of the 'TableBody'. Its cells correspond to HTML @\<th\>@ cells.
 type RowHead = [Cell]
 
--- | The body of a body row; the portion of the row lying after the
+-- The body of a body row; the portion of the row lying after the
 -- stub of the 'TableBody'. Its cells correspond to HTML @\<td\>@
 -- cells.
 type RowBody = [Cell]
 
--- | An annotated table cell, wrapping a Pandoc 'B.Cell' with its
+-- An annotated table cell, wrapping a Pandoc 'B.Cell' with its
 -- 'ColNumber' and the 'B.ColSpec' data for the columns that the cell
 -- spans.
 data Cell = Cell (NonEmpty B.ColSpec) ColNumber B.Cell
   deriving (Eq, Ord, Read, Show, Typeable, Data, Generic)
 
--- | The column number of a cell, meaning the column number of the
+-- The column number of a cell, meaning the column number of the
 -- first column that the cell spans, if the table were laid on a
 -- grid. Columns are numbered starting from zero.
 newtype ColNumber = ColNumber Int
   deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, Num, Enum)
 
--- | Convert a Pandoc 'B.Table' to an annotated 'Table'. This function
+-- Convert a Pandoc 'B.Table' to an annotated 'Table'. This function
 -- also performs the same normalization that the 'B.table' builder
 -- does (fixing overlapping cells, cells that protrude out of their
 -- table section, and so on). If the input table happens to satisfy
@@ -135,7 +135,7 @@ toTable attr cap cs th tbs tf = Table attr cap cs th' tbs' tf'
  where
   (th', tbs', tf') = fst $ evalRWS (annotateTable th tbs tf) (cs, length cs) 0
 
--- | Internal monad for annotating a table, passing in the 'B.ColSpec'
+-- Internal monad for annotating a table, passing in the 'B.ColSpec'
 -- data for the table, the grid width, and the current 'RowNumber' to
 -- be referenced or updated.
 type AnnM a = RWS ([B.ColSpec], Int) () RowNumber a
@@ -203,7 +203,7 @@ annotateBodySection (B.RowHeadColumns rhc) rows = do
     normalizeBodySection' headHang' bodyHang' (acc . (annRow :)) rs
   normalizeBodySection' _ _ acc [] = return $ acc []
 
--- | Lay out a section of a 'Table' row on a grid row, annotating the
+-- Lay out a section of a 'Table' row on a grid row, annotating the
 -- cells with the 'B.ColSpec' data for the columns that they
 -- span. Performs the same normalization as 'B.placeRowSection'.
 annotateRowSection
@@ -248,7 +248,7 @@ annotateRowSection !colnum oldHang cells
   getDim (B.Cell _ _ h w _) = (h, w)
   setW w (B.Cell a b h _ c) = B.Cell a b h w c
 
--- | In @'splitCellHang' rs cs coldata@, with @rs@ the height of a
+-- In @'splitCellHang' rs cs coldata@, with @rs@ the height of a
 -- cell that lies at the beginning of @coldata@, and @cs@ its width
 -- (which is not assumed to fit in the available space), return the
 -- actual width of the cell (what will fit in the available space),
@@ -265,7 +265,7 @@ splitCellHang h n = go 0
     let (acc', hang, ls') = go (acc + 1) ls in (acc', (h, spec) : hang, ls')
   go acc l = (acc, [], l)
 
--- | Convert an annotated 'Table' to a Pandoc
+-- Convert an annotated 'Table' to a Pandoc
 -- 'B.Table'. This is the inverse of 'toTable' on
 -- well-formed tables (i.e. tables satisfying the guarantees of
 -- 'B.table').

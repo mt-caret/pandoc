@@ -47,7 +47,7 @@ import Text.Pandoc.XML (html5Attributes, html4Attributes, rdfaAttributes)
 import qualified Data.Set as Set
 import qualified Data.Text as T
 
--- | Whether no tag, the closing tag, or both tags can be omitted.
+-- Whether no tag, the closing tag, or both tags can be omitted.
 data TagOmission
   = TagsRequired       -- ^ Opening and closing tags are both required
   | ClosingTagOptional -- ^ The closing tag can be omitted
@@ -73,7 +73,7 @@ pInTag :: PandocMonad m
        -> TagParser m a
 pInTag tagOmission tagtype = fmap snd . pInTagWithAttribs tagOmission tagtype
 
--- | Returns the contents of a tag together with its attributes; parses
+-- Returns the contents of a tag together with its attributes; parses
 -- @p@, preceded by an opening tag (optional if TagsOmittable) and
 -- followed by a closing tag (optional unless TagsRequired).
 pInTagWithAttribs :: PandocMonad m

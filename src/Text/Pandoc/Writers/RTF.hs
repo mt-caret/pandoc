@@ -35,7 +35,7 @@ import Text.Pandoc.Writers.Math
 import Text.Pandoc.Writers.Shared
 import Text.Printf (printf)
 
--- | Convert Image inlines into a raw RTF embedded image, read from a file,
+-- Convert Image inlines into a raw RTF embedded image, read from a file,
 -- or a MediaBag, or the internet.
 -- If file not found or filetype not jpeg or png, leave the inline unchanged.
 rtfEmbedImage :: PandocMonad m => WriterOptions -> Inline -> m Inline
@@ -83,7 +83,7 @@ rtfEmbedImage opts x@(Image attr _ (src,_)) = catchError
      return x)
 rtfEmbedImage _ x = return x
 
--- | Convert Pandoc to a string in rich text format.
+-- Convert Pandoc to a string in rich text format.
 writeRTF :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeRTF options doc = do
   -- handle images
@@ -119,7 +119,7 @@ writeRTF options doc = do
                         Just (_,'\n') -> body
                         _             -> body <> T.singleton '\n'
 
--- | Convert unicode characters (> 127) into rich text format representation.
+-- Convert unicode characters (> 127) into rich text format representation.
 handleUnicode :: Text -> Text
 handleUnicode = T.concatMap $ \c ->
   if ord c > 127
@@ -136,7 +136,7 @@ handleUnicode = T.concatMap $ \c ->
                        || (0xe000 <= ord x && ord x <= 0xffff) )
     enc x = "\\u" <> tshow (ord x) <> "?"
 
--- | Escape special characters.
+-- Escape special characters.
 escapeSpecial :: Text -> Text
 escapeSpecial t
   | T.all isAlphaNum t = t
@@ -154,15 +154,15 @@ escapeSpecial t
   escChar '\\'    = "\\\\"
   escChar c       = T.singleton c
 
--- | Escape strings as needed for rich text format.
+-- Escape strings as needed for rich text format.
 stringToRTF :: Text -> Text
 stringToRTF = handleUnicode . escapeSpecial
 
--- | Escape things as needed for code block in RTF.
+-- Escape things as needed for code block in RTF.
 codeStringToRTF :: Text -> Text
 codeStringToRTF str = T.intercalate "\\line\n" $ T.lines (stringToRTF str)
 
--- | Make a paragraph with first-line indent, block indent, and space after.
+-- Make a paragraph with first-line indent, block indent, and space after.
 rtfParSpaced :: Int       -- ^ space after (in twips)
              -> Int       -- ^ block indent (in twips)
              -> Int       -- ^ first line indent (relative to block) (in twips)
@@ -179,7 +179,7 @@ rtfParSpaced spaceAfter indent firstLineIndent alignment content =
       "\\f0 \\sa" <> tshow spaceAfter <> " \\li" <> T.pack (show indent) <>
       " \\fi" <> tshow firstLineIndent <> " " <> content <> "\\par}\n"
 
--- | Default paragraph.
+-- Default paragraph.
 rtfPar :: Int       -- ^ block indent (in twips)
        -> Int       -- ^ first line indent (relative to block) (in twips)
        -> Alignment -- ^ alignment
@@ -187,7 +187,7 @@ rtfPar :: Int       -- ^ block indent (in twips)
        -> Text
 rtfPar = rtfParSpaced 180
 
--- | Compact paragraph (e.g. for compact list items).
+-- Compact paragraph (e.g. for compact list items).
 rtfCompact ::  Int       -- ^ block indent (in twips)
            ->  Int       -- ^ first line indent (relative to block) (in twips)
            ->  Alignment -- ^ alignment
@@ -202,13 +202,13 @@ indentIncrement = 720
 listIncrement :: Int
 listIncrement = 360
 
--- | Returns appropriate bullet list marker for indent level.
+-- Returns appropriate bullet list marker for indent level.
 bulletMarker :: Int -> Text
 bulletMarker indent = case indent `mod` 720 of
                              0 -> "\\bullet "
                              _ -> "\\endash "
 
--- | Returns appropriate (list of) ordered list markers for indent level.
+-- Returns appropriate (list of) ordered list markers for indent level.
 orderedMarkers :: Int -> ListAttributes -> [Text]
 orderedMarkers indent (start, style, delim) =
   if style == DefaultStyle && delim == DefaultDelim
@@ -224,7 +224,7 @@ blocksToRTF :: PandocMonad m
             -> m Text
 blocksToRTF indent align = fmap T.concat . mapM (blockToRTF indent align)
 
--- | Convert Pandoc block element to RTF.
+-- Convert Pandoc block element to RTF.
 blockToRTF :: PandocMonad m
            => Int       -- ^ indent level
            -> Alignment -- ^ alignment
@@ -296,12 +296,12 @@ tableItemToRTF indent alignment item = do
   contents <- blocksToRTF indent alignment item
   return $ "{" <> T.replace "\\pard" "\\pard\\intbl" contents <> "\\cell}\n"
 
--- | Ensure that there's the same amount of space after compact
+-- Ensure that there's the same amount of space after compact
 -- lists as after regular lists.
 spaceAtEnd :: Text -> Text
 spaceAtEnd str = maybe str (<> "\\sa180\\par}\n") $ T.stripSuffix "\\par}\n" str
 
--- | Convert list item (list of blocks) to RTF.
+-- Convert list item (list of blocks) to RTF.
 listItemToRTF :: PandocMonad m
               => Alignment  -- ^ alignment
               -> Int        -- ^ indent level
@@ -334,7 +334,7 @@ listItemToRTF alignment indent marker (listFirst:listRest) = do
    -- insert the list marker into the (processed) first block
   return $ insertListMarker first <> T.concat rest
 
--- | Convert definition list item (label, list of blocks) to RTF.
+-- Convert definition list item (label, list of blocks) to RTF.
 definitionListItemToRTF :: PandocMonad m
                         => Alignment          -- ^ alignment
                         -> Int                -- ^ indent level
@@ -345,13 +345,13 @@ definitionListItemToRTF alignment indent (label, defs) = do
   itemsText <- blocksToRTF (indent + listIncrement) alignment (concat defs)
   return $ labelText <> itemsText
 
--- | Convert list of inline items to RTF.
+-- Convert list of inline items to RTF.
 inlinesToRTF :: PandocMonad m
              => [Inline]   -- ^ list of inlines to convert
              -> m Text
 inlinesToRTF lst = T.concat <$> mapM inlineToRTF lst
 
--- | Convert inline item to RTF.
+-- Convert inline item to RTF.
 inlineToRTF :: PandocMonad m
             => Inline         -- ^ inline to convert
             -> m Text

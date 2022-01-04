@@ -26,7 +26,7 @@ import System.FilePath
 
 type MimeType = T.Text
 
--- | Determine mime type appropriate for file path.
+-- Determine mime type appropriate for file path.
 getMimeType :: FilePath -> Maybe MimeType
 getMimeType fp
   -- ODT
@@ -37,7 +37,7 @@ getMimeType fp
   -- generic
   | otherwise = M.lookup (T.toLower $ T.drop 1 $ T.pack $ takeExtension fp) mimeTypes
 
--- | Determime mime type appropriate for file path, defaulting to
+-- Determime mime type appropriate for file path, defaulting to
 -- “application/octet-stream” if nothing else fits.
 getMimeTypeDef :: FilePath -> MimeType
 getMimeTypeDef = fromMaybe "application/octet-stream" . getMimeType
@@ -57,7 +57,7 @@ extensionFromMimeType mimetype =
   M.lookup (T.takeWhile (/=';') mimetype) reverseMimeTypes
   -- note:  we just look up the basic mime type, dropping the content-encoding etc.
 
--- | Determine general media category for file path, e.g.
+-- Determine general media category for file path, e.g.
 --
 -- prop> mediaCategory "foo.jpg" = Just "image"
 mediaCategory :: FilePath -> Maybe T.Text
@@ -69,7 +69,7 @@ reverseMimeTypes = M.fromList $ map swap mimeTypesList
 mimeTypes :: M.Map T.Text MimeType
 mimeTypes = M.fromList mimeTypesList
 
--- | Get the charset from a mime type, if one is present.
+-- Get the charset from a mime type, if one is present.
 getCharset :: MimeType -> Maybe T.Text
 getCharset mt =
   let (_,y) = T.breakOn "charset=" mt
@@ -77,7 +77,7 @@ getCharset mt =
          then Nothing
          else Just $ T.toUpper $ T.takeWhile (/= ';') $ T.drop 8 y
 
--- | Collection of common mime types.
+-- Collection of common mime types.
 -- Except for first entry, list borrowed from
 -- <https://github.com/Happstack/happstack-server/blob/master/src/Happstack/Server/FileServe/BuildingBlocks.hs happstack-server>
 mimeTypesList :: [(T.Text, MimeType)]

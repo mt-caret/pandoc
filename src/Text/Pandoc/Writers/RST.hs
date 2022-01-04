@@ -48,7 +48,7 @@ data WriterState =
 
 type RST = StateT WriterState
 
--- | Convert Pandoc to RST.
+-- Convert Pandoc to RST.
 writeRST :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeRST opts document = do
   let st = WriterState { stNotes = [], stLinks = [],
@@ -57,7 +57,7 @@ writeRST opts document = do
                          stTopLevel = True, stImageId = 1 }
   evalStateT (pandocToRST document) st
 
--- | Return RST representation of document.
+-- Return RST representation of document.
 pandocToRST :: PandocMonad m => Pandoc -> RST m Text
 pandocToRST (Pandoc meta blocks) = do
   opts <- gets stOptions
@@ -101,12 +101,12 @@ pandocToRST (Pandoc meta blocks) = do
     normalizeHeadings lev (b:bs) = b:normalizeHeadings lev bs
     normalizeHeadings _   []     = []
 
--- | Return RST representation of reference key table.
+-- Return RST representation of reference key table.
 refsToRST :: PandocMonad m => Refs -> RST m (Doc Text)
 refsToRST refs =
    vcat <$> mapM keyToRST refs
 
--- | Return RST representation of a reference key.
+-- Return RST representation of a reference key.
 keyToRST :: PandocMonad m => ([Inline], (Text, Text)) -> RST m (Doc Text)
 keyToRST (label, (src, _)) = do
   label' <- inlineListToRST label
@@ -115,26 +115,26 @@ keyToRST (label, (src, _)) = do
                    else label'
   return $ nowrap $ ".. _" <> label'' <> ": " <> literal src
 
--- | Return RST representation of notes.
+-- Return RST representation of notes.
 notesToRST :: PandocMonad m => [[Block]] -> RST m (Doc Text)
 notesToRST notes =
    vsep <$> zipWithM noteToRST [1..] notes
 
--- | Return RST representation of a note.
+-- Return RST representation of a note.
 noteToRST :: PandocMonad m => Int -> [Block] -> RST m (Doc Text)
 noteToRST num note = do
   contents <- blockListToRST note
   let marker = ".. [" <> text (show num) <> "]"
   return $ nowrap $ marker $$ nest 3 contents
 
--- | Return RST representation of picture reference table.
+-- Return RST representation of picture reference table.
 pictRefsToRST :: PandocMonad m
               => [([Inline], (Attr, Text, Text, Maybe Text))]
               -> RST m (Doc Text)
 pictRefsToRST refs =
    vcat <$> mapM pictToRST refs
 
--- | Return RST representation of a picture substitution reference.
+-- Return RST representation of a picture substitution reference.
 pictToRST :: PandocMonad m
           => ([Inline], (Attr, Text, Text, Maybe Text))
           -> RST m (Doc Text)
@@ -157,7 +157,7 @@ pictToRST (label, (attr, src, _, mbtarget)) = do
                  Nothing -> empty
                  Just t  -> "   :target: " <> literal t
 
--- | Escape special characters for RST.
+-- Escape special characters for RST.
 escapeText :: WriterOptions -> Text -> Text
 escapeText o = T.pack . escapeString' True o . T.unpack -- This ought to be parser
   where
@@ -193,7 +193,7 @@ bordered contents c =
    where len = offset contents
          border = literal (T.replicate len $ T.singleton c)
 
--- | Convert Pandoc block element to RST.
+-- Convert Pandoc block element to RST.
 blockToRST :: PandocMonad m
            => Block         -- ^ Block element
            -> RST m (Doc Text)
@@ -360,7 +360,7 @@ blockToRST (DefinitionList items) = do
   -- ensure that sublists have preceding blank line
   return $ blankline $$ vcat contents $$ blankline
 
--- | Convert bullet list item (list of blocks) to RST.
+-- Convert bullet list item (list of blocks) to RST.
 bulletListItemToRST :: PandocMonad m => [Block] -> RST m (Doc Text)
 bulletListItemToRST items = do
   contents <- blockListToRST items
@@ -369,7 +369,7 @@ bulletListItemToRST items = do
          then cr
          else blankline
 
--- | Convert ordered list item (a list of blocks) to RST.
+-- Convert ordered list item (a list of blocks) to RST.
 orderedListItemToRST :: PandocMonad m
                      => Text   -- ^ marker for list item
                      -> [Block]  -- ^ list item (list of blocks)
@@ -382,7 +382,7 @@ orderedListItemToRST marker items = do
          then cr
          else blankline
 
--- | Convert definition list item (label, list of blocks) to RST.
+-- Convert definition list item (label, list of blocks) to RST.
 definitionListItemToRST :: PandocMonad m => ([Inline], [[Block]]) -> RST m (Doc Text)
 definitionListItemToRST (label, defs) = do
   label' <- inlineListToRST label
@@ -392,14 +392,14 @@ definitionListItemToRST (label, defs) = do
          then cr
          else blankline
 
--- | Format a list of lines as line block.
+-- Format a list of lines as line block.
 linesToLineBlock :: PandocMonad m => [[Inline]] -> RST m (Doc Text)
 linesToLineBlock inlineLines = do
   lns <- mapM inlineListToRST inlineLines
   return $
                       vcat (map (hang 2 (literal "| ")) lns) <> blankline
 
--- | Convert list of Pandoc block elements to RST.
+-- Convert list of Pandoc block elements to RST.
 blockListToRST' :: PandocMonad m
                 => Bool
                 -> [Block]       -- ^ List of block elements
@@ -513,7 +513,7 @@ transformInlines =  insertBS .
         isComplex (Span _ (x:_))  = isComplex x
         isComplex _               = False
 
--- | Flattens nested inlines. Extracts nested inlines and goes through
+-- Flattens nested inlines. Extracts nested inlines and goes through
 -- them either collapsing them in the outer inline container or
 -- pulling them out of it
 flatten :: Inline -> [Inline]
@@ -598,12 +598,12 @@ setInlineChildren leaf _            = leaf
 inlineListToRST :: PandocMonad m => [Inline] -> RST m (Doc Text)
 inlineListToRST = writeInlines . walk transformInlines
 
--- | Convert list of Pandoc inline elements to RST.
+-- Convert list of Pandoc inline elements to RST.
 writeInlines :: PandocMonad m => [Inline] -> RST m (Doc Text)
 writeInlines lst =
    hcat <$> mapM inlineToRST lst
 
--- | Convert Pandoc inline element to RST.
+-- Convert Pandoc inline element to RST.
 inlineToRST :: PandocMonad m => Inline -> RST m (Doc Text)
 inlineToRST (Span (_,_,kvs) ils) = do
   contents <- writeInlines ils

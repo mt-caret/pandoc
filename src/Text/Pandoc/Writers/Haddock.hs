@@ -33,13 +33,13 @@ newtype WriterState = WriterState { stNotes :: Notes }
 instance Default WriterState
   where def = WriterState{ stNotes = [] }
 
--- | Convert Pandoc to Haddock.
+-- Convert Pandoc to Haddock.
 writeHaddock :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeHaddock opts document =
   evalStateT (pandocToHaddock opts{
                   writerWrapText = writerWrapText opts } document) def
 
--- | Return haddock representation of document.
+-- Return haddock representation of document.
 pandocToHaddock :: PandocMonad m
                 => WriterOptions -> Pandoc -> StateT WriterState m Text
 pandocToHaddock opts (Pandoc meta blocks) = do
@@ -60,7 +60,7 @@ pandocToHaddock opts (Pandoc meta blocks) = do
           Nothing  -> main
           Just tpl -> renderTemplate tpl context
 
--- | Return haddock representation of notes.
+-- Return haddock representation of notes.
 notesToHaddock :: PandocMonad m
                => WriterOptions -> [[Block]] -> StateT WriterState m (Doc Text)
 notesToHaddock opts notes =
@@ -70,7 +70,7 @@ notesToHaddock opts notes =
        contents <- blockToHaddock opts $ OrderedList (1,DefaultStyle,DefaultDelim) notes
        return $ text "#notes#" <> blankline <> contents
 
--- | Escape special characters for Haddock.
+-- Escape special characters for Haddock.
 escapeString :: Text -> Text
 escapeString t
   | T.all isAlphaNum t = t
@@ -85,7 +85,7 @@ escapeString t
   escChar '<'  = "\\<"
   escChar c    = T.singleton c
 
--- | Convert Pandoc block element to haddock.
+-- Convert Pandoc block element to haddock.
 blockToHaddock :: PandocMonad m
                => WriterOptions -- ^ Options
                -> Block         -- ^ Block element
@@ -150,7 +150,7 @@ blockToHaddock opts (DefinitionList items) = do
   contents <- mapM (definitionListItemToHaddock opts) items
   return $ vcat contents <> blankline
 
--- | Convert bullet list item (list of blocks) to haddock
+-- Convert bullet list item (list of blocks) to haddock
 bulletListItemToHaddock :: PandocMonad m
                         => WriterOptions -> [Block] -> StateT WriterState m (Doc Text)
 bulletListItemToHaddock opts items = do
@@ -162,7 +162,7 @@ bulletListItemToHaddock opts items = do
               then cr
               else blankline
 
--- | Convert ordered list item (a list of blocks) to haddock
+-- Convert ordered list item (a list of blocks) to haddock
 orderedListItemToHaddock :: PandocMonad m
                          => WriterOptions -- ^ options
                          -> Text        -- ^ list item marker
@@ -179,7 +179,7 @@ orderedListItemToHaddock opts marker items = do
               then cr
               else blankline
 
--- | Convert definition list item (label, list of blocks) to haddock
+-- Convert definition list item (label, list of blocks) to haddock
 definitionListItemToHaddock :: PandocMonad m
                             => WriterOptions
                             -> ([Inline],[[Block]])
@@ -194,7 +194,7 @@ definitionListItemToHaddock opts (label, defs) = do
               then cr
               else blankline
 
--- | Convert list of Pandoc block elements to haddock
+-- Convert list of Pandoc block elements to haddock
 blockListToHaddock :: PandocMonad m
                    => WriterOptions -- ^ Options
                    -> [Block]       -- ^ List of block elements
@@ -202,13 +202,13 @@ blockListToHaddock :: PandocMonad m
 blockListToHaddock opts blocks =
   mconcat <$> mapM (blockToHaddock opts) blocks
 
--- | Convert list of Pandoc inline elements to haddock.
+-- Convert list of Pandoc inline elements to haddock.
 inlineListToHaddock :: PandocMonad m
                     => WriterOptions -> [Inline] -> StateT WriterState m (Doc Text)
 inlineListToHaddock opts lst =
   mconcat <$> mapM (inlineToHaddock opts) lst
 
--- | Convert Pandoc inline element to haddock.
+-- Convert Pandoc inline element to haddock.
 inlineToHaddock :: PandocMonad m
                 => WriterOptions -> Inline -> StateT WriterState m (Doc Text)
 inlineToHaddock opts (Span (ident,_,_) ils) = do

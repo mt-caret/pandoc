@@ -34,12 +34,12 @@ import Text.Pandoc.Writers.Shared
 import Text.Pandoc.Writers.Roff
 import Text.Printf (printf)
 
--- | Convert Pandoc to Man.
+-- Convert Pandoc to Man.
 writeMan :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeMan opts document =
   evalStateT (pandocToMan opts document) defaultWriterState
 
--- | Return roff man representation of document.
+-- Return roff man representation of document.
 pandocToMan :: PandocMonad m => WriterOptions -> Pandoc -> StateT WriterState m Text
 pandocToMan opts (Pandoc meta blocks) = do
   let colwidth = if writerWrapText opts == WrapAuto
@@ -83,14 +83,14 @@ pandocToMan opts (Pandoc meta blocks) = do
 escString :: WriterOptions -> Text -> Text
 escString _ = escapeString AsciiOnly -- for better portability
 
--- | Return man representation of notes.
+-- Return man representation of notes.
 notesToMan :: PandocMonad m => WriterOptions -> [[Block]] -> StateT WriterState m (Doc Text)
 notesToMan opts notes =
   if null notes
      then return empty
      else (text ".SH NOTES" $$) . vcat <$> zipWithM (noteToMan opts) [1..] notes
 
--- | Return man representation of a note.
+-- Return man representation of a note.
 noteToMan :: PandocMonad m => WriterOptions -> Int -> [Block] -> StateT WriterState m (Doc Text)
 noteToMan opts num note = do
   contents <- blockListToMan opts note
@@ -101,7 +101,7 @@ noteToMan opts num note = do
 -- line.  roff treats the line-ending period differently.
 -- See http://code.google.com/p/pandoc/issues/detail?id=148.
 
--- | Convert Pandoc block element to man.
+-- Convert Pandoc block element to man.
 blockToMan :: PandocMonad m
            => WriterOptions -- ^ Options
            -> Block         -- ^ Block element
@@ -183,7 +183,7 @@ blockToMan opts (DefinitionList items) = do
   contents <- mapM (definitionListItemToMan opts) items
   return (vcat contents)
 
--- | Convert bullet list item (list of blocks) to man.
+-- Convert bullet list item (list of blocks) to man.
 bulletListItemToMan :: PandocMonad m => WriterOptions -> [Block] -> StateT WriterState m (Doc Text)
 bulletListItemToMan _ [] = return empty
 bulletListItemToMan opts (Para first:rest) =
@@ -201,7 +201,7 @@ bulletListItemToMan opts (first:rest) = do
   rest' <- blockListToMan opts rest
   return $ literal "\\[bu] .RS 2" $$ first' $$ rest' $$ literal ".RE"
 
--- | Convert ordered list item (a list of blocks) to man.
+-- Convert ordered list item (a list of blocks) to man.
 orderedListItemToMan :: PandocMonad m
                      => WriterOptions -- ^ options
                      -> Text   -- ^ order marker for list item
@@ -221,7 +221,7 @@ orderedListItemToMan opts num indent (first:rest) = do
                    else literal ".RS 4" $$ rest' $$ literal ".RE"
   return $ first'' $$ rest''
 
--- | Convert definition list item (label, list of blocks) to man.
+-- Convert definition list item (label, list of blocks) to man.
 definitionListItemToMan :: PandocMonad m
                         => WriterOptions
                         -> ([Inline],[[Block]])
@@ -252,7 +252,7 @@ makeCodeBold = walk go
   where go x@Code{} = Strong [x]
         go x        = x
 
--- | Convert list of Pandoc block elements to man.
+-- Convert list of Pandoc block elements to man.
 blockListToMan :: PandocMonad m
                => WriterOptions -- ^ Options
                -> [Block]       -- ^ List of block elements
@@ -260,11 +260,11 @@ blockListToMan :: PandocMonad m
 blockListToMan opts blocks =
   vcat <$> mapM (blockToMan opts) blocks
 
--- | Convert list of Pandoc inline elements to man.
+-- Convert list of Pandoc inline elements to man.
 inlineListToMan :: PandocMonad m => WriterOptions -> [Inline] -> StateT WriterState m (Doc Text)
 inlineListToMan opts lst = hcat <$> mapM (inlineToMan opts) lst
 
--- | Convert Pandoc inline element to man.
+-- Convert Pandoc inline element to man.
 inlineToMan :: PandocMonad m => WriterOptions -> Inline -> StateT WriterState m (Doc Text)
 inlineToMan opts (Span _ ils) = inlineListToMan opts ils
 inlineToMan opts (Emph lst) =

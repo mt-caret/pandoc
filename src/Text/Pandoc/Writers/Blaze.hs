@@ -122,7 +122,7 @@ toChunks = map toDoc . T.groupBy sameStatus
      (c /= ' ' && d /= ' ' && c /= '\n' && d /= '\n')
 
 
--- | Escape predefined XML entities in a text value
+-- Escape predefined XML entities in a text value
 --
 escapeMarkupEntities :: Text     -- ^ Text to escape
                      -> Text -- ^ Resulting Doc

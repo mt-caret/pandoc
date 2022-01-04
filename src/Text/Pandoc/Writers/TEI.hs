@@ -16,7 +16,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Text.Pandoc.Class.PandocMonad (PandocMonad, report)
 import Text.Pandoc.Definition
-import Text.Pandoc.Highlighting (languages, languagesByExtension)
+-- import Text.Pandoc.Highlighting (languages, languagesByExtension)
 import Text.Pandoc.ImageSize
 import Text.Pandoc.Logging
 import Text.Pandoc.Options
@@ -26,7 +26,7 @@ import Text.Pandoc.Templates (renderTemplate)
 import Text.Pandoc.Writers.Shared
 import Text.Pandoc.XML
 
--- | Convert Pandoc document to string in Docbook format.
+-- Convert Pandoc document to string in Docbook format.
 writeTEI :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeTEI opts (Pandoc meta blocks) = do
   let colwidth = if writerWrapText opts == WrapAuto
@@ -52,23 +52,23 @@ writeTEI opts (Pandoc meta blocks) = do
        Nothing  -> main
        Just tpl -> renderTemplate tpl context
 
--- | Convert a list of Pandoc blocks to TEI.
+-- Convert a list of Pandoc blocks to TEI.
 blocksToTEI :: PandocMonad m => WriterOptions -> [Block] -> m (Doc Text)
 blocksToTEI opts bs = vcat <$> mapM (blockToTEI opts) bs
 
--- | Auxiliary function to convert Plain block to Para.
+-- Auxiliary function to convert Plain block to Para.
 plainToPara :: Block -> Block
 plainToPara (Plain x) = Para x
 plainToPara x         = x
 
--- | Convert a list of pairs of terms and definitions into a TEI
+-- Convert a list of pairs of terms and definitions into a TEI
 -- list with labels and items.
 deflistItemsToTEI :: PandocMonad m
                   => WriterOptions -> [([Inline],[[Block]])] -> m (Doc Text)
 deflistItemsToTEI opts items =
  vcat <$> mapM (uncurry (deflistItemToTEI opts)) items
 
--- | Convert a term and a list of blocks into a TEI varlistentry.
+-- Convert a term and a list of blocks into a TEI varlistentry.
 deflistItemToTEI :: PandocMonad m
                  => WriterOptions -> [Inline] -> [[Block]] -> m (Doc Text)
 deflistItemToTEI opts term defs = do
@@ -77,11 +77,11 @@ deflistItemToTEI opts term defs = do
   return $ inTagsIndented "label" term' $$
            inTagsIndented "item" defs'
 
--- | Convert a list of lists of blocks to a list of TEI list items.
+-- Convert a list of lists of blocks to a list of TEI list items.
 listItemsToTEI :: PandocMonad m => WriterOptions -> [[Block]] -> m (Doc Text)
 listItemsToTEI opts items = vcat <$> mapM (listItemToTEI opts) items
 
--- | Convert a list of blocks into a TEI list item.
+-- Convert a list of blocks into a TEI list item.
 listItemToTEI :: PandocMonad m => WriterOptions -> [Block] -> m (Doc Text)
 listItemToTEI opts item =
   inTagsIndented "item" <$> blocksToTEI opts (map plainToPara item)
@@ -95,7 +95,7 @@ imageToTEI opts attr src = return $ selfClosingTag "graphic" $
                     Just a  -> [(dstr, tshow a)]
                     Nothing -> []
 
--- | Convert a Pandoc block element to TEI.
+-- Convert a Pandoc block element to TEI.
 blockToTEI :: PandocMonad m => WriterOptions -> Block -> m (Doc Text)
 blockToTEI _ Null = return empty
 blockToTEI opts (Div attr@(_,"section":_,_) (Header lvl _ ils : xs)) =
@@ -149,15 +149,15 @@ blockToTEI opts (BlockQuote blocks) =
 blockToTEI opts (CodeBlock (_,classes,_) str) =
   return $ literal ("<ab type='codeblock " <> lang <> "'>") <> cr <>
      flush (literal (escapeStringForXML str) <> cr <> text "</ab>")
-    where lang  = if null langs
-                     then ""
-                     else escapeStringForXML (head langs)
-          syntaxMap = writerSyntaxMap opts
-          isLang l    = T.toLower l `elem` map T.toLower (languages syntaxMap)
-          langsFrom s = if isLang s
-                           then [s]
-                           else (languagesByExtension syntaxMap) . T.toLower $ s
-          langs       = concatMap langsFrom classes
+    where lang  = "" -- if null langs
+                  --    then ""
+                  --    else escapeStringForXML (head langs)
+          -- syntaxMap = writerSyntaxMap opts
+          -- isLang l    = T.toLower l `elem` map T.toLower (languages syntaxMap)
+          -- langsFrom s = if isLang s
+          --                  then [s]
+          --                  else (languagesByExtension syntaxMap) . T.toLower $ s
+          -- langs       = concatMap langsFrom classes
 blockToTEI opts (BulletList lst) = do
   let attribs = [("type", "unordered")]
   inTags True "list" attribs <$> listItemsToTEI opts lst
@@ -192,7 +192,7 @@ blockToTEI _ HorizontalRule = return $
                              ,("type","separator")
                              ,("rendition","line")]
 
--- | TEI Tables
+-- TEI Tables
 -- TEI Simple's tables are composed of cells and rows; other
 -- table info in the AST is here lossily discard.
 blockToTEI opts (Table _ blkCapt specs thead tbody tfoot) = do
@@ -223,11 +223,11 @@ tableItemToTEI :: PandocMonad m
 tableItemToTEI opts item =
   inTags False "cell" [] . vcat <$> mapM (blockToTEI opts) item
 
--- | Convert a list of inline elements to TEI.
+-- Convert a list of inline elements to TEI.
 inlinesToTEI :: PandocMonad m => WriterOptions -> [Inline] -> m (Doc Text)
 inlinesToTEI opts lst = hcat <$> mapM (inlineToTEI opts) lst
 
--- | Convert an inline element to TEI.
+-- Convert an inline element to TEI.
 inlineToTEI :: PandocMonad m => WriterOptions -> Inline -> m (Doc Text)
 inlineToTEI _ (Str str) = return $ literal $ escapeStringForXML str
 inlineToTEI opts (Emph lst) =

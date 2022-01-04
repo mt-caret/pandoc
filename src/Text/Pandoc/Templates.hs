@@ -36,12 +36,12 @@ import qualified Data.Text as T
 import Text.Pandoc.Error
 import System.IO.Error (isDoesNotExistError)
 
--- | Wrap a Monad in this if you want partials to
+-- Wrap a Monad in this if you want partials to
 -- be taken only from the default data files.
 newtype WithDefaultPartials m a = WithDefaultPartials { runWithDefaultPartials :: m a }
  deriving (Functor, Applicative, Monad)
 
--- | Wrap a Monad in this if you want partials to
+-- Wrap a Monad in this if you want partials to
 -- be looked for locally (or, when the main template
 -- is at a URL, via HTTP), falling back to default data files.
 newtype WithPartials m a = WithPartials { runWithPartials :: m a }
@@ -54,7 +54,7 @@ instance PandocMonad m => TemplateMonad (WithDefaultPartials m) where
 instance PandocMonad m => TemplateMonad (WithPartials m) where
   getPartial fp = WithPartials $ getTemplate fp
 
--- | Retrieve text for a template.
+-- Retrieve text for a template.
 getTemplate :: PandocMonad m => FilePath -> m Text
 getTemplate tp = UTF8.toText <$>
   ((do surl <- stSourceURL <$> getCommonState
@@ -76,7 +76,7 @@ getTemplate tp = UTF8.toText <$>
                 readDataFile ("templates" </> takeFileName tp)
              _ -> throwError e))
 
--- | Get default template for the specified writer.
+-- Get default template for the specified writer.
 getDefaultTemplate :: PandocMonad m
                    => Text           -- ^ Name of writer
                    -> m Text
@@ -107,7 +107,7 @@ getDefaultTemplate writer = do
          let fname = "templates" </> "default" <.> T.unpack format
          UTF8.toText <$> readDataFile fname
 
--- | Get and compile default template for the specified writer.
+-- Get and compile default template for the specified writer.
 -- Raise an error on compilation failure.
 compileDefaultTemplate :: PandocMonad m
                        => Text

@@ -95,7 +95,7 @@ hPutStrLn = hPutStrLnWith nativeNewline
 hGetContents :: Handle -> IO Text
 hGetContents = fmap toText . B.hGetContents
 
--- | Convert UTF8-encoded ByteString to Text, also
+-- Convert UTF8-encoded ByteString to Text, also
 -- removing '\\r' characters.
 toText :: B.ByteString -> Text
 toText = T.decodeUtf8 . filterCRs . dropBOM
@@ -105,12 +105,12 @@ toText = T.decodeUtf8 . filterCRs . dropBOM
             else bs
         filterCRs = B.filter (/='\r')
 
--- | Convert UTF8-encoded ByteString to String, also
+-- Convert UTF8-encoded ByteString to String, also
 -- removing '\\r' characters.
 toString :: B.ByteString -> String
 toString = T.unpack . toText
 
--- | Convert UTF8-encoded ByteString to Text, also
+-- Convert UTF8-encoded ByteString to Text, also
 -- removing '\\r' characters.
 toTextLazy :: BL.ByteString -> TL.Text
 toTextLazy = TL.decodeUtf8 . filterCRs . dropBOM
@@ -120,7 +120,7 @@ toTextLazy = TL.decodeUtf8 . filterCRs . dropBOM
             else bs
         filterCRs = BL.filter (/='\r')
 
--- | Convert UTF8-encoded ByteString to String, also
+-- Convert UTF8-encoded ByteString to String, also
 -- removing '\\r' characters.
 toStringLazy :: BL.ByteString -> String
 toStringLazy = TL.unpack . toTextLazy

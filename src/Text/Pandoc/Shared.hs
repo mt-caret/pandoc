@@ -130,7 +130,7 @@ import Text.Pandoc.Generic (bottomUp)
 import Text.DocLayout (charWidth)
 import Text.Pandoc.Walk
 
--- | Version number of pandoc library.
+-- Version number of pandoc library.
 pandocVersion :: T.Text
 pandocVersion = T.pack $ showVersion version
 
@@ -138,14 +138,14 @@ pandocVersion = T.pack $ showVersion version
 -- List processing
 --
 
--- | Split list by groups of one or more sep.
+-- Split list by groups of one or more sep.
 splitBy :: (a -> Bool) -> [a] -> [[a]]
 splitBy _ [] = []
 splitBy isSep lst =
   let (first, rest) = break isSep lst
   in  first:splitBy isSep (dropWhile isSep rest)
 
--- | Split text by groups of one or more separator.
+-- Split text by groups of one or more separator.
 splitTextBy :: (Char -> Bool) -> T.Text -> [T.Text]
 splitTextBy isSep t
   | T.null t = []
@@ -187,22 +187,22 @@ findM p = foldr go (pure Nothing)
 -- Text processing
 --
 
--- | Wrap double quotes around a Text
+-- Wrap double quotes around a Text
 inquotes :: T.Text -> T.Text
 inquotes txt = T.cons '\"' (T.snoc txt '\"')
 
 tshow :: Show a => a -> T.Text
 tshow = T.pack . show
 
--- | @True@ exactly when the @Char@ appears in the @Text@.
+-- @True@ exactly when the @Char@ appears in the @Text@.
 elemText :: Char -> T.Text -> Bool
 elemText c = T.any (== c)
 
--- | @True@ exactly when the @Char@ does not appear in the @Text@.
+-- @True@ exactly when the @Char@ does not appear in the @Text@.
 notElemText :: Char -> T.Text -> Bool
 notElemText c = T.all (/= c)
 
--- | Strip trailing newlines from string.
+-- Strip trailing newlines from string.
 stripTrailingNewlines :: T.Text -> T.Text
 stripTrailingNewlines = T.dropWhileEnd (== '\n')
 
@@ -213,19 +213,19 @@ isWS '\n' = True
 isWS '\t' = True
 isWS _    = False
 
--- | Remove leading and trailing space (including newlines) from string.
+-- Remove leading and trailing space (including newlines) from string.
 trim :: T.Text -> T.Text
 trim = T.dropAround isWS
 
--- | Remove leading space (including newlines) from string.
+-- Remove leading space (including newlines) from string.
 triml :: T.Text -> T.Text
 triml = T.dropWhile isWS
 
--- | Remove trailing space (including newlines) from string.
+-- Remove trailing space (including newlines) from string.
 trimr :: T.Text -> T.Text
 trimr = T.dropWhileEnd isWS
 
--- | Trim leading space and trailing space unless after \.
+-- Trim leading space and trailing space unless after \.
 trimMath :: T.Text -> T.Text
 trimMath = triml . T.reverse . stripBeginSpace . T.reverse -- no Text.spanEnd
   where
@@ -236,7 +236,7 @@ trimMath = triml . T.reverse . stripBeginSpace . T.reverse -- no Text.spanEnd
       where
         (pref, suff) = T.span isWS t
 
--- | Strip leading and trailing characters from string
+-- Strip leading and trailing characters from string
 stripFirstAndLast :: T.Text -> T.Text
 stripFirstAndLast t = case T.uncons t of
   Just (_, t') -> case T.unsnoc t' of
@@ -244,7 +244,7 @@ stripFirstAndLast t = case T.uncons t of
     _             -> t'
   _               -> ""
 
--- | Change CamelCase word to hyphenated lowercase (e.g., camel-case).
+-- Change CamelCase word to hyphenated lowercase (e.g., camel-case).
 camelCaseToHyphenated :: T.Text -> T.Text
 camelCaseToHyphenated = T.pack . camelCaseStrToHyphenated . T.unpack
 
@@ -263,7 +263,7 @@ camelCaseStrToHyphenated (a:b:c:rest)
   , isLower c = toLower a:'-':toLower b:camelCaseStrToHyphenated (c:rest)
 camelCaseStrToHyphenated (a:rest) = toLower a:camelCaseStrToHyphenated rest
 
--- | Convert number < 4000 to uppercase roman numeral.
+-- Convert number < 4000 to uppercase roman numeral.
 toRomanNumeral :: Int -> T.Text
 toRomanNumeral x
   | x >= 4000 || x < 0 = "?"
@@ -282,13 +282,13 @@ toRomanNumeral x
   | x >= 1    = "I" <> toRomanNumeral (x - 1)
   | otherwise = ""
 
--- | Escape whitespace and some punctuation characters in URI.
+-- Escape whitespace and some punctuation characters in URI.
 escapeURI :: T.Text -> T.Text
 escapeURI = T.pack . escapeURIString (not . needsEscaping) . T.unpack
   where needsEscaping c = isSpace c || c `elemText` "<>|\"{}[]^`"
 
 
--- | Convert tabs to spaces. Tabs will be preserved if tab stop is set to 0.
+-- Convert tabs to spaces. Tabs will be preserved if tab stop is set to 0.
 tabFilter :: Int       -- ^ Tab stop
           -> T.Text    -- ^ Input
           -> T.Text
@@ -303,7 +303,7 @@ tabFilter tabStop = T.unlines . map go . T.lines
                        <> go (T.drop 1 s2)
 
 {-# DEPRECATED crFilter "readers filter crs automatically" #-}
--- | Strip out DOS line endings.
+-- Strip out DOS line endings.
 crFilter :: T.Text -> T.Text
 crFilter = T.filter (/= '\r')
 
@@ -311,7 +311,7 @@ crFilter = T.filter (/= '\r')
 -- Date/time
 --
 
--- | Parse a date and convert (if possible) to "YYYY-MM-DD" format. We
+-- Parse a date and convert (if possible) to "YYYY-MM-DD" format. We
 -- limit years to the range 1601-9999 (ISO 8601 accepts greater than
 -- or equal to 1583, but MS Word only accepts dates starting 1601).
 normalizeDate :: T.Text -> Maybe T.Text
@@ -332,7 +332,7 @@ normalizeDate' s = fmap (formatTime defaultTimeLocale "%F")
 -- Pandoc block and inline list processing
 --
 
--- | Generate infinite lazy list of markers for an ordered list,
+-- Generate infinite lazy list of markers for an ordered list,
 -- depending on list attributes.
 orderedListMarkers :: (Int, ListNumberStyle, ListNumberDelim) -> [T.Text]
 orderedListMarkers (start, numstyle, numdelim) =
@@ -354,7 +354,7 @@ orderedListMarkers (start, numstyle, numdelim) =
   in  map inDelim nums
 
 
--- | Extract the leading and trailing spaces from inside an inline element
+-- Extract the leading and trailing spaces from inside an inline element
 -- and place them outside the element.  SoftBreaks count as Spaces for
 -- these purposes.
 extractSpaces :: (Inlines -> Inlines) -> Inlines -> Inlines
@@ -370,7 +370,7 @@ extractSpaces f is =
                     _                -> mempty in
   (left <> f (B.trimInlines . B.Many $ contents) <> right)
 
--- | Extract inlines, removing formatting.
+-- Extract inlines, removing formatting.
 removeFormatting :: Walkable Inline a => a -> [Inline]
 removeFormatting = query go . walk (deNote . deQuote)
   where go :: Inline -> [Inline]
@@ -397,7 +397,7 @@ deQuote (Quoted DoubleQuote xs) =
   Span ("",[],[]) (Str "\8220" : xs ++ [Str "\8221"])
 deQuote x = x
 
--- | Convert pandoc structure to a string with formatting removed.
+-- Convert pandoc structure to a string with formatting removed.
 -- Footnotes are skipped (since we don't want their contents in link
 -- labels).
 stringify :: Walkable Inline a => a -> T.Text
@@ -413,7 +413,7 @@ stringify = query go . walk (deNote . deQuote)
         go LineBreak                                   = " "
         go _                                           = ""
 
--- | Bring all regular text in a pandoc structure to uppercase.
+-- Bring all regular text in a pandoc structure to uppercase.
 --
 -- This function correctly handles cases where a lowercase character doesn't
 -- match to a single uppercase character – e.g. “Straße” would be converted
@@ -424,7 +424,7 @@ capitalize = walk go
         go (Str s) = Str $ T.toUpper s
         go x       = x
 
--- | Change final list item from @Para@ to @Plain@ if the list contains
+-- Change final list item from @Para@ to @Plain@ if the list contains
 -- no other @Para@ blocks.  Otherwise (if the list items contain @Para@
 -- blocks besides possibly at the end), turn any @Plain@s into @Para@s (#5285).
 compactify :: [Blocks]  -- ^ List of list items (each a list of blocks)
@@ -445,7 +445,7 @@ plainToPara (Plain ils) = Para ils
 plainToPara x = x
 
 
--- | Like @compactify@, but acts on items of definition lists.
+-- Like @compactify@, but acts on items of definition lists.
 compactifyDL :: [(Inlines, [Blocks])] -> [(Inlines, [Blocks])]
 compactifyDL items =
   case reverse items of
@@ -459,11 +459,11 @@ compactifyDL items =
         _          -> items
 
 
--- | Combine a list of lines by adding hard linebreaks.
+-- Combine a list of lines by adding hard linebreaks.
 combineLines :: [[Inline]] -> [Inline]
 combineLines = intercalate [LineBreak]
 
--- | Convert a list of lines into a paragraph with hard line breaks. This is
+-- Convert a list of lines into a paragraph with hard line breaks. This is
 --   useful e.g. for rudimentary support of LineBlock elements in writers.
 linesToPara :: [[Inline]] -> Block
 linesToPara = Para . combineLines
@@ -472,7 +472,7 @@ isPara :: Block -> Bool
 isPara (Para _) = True
 isPara _        = False
 
--- | Convert Pandoc inline list to plain text identifier.  HTML
+-- Convert Pandoc inline list to plain text identifier.  HTML
 -- identifiers must start with a letter, and may contain only
 -- letters, digits, and the characters _-.
 inlineListToIdentifier :: Extensions -> [Inline] -> T.Text
@@ -507,7 +507,7 @@ inlineListToIdentifier exts =
     spaceToDash = T.map (\c -> if isSpace c then '-' else c)
 
 
--- | Put a list of Pandoc blocks into a hierarchical structure:
+-- Put a list of Pandoc blocks into a hierarchical structure:
 -- a list of sections (each a Div with class "section" and first
 -- element a Header).  If the 'numbering' parameter is True, Header
 -- numbers are added via the number attribute on the header.
@@ -580,7 +580,7 @@ headerLtEq level (Header l _ _)  = l <= level
 headerLtEq level (Div _ (b:_))   = headerLtEq level b
 headerLtEq _ _                   = False
 
--- | Generate a unique identifier from a list of inlines.
+-- Generate a unique identifier from a list of inlines.
 -- Second argument is a list of already used identifiers.
 uniqueIdent :: Extensions -> [Inline] -> Set.Set T.Text -> T.Text
 uniqueIdent exts title' usedIdents =
@@ -595,12 +595,12 @@ uniqueIdent exts title' usedIdents =
                      x  -> x
     numIdent n = baseIdent <> "-" <> tshow n
 
--- | True if block is a Header block.
+-- True if block is a Header block.
 isHeaderBlock :: Block -> Bool
 isHeaderBlock Header{} = True
 isHeaderBlock _        = False
 
--- | Shift header levels up or down.
+-- Shift header levels up or down.
 headerShift :: Int -> Pandoc -> Pandoc
 headerShift n (Pandoc meta (Header m _ ils : bs))
   | n < 0
@@ -615,7 +615,7 @@ headerShift n (Pandoc meta bs) = Pandoc meta (walk shift bs)
      | otherwise      = Para inner
    shift x            = x
 
--- | Remove empty paragraphs.
+-- Remove empty paragraphs.
 stripEmptyParagraphs :: Pandoc -> Pandoc
 stripEmptyParagraphs = walk go
   where go :: [Block] -> [Block]
@@ -623,7 +623,7 @@ stripEmptyParagraphs = walk go
         isEmptyParagraph (Para []) = True
         isEmptyParagraph _         = False
 
--- | Detect if table rows contain only cells consisting of a single
+-- Detect if table rows contain only cells consisting of a single
 -- paragraph that has no @LineBreak@.
 onlySimpleTableCells :: [[[Block]]] -> Bool
 onlySimpleTableCells = all isSimpleCell . concat
@@ -636,13 +636,13 @@ onlySimpleTableCells = all isSimpleCell . concat
     isLineBreak LineBreak = Any True
     isLineBreak _         = Any False
 
--- | Detect if a list is tight.
+-- Detect if a list is tight.
 isTightList :: [[Block]] -> Bool
 isTightList = all (\item -> firstIsPlain item || null item)
   where firstIsPlain (Plain _ : _) = True
         firstIsPlain _             = False
 
--- | Convert a list item containing tasklist syntax (e.g. @[x]@)
+-- Convert a list item containing tasklist syntax (e.g. @[x]@)
 -- to using @U+2610 BALLOT BOX@ or @U+2612 BALLOT BOX WITH X@.
 taskListItemFromAscii :: Extensions -> [Block] -> [Block]
 taskListItemFromAscii = handleTaskListItem fromMd
@@ -652,7 +652,7 @@ taskListItemFromAscii = handleTaskListItem fromMd
     fromMd (Str "[X]"                 : Space : is) = Str "☒" : Space : is
     fromMd is = is
 
--- | Convert a list item containing text starting with @U+2610 BALLOT BOX@
+-- Convert a list item containing text starting with @U+2610 BALLOT BOX@
 -- or @U+2612 BALLOT BOX WITH X@ to tasklist syntax (e.g. @[x]@).
 taskListItemToAscii :: Extensions -> [Block] -> [Block]
 taskListItemToAscii = handleTaskListItem toMd
@@ -672,7 +672,7 @@ handleTaskListItem handleInlines exts bls =
     handleItem (Para is  : bs) = Para  (handleInlines is) : bs
     handleItem bs = bs
 
--- | Set a field of a 'Meta' object.  If the field already has a value,
+-- Set a field of a 'Meta' object.  If the field already has a value,
 -- convert it into a list with the new value appended to the old value(s).
 addMetaField :: ToMetaValue a
              => T.Text
@@ -686,7 +686,7 @@ addMetaField key val (Meta meta) =
         tolist (MetaList ys) = ys
         tolist y             = [y]
 
--- | Create 'Meta' from old-style title, authors, date.  This is
+-- Create 'Meta' from old-style title, authors, date.  This is
 -- provided to ease the transition from the old API.
 makeMeta :: [Inline] -> [[Inline]] -> [Inline] -> Meta
 makeMeta title authors date =
@@ -694,7 +694,7 @@ makeMeta title authors date =
     $ addMetaField "author" (map B.fromList authors)
     $ addMetaField "date" (B.fromList date) nullMeta
 
--- | Remove soft breaks between East Asian characters.
+-- Remove soft breaks between East Asian characters.
 eastAsianLineBreakFilter :: Pandoc -> Pandoc
 eastAsianLineBreakFilter = bottomUp go
   where go (x:SoftBreak:y:zs)
@@ -708,12 +708,12 @@ eastAsianLineBreakFilter = bottomUp go
         go xs
           = xs
 
--- | Set of HTML elements that are represented as Span with a class equal as
+-- Set of HTML elements that are represented as Span with a class equal as
 -- the element tag itself.
 htmlSpanLikeElements :: Set.Set T.Text
 htmlSpanLikeElements = Set.fromList ["kbd", "mark", "dfn"]
 
--- | Process ipynb output cells.  If mode is Nothing,
+-- Process ipynb output cells.  If mode is Nothing,
 -- remove all output.  If mode is Just format, select
 -- best output for the format.  If format is not ipynb,
 -- strip out ANSI escape sequences from CodeBlocks (see #5633).
@@ -757,7 +757,7 @@ filterIpynbOutput mode = walk go
 -- TagSoup HTML handling
 --
 
--- | Render HTML tags.
+-- Render HTML tags.
 renderTags' :: [Tag T.Text] -> T.Text
 renderTags' = renderTagsOptions
                renderOptions{ optMinimize = matchTags ["hr", "br", "img",
@@ -769,7 +769,7 @@ renderTags' = renderTagsOptions
 -- File handling
 --
 
--- | Perform an IO action in a directory, returning to starting directory.
+-- Perform an IO action in a directory, returning to starting directory.
 inDirectory :: FilePath -> IO a -> IO a
 inDirectory path action = E.bracket
                              getCurrentDirectory
@@ -783,7 +783,7 @@ inDirectory path action = E.bracket
 mapLeft :: (a -> b) -> Either a c -> Either b c
 mapLeft = Bifunctor.first
 
--- | Remove intermediate "." and ".." directories from a path.
+-- Remove intermediate "." and ".." directories from a path.
 --
 -- > collapseFilePath "./foo" == "foo"
 -- > collapseFilePath "/bar/../baz" == "/baz"
@@ -834,7 +834,7 @@ filteredFilesFromArchive zf f =
 -- IANA URIs
 --
 
--- | Schemes from http://www.iana.org/assignments/uri-schemes.html plus
+-- Schemes from http://www.iana.org/assignments/uri-schemes.html plus
 -- the unofficial schemes doi, javascript, isbn, pmid.
 schemes :: Set.Set T.Text
 schemes = Set.fromList
@@ -886,7 +886,7 @@ schemes = Set.fromList
   , "doi", "isbn", "javascript", "pmid"
   ]
 
--- | Check if the string is a valid URL with a IANA or frequently used but
+-- Check if the string is a valid URL with a IANA or frequently used but
 -- unofficial scheme (see @schemes@).
 isURI :: T.Text -> Bool
 isURI = maybe False hasKnownScheme . parseURI . T.unpack
@@ -937,7 +937,7 @@ blocksToInlines' = blocksToInlinesWithSep defaultBlocksSeparator
 blocksToInlines :: [Block] -> [Inline]
 blocksToInlines = B.toList . blocksToInlines'
 
--- | Inline elements used to separate blocks when squashing blocks into
+-- Inline elements used to separate blocks when squashing blocks into
 -- inlines.
 defaultBlocksSeparator :: Inlines
 defaultBlocksSeparator =
@@ -961,7 +961,7 @@ safeStrRead s = case reads s of
 -- User data directory
 --
 
--- | Return appropriate user data directory for platform.  We use
+-- Return appropriate user data directory for platform.  We use
 -- XDG_DATA_HOME (or its default value), but for backwards compatibility,
 -- we fall back to the legacy user data directory ($HOME/.pandoc on *nix)
 -- if the XDG_DATA_HOME is missing and this exists.  If neither directory

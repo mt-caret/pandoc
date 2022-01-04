@@ -42,7 +42,7 @@ data MediaItem =
   , mediaContents :: BL.ByteString
   } deriving (Eq, Ord, Show, Data, Typeable)
 
--- | A container for a collection of binary resources, with names and
+-- A container for a collection of binary resources, with names and
 -- mime types.  Note that a 'MediaBag' is a Monoid, so 'mempty'
 -- can be used for an empty 'MediaBag', and '<>' can be used to append
 -- two 'MediaBag's.
@@ -52,11 +52,11 @@ newtype MediaBag = MediaBag (M.Map Text MediaItem)
 instance Show MediaBag where
   show bag = "MediaBag " ++ show (mediaDirectory bag)
 
--- | We represent paths with /, in normalized form.
+-- We represent paths with /, in normalized form.
 canonicalize :: FilePath -> Text
 canonicalize = T.replace "\\" "/" . T.pack . normalise
 
--- | Delete a media item from a 'MediaBag', or do nothing if no item corresponds
+-- Delete a media item from a 'MediaBag', or do nothing if no item corresponds
 -- to the given path.
 deleteMedia :: FilePath       -- ^ relative path and canonical name of resource
             -> MediaBag
@@ -64,7 +64,7 @@ deleteMedia :: FilePath       -- ^ relative path and canonical name of resource
 deleteMedia fp (MediaBag mediamap) =
   MediaBag $ M.delete (canonicalize fp) mediamap
 
--- | Insert a media item into a 'MediaBag', replacing any existing
+-- Insert a media item into a 'MediaBag', replacing any existing
 -- value with the same name.
 insertMedia :: FilePath       -- ^ relative path and canonical name of resource
             -> Maybe MimeType -- ^ mime type (Nothing = determine from extension)
@@ -93,13 +93,13 @@ insertMedia fp mbMime contents (MediaBag mediamap) =
                 _ -> maybe "" T.unpack $ extensionFromMimeType mt
 
 
--- | Lookup a media item in a 'MediaBag', returning mime type and contents.
+-- Lookup a media item in a 'MediaBag', returning mime type and contents.
 lookupMedia :: FilePath
             -> MediaBag
             -> Maybe MediaItem
 lookupMedia fp (MediaBag mediamap) = M.lookup (canonicalize fp) mediamap
 
--- | Get a list of the file paths stored in a 'MediaBag', with
+-- Get a list of the file paths stored in a 'MediaBag', with
 -- their corresponding mime types and the lengths in bytes of the contents.
 mediaDirectory :: MediaBag -> [(FilePath, MimeType, Int)]
 mediaDirectory mediabag =

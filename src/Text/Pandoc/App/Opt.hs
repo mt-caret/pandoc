@@ -58,7 +58,7 @@ import Data.Aeson.TH (deriveJSON)
 import Control.Applicative ((<|>))
 import Data.Yaml
 
--- | The type of line-endings to be used when writing plain-text.
+-- The type of line-endings to be used when writing plain-text.
 data LineEnding = LF | CRLF | Native deriving (Show, Generic)
 
 -- see https://github.com/jgm/pandoc/pull/4083
@@ -66,7 +66,7 @@ data LineEnding = LF | CRLF | Native deriving (Show, Generic)
 $(deriveJSON
    defaultOptions{ constructorTagModifier = map toLower } ''LineEnding)
 
--- | How to handle output blocks in ipynb.
+-- How to handle output blocks in ipynb.
 data IpynbOutput =
     IpynbOutputAll
   | IpynbOutputNone
@@ -76,7 +76,7 @@ data IpynbOutput =
 $(deriveJSON
    defaultOptions{ fieldLabelModifier = map toLower . drop 11 } ''IpynbOutput)
 
--- | Data structure for command line options.
+-- Data structure for command line options.
 data Opt = Opt
     { optTabStop               :: Int     -- ^ Number of spaces per tab
     , optPreserveTabs          :: Bool    -- ^ Preserve tabs instead of converting to spaces
@@ -292,9 +292,9 @@ resolveVarsInOpt
       Just x  -> return x
   resolveVarsInFilter (JSONFilter fp) =
     JSONFilter <$> resolveVars fp
-  resolveVarsInFilter (LuaFilter fp) =
-    LuaFilter <$> resolveVars fp
-  resolveVarsInFilter CiteprocFilter = return CiteprocFilter
+  -- resolveVarsInFilter (LuaFilter fp) =
+  --   LuaFilter <$> resolveVars fp
+  -- resolveVarsInFilter CiteprocFilter = return CiteprocFilter
 
 
 
@@ -474,11 +474,11 @@ doOpt (k,v) = do
       parseJSON v >>= \x -> return (\o -> o{ optColumns = x })
     "filters" ->
       parseJSON v >>= \x -> return (\o -> o{ optFilters = optFilters o <> x })
-    "citeproc" ->
-      parseJSON v >>= \x ->
-        if x
-           then return (\o -> o{ optFilters = CiteprocFilter : optFilters o })
-           else return id
+    -- "citeproc" ->
+    --   parseJSON v >>= \x ->
+    --     if x
+    --        then return (\o -> o{ optFilters = CiteprocFilter : optFilters o })
+    --        else return id
     "email-obfuscation" ->
       parseJSON v >>= \x -> return (\o -> o{ optEmailObfuscation = x })
     "identifier-prefix" ->
@@ -594,7 +594,7 @@ doOpt (k,v) = do
       parseJSON v >>= \x -> return (\o -> o  { optSandbox = x })
     _ -> fail $ "Unknown option " ++ show k
 
--- | Defaults for command-line options.
+-- Defaults for command-line options.
 defaultOpts :: Opt
 defaultOpts = Opt
     { optTabStop               = 4
@@ -683,7 +683,7 @@ yamlToMeta (Object o) =
       >>= fmap (Meta . flip P.runF def)
 yamlToMeta _ = return mempty
 
--- | Apply defaults from --defaults file.
+-- Apply defaults from --defaults file.
 applyDefaults :: (PandocMonad m, MonadIO m)
               => Opt
               -> FilePath
@@ -710,7 +710,7 @@ fullDefaultsPath dataDir file = do
   let defaultFp = fromMaybe defaultDataDir dataDir </> "defaults" </> fp
   fromMaybe fp <$> findM fileExists [fp, defaultFp]
 
--- | In a list of lists, append another list in front of every list which
+-- In a list of lists, append another list in front of every list which
 -- starts with specific element.
 expand :: Ord a => [[a]] -> [a] -> a -> [[a]]
 expand [] ns n = fmap (\x -> x : [n]) ns

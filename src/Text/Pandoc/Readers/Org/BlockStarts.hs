@@ -28,7 +28,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Text.Pandoc.Readers.Org.Parsing
 
--- | Horizontal Line (five -- dashes or more)
+-- Horizontal Line (five -- dashes or more)
 hline :: Monad m => OrgParser m ()
 hline = try $ do
   skipSpaces
@@ -38,7 +38,7 @@ hline = try $ do
   newline
   return ()
 
--- | Read the start of a header line, return the header level
+-- Read the start of a header line, return the header level
 headerStart :: Monad m => OrgParser m Int
 headerStart = try $
   (length <$> many1 (char '*')) <* many1 (char ' ') <* updateLastPreCharPos
@@ -108,7 +108,7 @@ noteMarker = try $ do
                 <*> many1TillChar (noneOf "\n\r\t ") (char ']')
          ]
 
--- | Succeeds if the parser is at the end of a block.
+-- Succeeds if the parser is at the end of a block.
 endOfBlock :: Monad m => OrgParser m ()
 endOfBlock = lookAhead . try $
   void blankline <|> anyBlockStart

@@ -37,7 +37,7 @@ import Text.Pandoc.Parsing (getOption, updateState, getState, notFollowedBy,
                             manyTill, getInput, setInput, incSourceColumn,
                             option, many1)
 import Data.Char (isDigit)
-import Text.Pandoc.Highlighting (fromListingsLanguage,)
+-- import Text.Pandoc.Highlighting (fromListingsLanguage,)
 import Data.Maybe (maybeToList, fromMaybe)
 import Text.Pandoc.Options (ReaderOptions(..))
 import qualified Data.Text.Normalize as Normalize
@@ -100,10 +100,10 @@ verbTok stopchar = do
          return $ Tok pos toktype t1
 
 listingsLanguage :: [(Text, Text)] -> Maybe Text
-listingsLanguage opts =
-  case lookup "language" opts of
-    Nothing  -> Nothing
-    Just l   -> fromListingsLanguage l `mplus` Just l
+listingsLanguage opts = Nothing
+  -- case lookup "language" opts of
+  --   Nothing  -> Nothing
+  --   Just l   -> fromListingsLanguage l `mplus` Just l
 
 dolstinline :: PandocMonad m => LP m Inlines
 dolstinline = do

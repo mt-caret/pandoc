@@ -51,13 +51,13 @@ newtype WriterState = WriterState {
 
 type XWikiReader m = ReaderT WriterState m
 
--- | Convert Pandoc to XWiki.
+-- Convert Pandoc to XWiki.
 writeXWiki :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeXWiki _ (Pandoc _ blocks) =
   let env = WriterState { listLevel = "" }
   in runReaderT (blockListToXWiki blocks) env
 
--- | Concatenates strings with line breaks between them.
+-- Concatenates strings with line breaks between them.
 vcat :: [Text] -> Text
 vcat = intercalate "\n"
 
@@ -251,7 +251,7 @@ listItemToXWiki contents = do
   return $ marker <> ". " <> Text.strip contents'
 
 
--- | Convert definition list item (label, list of blocks) to MediaWiki.
+-- Convert definition list item (label, list of blocks) to MediaWiki.
 definitionListItemToMediaWiki :: PandocMonad m
                               => ([Inline],[[Block]])
                               -> XWikiReader m Text

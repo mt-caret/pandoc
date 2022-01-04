@@ -37,7 +37,7 @@ import Text.Pandoc.Shared (compactify, compactifyDL, escapeURI)
 
 type T2T = ParserT Sources ParserState (Reader T2TMeta)
 
--- | An object for the T2T macros meta information
+-- An object for the T2T macros meta information
 -- the contents of each field is simply substituted verbatim into the file
 data  T2TMeta = T2TMeta {
                  date    :: Text -- ^ Current date
@@ -49,7 +49,7 @@ data  T2TMeta = T2TMeta {
 instance Default T2TMeta where
     def = T2TMeta "" "" "" ""
 
--- | Get the meta information required by Txt2Tags macros
+-- Get the meta information required by Txt2Tags macros
 getT2TMeta :: PandocMonad m => m T2TMeta
 getT2TMeta = do
     inps <- P.getInputFiles
@@ -67,7 +67,7 @@ getT2TMeta = do
     return $ T2TMeta (T.pack curDate) (T.pack curMtime)
                      (intercalate ", " inps) outp
 
--- | Read Txt2Tags from an input string returning a Pandoc document
+-- Read Txt2Tags from an input string returning a Pandoc document
 readTxt2Tags :: (PandocMonad m, ToSources a)
              => ReaderOptions
              -> a
@@ -81,7 +81,7 @@ readTxt2Tags opts s = do
     Right result -> return result
     Left e       -> throwError e
 
--- | Read Txt2Tags (ignoring all macros) from an input string returning
+-- Read Txt2Tags (ignoring all macros) from an input string returning
 -- a Pandoc document
 -- readTxt2TagsNoMacros :: PandocMonad m => ReaderOptions -> Text -> m Pandoc
 -- readTxt2TagsNoMacros = readTxt2Tags

@@ -35,7 +35,7 @@ import qualified Text.Pandoc.Builder as B
 -- Org headers
 --
 
--- | Parse input as org document tree.
+-- Parse input as org document tree.
 documentTree :: PandocMonad m
              => OrgParser m (F Blocks)
              -> OrgParser m (F Inlines)
@@ -60,34 +60,34 @@ documentTree blocks inline = do
       , headlineChildren = headlines'
       }
 
--- | Create a tag containing the given string.
+-- Create a tag containing the given string.
 toTag :: Text -> Tag
 toTag = Tag
 
--- | The key (also called name or type) of a property.
+-- The key (also called name or type) of a property.
 newtype PropertyKey = PropertyKey { fromKey :: Text }
   deriving (Show, Eq, Ord)
 
--- | Create a property key containing the given string.  Org mode keys are
+-- Create a property key containing the given string.  Org mode keys are
 -- case insensitive and are hence converted to lower case.
 toPropertyKey :: Text -> PropertyKey
 toPropertyKey = PropertyKey . T.toLower
 
--- | The value assigned to a property.
+-- The value assigned to a property.
 newtype PropertyValue = PropertyValue { fromValue :: Text }
 
--- | Create a property value containing the given string.
+-- Create a property value containing the given string.
 toPropertyValue :: Text -> PropertyValue
 toPropertyValue = PropertyValue
 
--- | Check whether the property value is non-nil (i.e. truish).
+-- Check whether the property value is non-nil (i.e. truish).
 isNonNil :: PropertyValue -> Bool
 isNonNil p = T.toLower (fromValue p) `notElem` ["()", "{}", "nil"]
 
--- | Key/value pairs from a PROPERTIES drawer
+-- Key/value pairs from a PROPERTIES drawer
 type Properties = [(PropertyKey, PropertyValue)]
 
--- | Org mode headline (i.e. a document subtree).
+-- Org mode headline (i.e. a document subtree).
 data Headline = Headline
   { headlineLevel      :: Int
   , headlineTodoMarker :: Maybe TodoMarker
@@ -99,7 +99,7 @@ data Headline = Headline
   , headlineChildren   :: [Headline]
   }
 
--- | Read an Org mode headline and its contents (i.e. a document subtree).
+-- Read an Org mode headline and its contents (i.e. a document subtree).
 -- @lvl@ gives the minimum acceptable level of the tree.
 headline :: PandocMonad m
          => OrgParser m (F Blocks)
@@ -177,7 +177,7 @@ unprunedHeadlineToBlocks hdln st =
                                                    (headlineChildren rootNode')
                 return . B.toList $ headlineBlocks
 
--- | Convert an Org mode headline (i.e. a document tree) into pandoc's Blocks
+-- Convert an Org mode headline (i.e. a document tree) into pandoc's Blocks
 headlineToBlocks :: Monad m => Headline -> OrgParser m Blocks
 headlineToBlocks hdln = do
   maxLevel <- getExportSetting exportHeadlineLevels
@@ -228,7 +228,7 @@ headlineContainsExcludeTags hdln st =
 isArchiveTag :: Tag -> Bool
 isArchiveTag = (== toTag "ARCHIVE")
 
--- | Check if the title starts with COMMENT.
+-- Check if the title starts with COMMENT.
 -- FIXME: This accesses builder internals not intended for use in situations
 -- like these.  Replace once keyword parsing is supported.
 isCommentTitle :: Inlines -> Bool
@@ -333,11 +333,11 @@ tagsToInlines tags =
   tagToInline :: Tag -> Inlines
   tagToInline t = tagSpan t . B.smallcaps . B.str $ fromTag t
 
--- | Wrap the given inline in a span, marking it as a tag.
+-- Wrap the given inline in a span, marking it as a tag.
 tagSpan :: Tag -> Inlines -> Inlines
 tagSpan t = B.spanWith ("", ["tag"], [("tag-name", fromTag t)])
 
--- | Render planning info as a block iff the respective export setting is
+-- Render planning info as a block iff the respective export setting is
 -- enabled.
 planningToBlock :: Monad m => PlanningInfo -> OrgParser m Blocks
 planningToBlock planning = do
@@ -358,7 +358,7 @@ planningToBlock planning = do
                   <> B.space
                   <> B.emph (B.str time)
 
--- | An Org timestamp, including repetition marks. TODO: improve
+-- An Org timestamp, including repetition marks. TODO: improve
 type Timestamp = Text
 
 timestamp :: Monad m => OrgParser m Timestamp
@@ -369,7 +369,7 @@ timestamp = try $ do
   content <- many1TillChar anyChar (char closeChar)
   return $ T.cons openChar $ content `T.snoc` closeChar
 
--- | Planning information for a subtree/headline.
+-- Planning information for a subtree/headline.
 data PlanningInfo = PlanningInfo
   { planningClosed :: Maybe Timestamp
   , planningDeadline :: Maybe Timestamp
@@ -379,7 +379,7 @@ data PlanningInfo = PlanningInfo
 emptyPlanning :: PlanningInfo
 emptyPlanning = PlanningInfo Nothing Nothing Nothing
 
--- | Read a single planning-related and timestamped line.
+-- Read a single planning-related and timestamped line.
 planningInfo :: Monad m => OrgParser m PlanningInfo
 planningInfo = try $ do
   updaters <- many1 planningDatum <* skipSpaces <* newline
@@ -392,7 +392,7 @@ planningInfo = try $ do
     ]
   updateWith fn cs = fn <$> (string cs *> char ':' *> skipSpaces *> timestamp)
 
--- | Read a :PROPERTIES: drawer and return the key/value pairs contained
+-- Read a :PROPERTIES: drawer and return the key/value pairs contained
 -- within.
 propertiesDrawer :: Monad m => OrgParser m Properties
 propertiesDrawer = try $ do

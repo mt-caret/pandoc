@@ -27,7 +27,7 @@ import Text.Pandoc.Writers.Markdown (writeMarkdown)
 import Text.Pandoc.Writers.Shared
 import Text.Pandoc.XML
 
--- | Convert Pandoc document to string in OPML format.
+-- Convert Pandoc document to string in OPML format.
 writeOPML :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeOPML opts (Pandoc meta blocks) = do
   let colwidth = if writerWrapText opts == WrapAuto
@@ -62,7 +62,7 @@ convertDate :: [Inline] -> Text
 convertDate ils = maybe "" showDateTimeRFC822 $
   parseTimeM True defaultTimeLocale "%F" . T.unpack =<< normalizeDate (stringify ils)
 
--- | Convert a Block to OPML.
+-- Convert a Block to OPML.
 blockToOPML :: PandocMonad m => WriterOptions -> Block -> m (Doc Text)
 blockToOPML opts (Div (_,"section":_,_) (Header _ _ title : xs)) = do
   let isSect (Div (_,"section":_,_) (Header{}:_)) = True

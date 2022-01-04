@@ -30,8 +30,8 @@ import Text.DocTemplates (FromContext(lookupContext), renderTemplate)
 import Text.Collate.Lang (renderLang)
 import Text.Pandoc.Class.PandocMonad (PandocMonad, report, toLang)
 import Text.Pandoc.Definition
-import Text.Pandoc.Highlighting (formatLaTeXBlock, formatLaTeXInline, highlight,
-                                 styleToLaTeX)
+-- import Text.Pandoc.Highlighting (formatLaTeXBlock, formatLaTeXInline, highlight,
+--                                  styleToLaTeX)
 import Text.Pandoc.ImageSize
 import Text.Pandoc.Logging
 import Text.Pandoc.Options
@@ -52,13 +52,13 @@ import Text.Pandoc.Writers.LaTeX.Util (stringToLaTeX, StringContext(..),
 import Text.Pandoc.Writers.Shared
 import qualified Text.Pandoc.Writers.AnnotatedTable as Ann
 
--- | Convert Pandoc to LaTeX.
+-- Convert Pandoc to LaTeX.
 writeLaTeX :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeLaTeX options document =
   evalStateT (pandocToLaTeX options document) $
     startingState options
 
--- | Convert Pandoc to LaTeX Beamer.
+-- Convert Pandoc to LaTeX Beamer.
 writeBeamer :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeBeamer options document =
   evalStateT (pandocToLaTeX options document) $
@@ -167,13 +167,13 @@ pandocToLaTeX options (Pandoc meta blocks) = do
                   defField "listings" (writerListings options || stLHS st) $
                   defField "zero-width-non-joiner" (stZwnj st) $
                   defField "beamer" beamer $
-                  (if stHighlighting st
-                      then case writerHighlightStyle options of
-                                Just sty ->
-                                   defField "highlighting-macros"
-                                      (T.stripEnd $ styleToLaTeX sty)
-                                Nothing -> id
-                      else id) $
+                  -- (if stHighlighting st
+                  --     then case writerHighlightStyle options of
+                  --               Just sty ->
+                  --                  defField "highlighting-macros"
+                  --                     (T.stripEnd $ styleToLaTeX sty)
+                  --               Nothing -> id
+                  --     else id) $
                   (case writerCiteMethod options of
                          Natbib   -> defField "biblio-title" biblioTitle .
                                      defField "natbib" True .
@@ -249,7 +249,7 @@ isListBlock (OrderedList _ _)  = True
 isListBlock (DefinitionList _) = True
 isListBlock _                  = False
 
--- | Convert Pandoc block element to LaTeX.
+-- Convert Pandoc block element to LaTeX.
 blockToLaTeX :: PandocMonad m
              => Block     -- ^ Block to convert
              -> LW m (Doc Text)
@@ -433,23 +433,23 @@ blockToLaTeX (CodeBlock (identifier,classes,keyvalAttr) str) = do
                       (map literal params))
         return $ flush ("\\begin{lstlisting}" <> printParams $$ literal str $$
                  "\\end{lstlisting}") $$ cr
-  let highlightedCodeBlock =
-        case highlight (writerSyntaxMap opts)
-                 formatLaTeXBlock ("",classes ++ ["default"],keyvalAttr) str of
-               Left msg -> do
-                 unless (T.null msg) $
-                   report $ CouldNotHighlight msg
-                 rawCodeBlock
-               Right h -> do
-                  when inNote $ modify (\s -> s{ stVerbInNote = True })
-                  modify (\s -> s{ stHighlighting = True })
-                  return (flush $ linkAnchor $$ text (T.unpack h))
+  let highlightedCodeBlock = do
+        report $ CouldNotHighlight "highlighting is disabled!!!"
+        rawCodeBlock
+        -- case highlight (writerSyntaxMap opts)
+        --          formatLaTeXBlock ("",classes ++ ["default"],keyvalAttr) str of
+        --        Left msg -> do
+        --          unless (T.null msg) $
+        --            report $ CouldNotHighlight msg
+        --          rawCodeBlock
+        --        Right h -> do
+        --           when inNote $ modify (\s -> s{ stVerbInNote = True })
+        --           modify (\s -> s{ stHighlighting = True })
+        --           return (flush $ linkAnchor $$ text (T.unpack h))
   case () of
      _ | isEnabled Ext_literate_haskell opts && "haskell" `elem` classes &&
          "literate" `elem` classes           -> lhsCodeBlock
        | writerListings opts                 -> listingsCodeBlock
-       | not (null classes) && isJust (writerHighlightStyle opts)
-                                             -> highlightedCodeBlock
        -- we don't want to use \begin{verbatim} if our code
        -- contains \end{verbatim}:
        | inNote
@@ -613,7 +613,7 @@ defListItemToLaTeX (term, defs) = do
      _                       ->
        "\\item" <> brackets term'' $$ def'
 
--- | Craft the section header, inserting the secton reference, if supplied.
+-- Craft the section header, inserting the secton reference, if supplied.
 sectionHeader :: PandocMonad m
               => [Text]  -- classes
               -> Text
@@ -687,7 +687,7 @@ sectionHeader classes ident level lst = do
                                 braces txtNoNotes
                          else empty
 
--- | Convert list of inline elements to LaTeX.
+-- Convert list of inline elements to LaTeX.
 inlineListToLaTeX :: PandocMonad m
                   => [Inline]  -- ^ Inlines to convert
                   -> LW m (Doc Text)
@@ -711,7 +711,7 @@ inlineListToLaTeX lst = hcat <$>
            fixInitialLineBreaks xs
        fixInitialLineBreaks xs = xs
 
--- | Convert inline element to LaTeX
+-- Convert inline element to LaTeX
 inlineToLaTeX :: PandocMonad m
               => Inline    -- ^ Inline to convert
               -> LW m (Doc Text)
@@ -820,19 +820,19 @@ inlineToLaTeX (Code (_,classes,kvs) str) = do
                  $ stringToLaTeX CodeString str
                 where escapeSpaces = T.concatMap
                          (\c -> if c == ' ' then "\\ " else T.singleton c)
-  let highlightCode =
-        case highlight (writerSyntaxMap opts)
-                 formatLaTeXInline ("",classes,[]) str of
-               Left msg -> do
-                 unless (T.null msg) $ report $ CouldNotHighlight msg
-                 rawCode
-               Right h -> modify (\st -> st{ stHighlighting = True }) >>
-                          return (text (T.unpack h))
+  let highlightCode = do
+           report $ CouldNotHighlight "highlighting is disabled!!"
+           rawCode
+        -- case highlight (writerSyntaxMap opts)
+        --          formatLaTeXInline ("",classes,[]) str of
+        --        Left msg -> do
+        --          unless (T.null msg) $ report $ CouldNotHighlight msg
+        --          rawCode
+        --        Right h -> modify (\st -> st{ stHighlighting = True }) >>
+        --                   return (text (T.unpack h))
   case () of
      _ | inHeading || inItem  -> rawCode  -- see #5574
        | writerListings opts  -> listingsCode
-       | isJust (writerHighlightStyle opts) && not (null classes)
-                              -> highlightCode
        | otherwise            -> rawCode
 inlineToLaTeX (Quoted qt lst) = do
   contents <- inlineListToLaTeX lst

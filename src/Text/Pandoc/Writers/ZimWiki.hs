@@ -47,11 +47,11 @@ instance Default WriterState where
 
 type ZW = StateT WriterState
 
--- | Convert Pandoc to ZimWiki.
+-- Convert Pandoc to ZimWiki.
 writeZimWiki :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeZimWiki opts document = evalStateT (pandocToZimWiki opts document) def
 
--- | Return ZimWiki representation of document.
+-- Return ZimWiki representation of document.
 pandocToZimWiki :: PandocMonad m => WriterOptions -> Pandoc -> ZW m Text
 pandocToZimWiki opts (Pandoc meta blocks) = do
   metadata <- metaToContext opts
@@ -67,14 +67,14 @@ pandocToZimWiki opts (Pandoc meta blocks) = do
        Just tpl -> render Nothing $ renderTemplate tpl context
        Nothing  -> main
 
--- | Escape special characters for ZimWiki.
+-- Escape special characters for ZimWiki.
 escapeText :: Text -> Text
 escapeText = T.replace "__" "''__''" .
                T.replace "**" "''**''" .
                T.replace "~~" "''~~''" .
                T.replace "//" "''//''"
 
--- | Convert Pandoc block element to ZimWiki.
+-- Convert Pandoc block element to ZimWiki.
 blockToZimWiki :: PandocMonad m => WriterOptions -> Block -> ZW m Text
 
 blockToZimWiki _ Null = return ""
@@ -221,7 +221,7 @@ cleanupCode = T.replace "<nowiki>" "" . T.replace "</nowiki>" ""
 vcat :: [Text] -> Text
 vcat = T.intercalate "\n"
 
--- | Convert bullet list item (list of blocks) to ZimWiki.
+-- Convert bullet list item (list of blocks) to ZimWiki.
 listItemToZimWiki :: PandocMonad m => WriterOptions -> [Block] -> ZW m Text
 listItemToZimWiki opts items = do
   indent <- gets stIndent
@@ -230,7 +230,7 @@ listItemToZimWiki opts items = do
   modify $ \s -> s{ stIndent = indent }
   return $ indent <> "* " <> contents
 
--- | Convert ordered list item (list of blocks) to ZimWiki.
+-- Convert ordered list item (list of blocks) to ZimWiki.
 orderedListItemToZimWiki :: PandocMonad m
                          => WriterOptions -> Int -> [Block] -> ZW m Text
 orderedListItemToZimWiki opts itemnum items = do
@@ -255,17 +255,17 @@ tableItemToZimWiki opts align' item = do
   modify $ \s -> s { stInTable = False }
   return $ mkcell contents
 
--- | Convert list of Pandoc block elements to ZimWiki.
+-- Convert list of Pandoc block elements to ZimWiki.
 blockListToZimWiki :: PandocMonad m
                    => WriterOptions -> [Block] -> ZW m Text
 blockListToZimWiki opts blocks = vcat <$> mapM (blockToZimWiki opts) blocks
 
--- | Convert list of Pandoc inline elements to ZimWiki.
+-- Convert list of Pandoc inline elements to ZimWiki.
 inlineListToZimWiki :: PandocMonad m
                     => WriterOptions -> [Inline] -> ZW m Text
 inlineListToZimWiki opts lst = T.concat <$> mapM (inlineToZimWiki opts) lst
 
--- | Convert Pandoc inline element to ZimWiki.
+-- Convert Pandoc inline element to ZimWiki.
 inlineToZimWiki :: PandocMonad m
                 => WriterOptions -> Inline -> ZW m Text
 
@@ -324,7 +324,7 @@ inlineToZimWiki _ (Math mathType str) = return $ delim <> str <> delim   -- note
                      DisplayMath -> "$$"
                      InlineMath  -> "$"
 
--- | f == Format "html"     = return $ "<html>" <> str <> "</html>"
+-- f == Format "html"     = return $ "<html>" <> str <> "</html>"
 inlineToZimWiki opts il@(RawInline f str)
   | f == Format "zimwiki" = return str
   | f == Format "html"    = indentFromHTML opts str

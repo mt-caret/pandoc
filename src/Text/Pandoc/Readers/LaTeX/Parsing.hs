@@ -589,7 +589,7 @@ doMacros' n inp =
                    ExpandWhenUsed    -> doMacros' (n' + 1) result
                    ExpandWhenDefined -> return result
 
--- | Certain macros do low-level tex manipulations that can't
+-- Certain macros do low-level tex manipulations that can't
 -- be represented in our Macro type, so we handle them here.
 trySpecialMacro :: PandocMonad m => Text -> [Tok] -> LP m [Tok]
 trySpecialMacro "xspace" ts = do

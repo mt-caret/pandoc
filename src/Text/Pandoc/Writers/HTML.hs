@@ -44,8 +44,8 @@ import Text.Blaze.Internal (MarkupM (Empty), customLeaf, customParent)
 import Text.DocTemplates (FromContext (lookupContext), Context (..))
 import Text.Blaze.Html hiding (contents)
 import Text.Pandoc.Definition
-import Text.Pandoc.Highlighting (formatHtmlBlock, formatHtmlInline, highlight,
-                                 styleToCss)
+-- import Text.Pandoc.Highlighting (formatHtmlBlock, formatHtmlInline, highlight,
+--                                  styleToCss)
 import Text.Pandoc.ImageSize
 import Text.Pandoc.Options
 import Text.Pandoc.Shared
@@ -72,9 +72,9 @@ import Text.Pandoc.Logging
 import Text.Pandoc.MIME (mediaCategory)
 import Text.Pandoc.Writers.Blaze (layoutMarkup)
 import Text.TeXMath
-import Text.XML.Light (elChildren, unode, unqual)
-import qualified Text.XML.Light as XML
-import Text.XML.Light.Output
+-- import Text.XML.Light (elChildren, unode, unqual)
+-- import qualified Text.XML.Light as XML
+-- import Text.XML.Light.Output
 import Data.String (fromString)
 
 data WriterState = WriterState
@@ -131,29 +131,29 @@ needsVariationSelector '↩' = True
 needsVariationSelector '↔' = True
 needsVariationSelector _   = False
 
--- | Hard linebreak.
+-- Hard linebreak.
 nl :: Html
 nl = preEscapedString "\n"
 
--- | Convert Pandoc document to Html 5 string.
+-- Convert Pandoc document to Html 5 string.
 writeHtml5String :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeHtml5String = writeHtmlString'
                       defaultWriterState{ stHtml5 = True }
 
--- | Convert Pandoc document to Html 5 structure.
+-- Convert Pandoc document to Html 5 structure.
 writeHtml5 :: PandocMonad m => WriterOptions -> Pandoc -> m Html
 writeHtml5 = writeHtml' defaultWriterState{ stHtml5 = True }
 
--- | Convert Pandoc document to Html 4 string.
+-- Convert Pandoc document to Html 4 string.
 writeHtml4String :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeHtml4String = writeHtmlString'
                       defaultWriterState{ stHtml5 = False }
 
--- | Convert Pandoc document to Html 4 structure.
+-- Convert Pandoc document to Html 4 structure.
 writeHtml4 :: PandocMonad m => WriterOptions -> Pandoc -> m Html
 writeHtml4 = writeHtml' defaultWriterState{ stHtml5 = False }
 
--- | Convert Pandoc document to Html appropriate for an epub version.
+-- Convert Pandoc document to Html appropriate for an epub version.
 writeHtmlStringForEPUB :: PandocMonad m
                        => EPUBVersion -> WriterOptions -> Pandoc
                        -> m Text
@@ -162,27 +162,27 @@ writeHtmlStringForEPUB version o = writeHtmlString'
                                           stEPUBVersion = Just version }
                       o{ writerWrapText = WrapNone }
 
--- | Convert Pandoc document to Reveal JS HTML slide show.
+-- Convert Pandoc document to Reveal JS HTML slide show.
 writeRevealJs :: PandocMonad m
               => WriterOptions -> Pandoc -> m Text
 writeRevealJs = writeHtmlSlideShow' RevealJsSlides
 
--- | Convert Pandoc document to S5 HTML slide show.
+-- Convert Pandoc document to S5 HTML slide show.
 writeS5 :: PandocMonad m
         => WriterOptions -> Pandoc -> m Text
 writeS5 = writeHtmlSlideShow' S5Slides
 
--- | Convert Pandoc document to Slidy HTML slide show.
+-- Convert Pandoc document to Slidy HTML slide show.
 writeSlidy :: PandocMonad m
            => WriterOptions -> Pandoc -> m Text
 writeSlidy = writeHtmlSlideShow' SlidySlides
 
--- | Convert Pandoc document to Slideous HTML slide show.
+-- Convert Pandoc document to Slideous HTML slide show.
 writeSlideous :: PandocMonad m
               => WriterOptions -> Pandoc -> m Text
 writeSlideous = writeHtmlSlideShow' SlideousSlides
 
--- | Convert Pandoc document to DZSlides HTML slide show.
+-- Convert Pandoc document to DZSlides HTML slide show.
 writeDZSlides :: PandocMonad m
               => WriterOptions -> Pandoc -> m Text
 writeDZSlides = writeHtmlSlideShow' DZSlides
@@ -337,12 +337,12 @@ pandocToHtml opts (Pandoc meta blocks) = do
                     Nothing -> mempty
   let mCss :: Maybe [Text] = lookupContext "css" metadata
   let context :: Context Text
-      context =   (if stHighlighting st
-                      then case writerHighlightStyle opts of
-                                Just sty -> defField "highlighting-css"
-                                            (literal $ T.pack $ styleToCss sty)
-                                Nothing  -> id
-                      else id) .
+      context =   -- (if stHighlighting st
+                  --     then case writerHighlightStyle opts of
+                  --               Just sty -> defField "highlighting-css"
+                  --                           (literal $ T.pack $ styleToCss sty)
+                  --               Nothing  -> id
+                  --     else id) .
                   (if stCsl st
                       then defField "csl-css" True .
                            (case stCslEntrySpacing st of
@@ -435,7 +435,7 @@ pandocToHtml opts (Pandoc meta blocks) = do
                   metadata
   return (thebody, context)
 
--- | Like Text.XHtml's identifier, but adds the writerIdentifierPrefix
+-- Like Text.XHtml's identifier, but adds the writerIdentifierPrefix
 prefixedId :: WriterOptions -> Text -> Attribute
 prefixedId opts s =
   case s of
@@ -493,7 +493,7 @@ listItemToHtml opts bls
       bsContents <- blockListToHtml opts bs
       return $ constr (checkbox >> isContents) >> bsContents
 
--- | Construct table of contents from list of elements.
+-- Construct table of contents from list of elements.
 tableOfContents :: PandocMonad m => WriterOptions -> [Block]
                 -> StateT WriterState m (Maybe Html)
 tableOfContents _ [] = return Nothing
@@ -509,7 +509,7 @@ tableOfContents opts sects = do
     bl@(BulletList (_:_)) -> Just <$> blockToHtml opts' bl
     _                     -> return Nothing
 
--- | Convert list of Note blocks to a footnote <div>.
+-- Convert list of Note blocks to a footnote <div>.
 -- Assumes notes are sorted.
 footnoteSection ::
   PandocMonad m => ReferenceLocation -> Int -> [Html] -> StateT WriterState m Html
@@ -551,7 +551,7 @@ footnoteSection refLocation startCounter notes = do
                          mconcat notes >> nl
            nl
 
--- | Parse a mailto link; return Just (name, domain) or Nothing.
+-- Parse a mailto link; return Just (name, domain) or Nothing.
 parseMailto :: Text -> Maybe (Text, Text)
 parseMailto s =
   case T.break (==':') s of
@@ -561,7 +561,7 @@ parseMailto s =
          return (name', domain)
        _ -> Prelude.fail "not a mailto: URL"
 
--- | Obfuscate a "mailto:" link.
+-- Obfuscate a "mailto:" link.
 obfuscateLink :: PandocMonad m
               => WriterOptions -> Attr -> Html -> Text
               -> StateT WriterState m Html
@@ -600,18 +600,18 @@ obfuscateLink opts attr (TL.toStrict . renderHtml -> txt) s =
                 _ -> throwError $ PandocSomeError $ "Unknown obfuscation method: " <> tshow meth
         _ -> addAttrs opts attr $ H.a ! A.href (toValue s) $ toHtml txt  -- malformed email
 
--- | Obfuscate character as entity.
+-- Obfuscate character as entity.
 obfuscateChar :: Char -> Text
 obfuscateChar char =
   let num    = ord char
       numstr = if even num then show num else "x" <> showHex num ""
   in  "&#" <> T.pack numstr <> ";"
 
--- | Obfuscate string using entities.
+-- Obfuscate string using entities.
 obfuscateString :: Text -> Text
 obfuscateString = T.concatMap obfuscateChar . fromEntities
 
--- | Create HTML tag with attributes.
+-- Create HTML tag with attributes.
 tagWithAttributes :: WriterOptions
                   -> Bool -- ^ True for HTML5
                   -> Bool -- ^ True if self-closing tag
@@ -933,10 +933,10 @@ blockToHtmlInner opts (CodeBlock (id',classes,keyvals) rawCode) = do
       adjCode  = if tolhs
                     then T.unlines . map ("> " <>) . T.lines $ rawCode
                     else rawCode
-      hlCode   = if isJust (writerHighlightStyle opts)
-                    then highlight (writerSyntaxMap opts) formatHtmlBlock
-                            (id'',classes',keyvals) adjCode
-                    else Left ""
+      hlCode   = Left "" -- if isJust (writerHighlightStyle opts)
+                 --    then highlight (writerSyntaxMap opts) formatHtmlBlock
+                 --            (id'',classes',keyvals) adjCode
+                 --    else Left ""
   case hlCode of
          Left msg -> do
            unless (T.null msg) $
@@ -1031,7 +1031,7 @@ blockToHtmlInner opts (DefinitionList lst) = do
 blockToHtmlInner opts (Table attr caption colspecs thead tbody tfoot) =
   tableToHtml opts (Ann.toTable attr caption colspecs thead tbody tfoot)
 
--- | Convert Pandoc block element to HTML. All the legwork is done by
+-- Convert Pandoc block element to HTML. All the legwork is done by
 -- 'blockToHtmlInner', this just takes care of emitting the notes after
 -- the block if necessary.
 blockToHtml :: PandocMonad m => WriterOptions -> Block -> StateT WriterState m Html
@@ -1151,7 +1151,7 @@ tablePartToHtml opts tblpart attr rows =
     isEmptyCell (Ann.Cell _colspecs _colnum cell) =
       cell == Cell nullAttr AlignDefault (RowSpan 1) (ColSpan 1) []
 
--- | The part of a table; header, footer, or body.
+-- The part of a table; header, footer, or body.
 data TablePart = Thead | Tfoot | Tbody
   deriving (Eq)
 
@@ -1313,25 +1313,25 @@ blockListToHtml opts lst =
   where nonempty (Empty _) = False
         nonempty _         = True
 
--- | Convert list of Pandoc inline elements to HTML.
+-- Convert list of Pandoc inline elements to HTML.
 inlineListToHtml :: PandocMonad m => WriterOptions -> [Inline] -> StateT WriterState m Html
 inlineListToHtml opts lst = mconcat <$> mapM (inlineToHtml opts) lst
 
--- | Annotates a MathML expression with the tex source
-annotateMML :: XML.Element -> Text -> XML.Element
-annotateMML e tex = math (unode "semantics" [cs, unode "annotation" (annotAttrs, T.unpack tex)])
-  where
-    cs = case elChildren e of
-          []  -> unode "mrow" ()
-          [x] -> x
-          xs  -> unode "mrow" xs
-    math childs = XML.Element q as [XML.Elem childs] l
-      where
-        (XML.Element q as _ l) = e
-    annotAttrs = [XML.Attr (unqual "encoding") "application/x-tex"]
+-- Annotates a MathML expression with the tex source
+-- annotateMML :: XML.Element -> Text -> XML.Element
+-- annotateMML e tex = math (unode "semantics" [cs, unode "annotation" (annotAttrs, T.unpack tex)])
+--   where
+--     cs = case elChildren e of
+--           []  -> unode "mrow" ()
+--           [x] -> x
+--           xs  -> unode "mrow" xs
+--     math childs = XML.Element q as [XML.Elem childs] l
+--       where
+--         (XML.Element q as _ l) = e
+--     annotAttrs = [XML.Attr (unqual "encoding") "application/x-tex"]
 
 
--- | Convert Pandoc inline element to HTML.
+-- Convert Pandoc inline element to HTML.
 inlineToHtml :: PandocMonad m
              => WriterOptions -> Inline -> StateT WriterState m Html
 inlineToHtml opts inline = do
@@ -1396,11 +1396,11 @@ inlineToHtml opts inline = do
                                modify $ \st -> st{ stHighlighting = True }
                                addAttrs opts (ids,[],kvs) $
                                  fromMaybe id sampOrVar h
-                        where hlCode = if isJust (writerHighlightStyle opts)
-                                          then highlight
-                                                 (writerSyntaxMap opts)
-                                                 formatHtmlInline attr str
-                                          else Left ""
+                        where hlCode = Left "" -- if isJust (writerHighlightStyle opts)
+                                       --    then highlight
+                                       --           (writerSyntaxMap opts)
+                                       --           formatHtmlInline attr str
+                                       --    else Left ""
                               (sampOrVar,cs')
                                 | "sample" `elem` cs =
                                       (Just H.samp,"sample" `delete` cs)
@@ -1454,15 +1454,15 @@ inlineToHtml opts inline = do
                     (toValue $ if t == InlineMath
                                   then ("math" :: Text)
                                   else "displaymath") $ strToHtml str
-           MathML -> do
-              let conf = useShortEmptyTags (const False)
-                           defaultConfigPP
-              res <- lift $ convertMath writeMathML t str
-              case res of
-                    Right r  -> return $ preEscapedString $
-                        ppcElement conf (annotateMML r str)
-                    Left il  -> (H.span ! A.class_ mathClass) <$>
-                                   inlineToHtml opts il
+           MathML -> undefined -- do
+              -- let conf = useShortEmptyTags (const False)
+              --              defaultConfigPP
+              -- res <- lift $ convertMath writeMathML t str
+              -- case res of
+              --       Right r  -> return $ preEscapedString $
+              --           ppcElement conf (annotateMML r str)
+              --       Left il  -> (H.span ! A.class_ mathClass) <$>
+              --                      inlineToHtml opts il
            MathJax _ -> return $ H.span ! A.class_ mathClass $ toHtml $
               case t of
                 InlineMath  -> "\\(" <> str <> "\\)"
@@ -1662,7 +1662,7 @@ allowsRef :: HTMLMathMethod -> Bool
 allowsRef (MathJax _) = True
 allowsRef _           = False
 
--- | List of intrinsic event attributes allowed on all elements in HTML4.
+-- List of intrinsic event attributes allowed on all elements in HTML4.
 intrinsicEventsHTML4 :: [Text]
 intrinsicEventsHTML4 =
   [ "onclick", "ondblclick", "onmousedown", "onmouseup", "onmouseover"

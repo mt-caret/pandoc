@@ -22,7 +22,7 @@ import Text.Pandoc.Sources (ToSources(..), ensureFinalNewlines)
 import Control.Monad.Except (throwError)
 import Control.Monad.Reader (runReaderT)
 
--- | Parse org-mode string and return a Pandoc document.
+-- Parse org-mode string and return a Pandoc document.
 readOrg :: (PandocMonad m, ToSources a)
         => ReaderOptions -- ^ Reader options
         -> a

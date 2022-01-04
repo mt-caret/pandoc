@@ -80,7 +80,7 @@ addToNotesTable note = do
   oldnotes <- orgStateNotes' <$> getState
   updateState $ \s -> s{ orgStateNotes' = note:oldnotes }
 
--- | Parse a single Org-mode inline element
+-- Parse a single Org-mode inline element
 inline :: PandocMonad m => OrgParser m (F Inlines)
 inline =
   choice [ whitespace
@@ -107,7 +107,7 @@ inline =
          ] <* (guard =<< newlinesCountWithinLimits)
   <?> "inline"
 
--- | Read the rest of the input as inlines.
+-- Read the rest of the input as inlines.
 inlines :: PandocMonad m => OrgParser m (F Inlines)
 inlines = trimInlinesF . mconcat <$> many1 inline
 
@@ -129,7 +129,7 @@ str :: PandocMonad m => OrgParser m (F Inlines)
 str = return . B.str <$> many1Char (noneOf $ specialChars ++ "\n\r ")
       <* updateLastStrPos
 
--- | An endline character that can be treated as a space, not a structural
+-- An endline character that can be treated as a space, not a structural
 -- break.  This should reflect the values of the Emacs variable
 -- @org-element-pagaraph-separate@.
 endline :: PandocMonad m => OrgParser m (F Inlines)
@@ -150,7 +150,7 @@ endline = try $ do
 -- We first try to parse official org-cite citations, then fall
 -- back to org-ref citations (which are still in wide use).
 
--- | A citation in org-cite style
+-- A citation in org-cite style
 orgCite :: PandocMonad m => OrgParser m (F [Citation])
 orgCite = try $ do
   string "[cite"
@@ -332,7 +332,7 @@ normalOrgRefCite = try $ do
   moreCitations <- many (try $ char ',' *> orgRefCiteList mode)
   return . sequence $ firstCitation : moreCitations
  where
-  -- | A list of org-ref style citation keys, parsed as citation of the given
+  -- A list of org-ref style citation keys, parsed as citation of the given
   -- citation mode.
   orgRefCiteList :: PandocMonad m => CitationMode -> OrgParser m (F Citation)
   orgRefCiteList citeMode = try $ do
@@ -346,7 +346,7 @@ normalOrgRefCite = try $ do
      , citationHash    = 0
      }
 
--- | Read a link-like org-ref style citation.  The citation includes pre and
+-- Read a link-like org-ref style citation.  The citation includes pre and
 -- post text.  However, multiple citations are not possible due to limitations
 -- in the syntax.
 linkLikeOrgRefCite :: PandocMonad m => OrgParser m (F Citation)
@@ -370,7 +370,7 @@ linkLikeOrgRefCite = try $ do
       , citationHash    = 0
       }
 
--- | Read a citation key.  The characters allowed in citation keys are taken
+-- Read a citation key.  The characters allowed in citation keys are taken
 -- from the `org-ref-cite-re` variable in `org-ref.el`.
 orgRefCiteKey :: PandocMonad m => OrgParser m Text
 orgRefCiteKey =
@@ -383,7 +383,7 @@ orgRefCiteKey =
   in try $ satisfy isCiteKeyChar `many1TillChar` lookAhead endOfCitation
 
 
--- | Supported citation types.  Only a small subset of org-ref types is
+-- Supported citation types.  Only a small subset of org-ref types is
 -- supported for now.  TODO: rewrite this, use LaTeX reader as template.
 orgRefCiteMode :: PandocMonad m => OrgParser m CitationMode
 orgRefCiteMode =
@@ -483,7 +483,7 @@ applyCustomLinkFormat link = do
     formatter <- M.lookup linkType <$> asksF orgStateLinkFormatters
     return $ maybe link ($ T.drop 1 rest) formatter
 
--- | Take a link and return a function which produces new inlines when given
+-- Take a link and return a function which produces new inlines when given
 -- description inlines.
 linkToInlinesF :: Text -> Inlines -> F Inlines
 linkToInlinesF linkStr =
@@ -502,7 +502,7 @@ internalLink link title = do
     else let attr' = ("", ["spurious-link"] , [("target", link)])
          in return $ B.spanWith attr' (B.emph title)
 
--- | Parse an anchor like @<<anchor-id>>@ and return an empty span with
+-- Parse an anchor like @<<anchor-id>>@ and return an empty span with
 -- @anchor-id@ set as id.  Legal anchors in org-mode are defined through
 -- @org-target-regexp@, which is fairly liberal.  Since no link is created if
 -- @anchor-id@ contains spaces, we are more restrictive in what is accepted as
@@ -518,7 +518,7 @@ anchor =  try $ do
                      <* string ">>"
                      <* skipSpaces
 
--- | Replace every char but [a-zA-Z0-9_.-:] with a hyphen '-'.  This mirrors
+-- Replace every char but [a-zA-Z0-9_.-:] with a hyphen '-'.  This mirrors
 -- the org function @org-export-solidify-link-text@.
 solidify :: Text -> Text
 solidify = T.map replaceSpecialChar
@@ -527,7 +527,7 @@ solidify = T.map replaceSpecialChar
            | c `elem` ("_.-:" :: String) = c
            | otherwise       = '-'
 
--- | Parses an inline code block and marks it as an babel block.
+-- Parses an inline code block and marks it as an babel block.
 inlineCodeBlock :: PandocMonad m => OrgParser m (F Inlines)
 inlineCodeBlock = try $ do
   string "src_"
@@ -646,7 +646,7 @@ verbatimBetween c = try $
  where
    verbatimChar = noneOf "\n\r" >>= updatePositions
 
--- | Parses a raw string delimited by @c@ using Org's math rules
+-- Parses a raw string delimited by @c@ using Org's math rules
 mathTextBetween :: PandocMonad m
                   => Char
                   -> OrgParser m Text
@@ -658,7 +658,7 @@ mathTextBetween c = try $ do
   final <- mathEnd c
   return $ T.snoc body final
 
--- | Parse a single character between @c@ using math rules
+-- Parse a single character between @c@ using math rules
 math1CharBetween :: PandocMonad m
                  => Char
                 -> OrgParser m Text
@@ -675,7 +675,7 @@ rawMathBetween :: PandocMonad m
                -> OrgParser m Text
 rawMathBetween s e = try $ textStr s *> manyTillChar anyChar (try $ textStr e)
 
--- | Parses the start (opening character) of emphasis
+-- Parses the start (opening character) of emphasis
 emphasisStart :: PandocMonad m => Char -> OrgParser m Char
 emphasisStart c = try $ do
   guard =<< afterEmphasisPreChar
@@ -688,7 +688,7 @@ emphasisStart c = try $ do
   updateLastPreCharPos
   return c
 
--- | Parses the closing character of emphasis
+-- Parses the closing character of emphasis
 emphasisEnd :: PandocMonad m => Char -> OrgParser m Char
 emphasisEnd c = try $ do
   guard =<< notAfterForbiddenBorderChar
@@ -729,7 +729,7 @@ enclosedRaw start end = try $
        spanningTwoLines = try $
          anyLine >>= \f -> mappend (f <> " ") <$> onSingleLine
 
--- | Like many1Till, but parses at most @n+1@ lines.  @p@ must not consume
+-- Like many1Till, but parses at most @n+1@ lines.  @p@ must not consume
 --   newlines.
 many1TillNOrLessNewlines :: PandocMonad m => Int
                          -> OrgParser m Char
@@ -752,43 +752,43 @@ many1TillNOrLessNewlines n p end = try $
 -- here (see, e.g., the Emacs Lisp variable `org-emphasis-regexp-components`
 -- for details).
 
--- | Chars not allowed at the (inner) border of emphasis
+-- Chars not allowed at the (inner) border of emphasis
 emphasisForbiddenBorderChars :: [Char]
 emphasisForbiddenBorderChars = "\t\n\r "
 
--- | The maximum number of newlines within
+-- The maximum number of newlines within
 emphasisAllowedNewlines :: Int
 emphasisAllowedNewlines = 1
 
 -- LaTeX-style math: see `org-latex-regexps` for details
 
--- | Chars allowed after an inline ($...$) math statement
+-- Chars allowed after an inline ($...$) math statement
 mathPostChars :: [Char]
 mathPostChars = "\t\n \"'),-.:;?"
 
--- | Chars not allowed at the (inner) border of math
+-- Chars not allowed at the (inner) border of math
 mathForbiddenBorderChars :: [Char]
 mathForbiddenBorderChars = "\t\n\r ,;.$"
 
--- | Maximum number of newlines in an inline math statement
+-- Maximum number of newlines in an inline math statement
 mathAllowedNewlines :: Int
 mathAllowedNewlines = 2
 
--- | Whether we are right behind a char allowed before emphasis
+-- Whether we are right behind a char allowed before emphasis
 afterEmphasisPreChar :: PandocMonad m => OrgParser m Bool
 afterEmphasisPreChar = do
   pos <- getPosition
   lastPrePos <- orgStateLastPreCharPos <$> getState
   return $ maybe True (== pos) lastPrePos
 
--- | Whether the parser is right after a forbidden border char
+-- Whether the parser is right after a forbidden border char
 notAfterForbiddenBorderChar :: PandocMonad m => OrgParser m Bool
 notAfterForbiddenBorderChar = do
   pos <- getPosition
   lastFBCPos <- orgStateLastForbiddenCharPos <$> getState
   return $ lastFBCPos /= Just pos
 
--- | Read a sub- or superscript expression
+-- Read a sub- or superscript expression
 subOrSuperExpr :: PandocMonad m => OrgParser m (F Inlines)
 subOrSuperExpr = try $
   simpleSubOrSuperText <|>

@@ -19,7 +19,7 @@ import Text.Pandoc.Shared (tshow)
 import qualified Control.Exception as E
 import Control.Monad.IO.Class (MonadIO(liftIO))
 
--- | Convert svg image to png. rsvg-convert
+-- Convert svg image to png. rsvg-convert
 -- is used and must be available on the path.
 svgToPng :: MonadIO m
          => Int           -- ^ DPI

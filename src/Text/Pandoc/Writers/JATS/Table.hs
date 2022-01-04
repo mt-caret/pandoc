@@ -124,7 +124,7 @@ tablePartToJats opts tblpart attr rows =
     isEmptyCell (Ann.Cell _colspecs _colnum cell) =
       cell == Cell nullAttr AlignDefault (RowSpan 1) (ColSpan 1) []
 
--- | The part of a table; header, footer, or body.
+-- The part of a table; header, footer, or body.
 data TablePart = Thead | Tfoot | Tbody
   deriving (Eq)
 
@@ -253,7 +253,7 @@ tableCellToJats opts ctype colAlign (Cell attr align rowspan colspan item) = do
               $ toAttribs attr validAttribs
   inTags False tag' attribs <$> cellContents item
 
--- | Whether the JATS produced from this block should be wrapped in a
+-- Whether the JATS produced from this block should be wrapped in a
 -- @<p>@ element when put directly below a @<td>@ element.
 needsWrapInCell :: Block -> Bool
 needsWrapInCell = \case

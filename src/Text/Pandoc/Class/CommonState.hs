@@ -24,7 +24,7 @@ import Text.Pandoc.MediaBag (MediaBag)
 import Text.Pandoc.Logging (LogMessage, Verbosity (WARNING))
 import Text.Pandoc.Translations (Translations)
 
--- | 'CommonState' represents state that is used by all
+-- 'CommonState' represents state that is used by all
 -- instances of 'PandocMonad'.  Normally users should not
 -- need to interact with it directly; instead, auxiliary
 -- functions like 'setVerbosity' and 'withMediaBag' should be used.
@@ -57,7 +57,7 @@ data CommonState = CommonState
     -- issued.
   }
 
--- | The default @'CommonState'@. All fields are initialized as the
+-- The default @'CommonState'@. All fields are initialized as the
 -- monoid identity of their resprective type, except for:
 --
 --   * @'stResourcePath'@, which is set to @["."]@,

@@ -36,7 +36,7 @@ import Text.Pandoc.Parsing (runParserT, getInput,
                             sourceName)
 import qualified Data.Text as T
 
--- | Parse a CommonMark formatted string into a 'Pandoc' structure.
+-- Parse a CommonMark formatted string into a 'Pandoc' structure.
 readCommonMark :: (PandocMonad m, ToSources a)
                => ReaderOptions -> a -> m Pandoc
 readCommonMark opts s

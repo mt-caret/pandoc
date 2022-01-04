@@ -18,7 +18,7 @@ module Text.Pandoc.RoffChar (
   ) where
 import qualified Data.Text as T
 
--- | These are the escapes specifically mentioned in groff_man(7),
+-- These are the escapes specifically mentioned in groff_man(7),
 -- plus @ and ellipsis.
 standardEscapes :: [(Char, T.Text)]
 standardEscapes =

@@ -84,7 +84,7 @@ pipeProcess mbenv cmd args input = do
 
         return (ex, out)
 
--- | Fork a thread while doing something else, but kill it if there's an
+-- Fork a thread while doing something else, but kill it if there's an
 -- exception.
 --
 -- This is important in the cases above because we want to kill the thread

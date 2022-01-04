@@ -31,10 +31,10 @@ import Data.Maybe (fromMaybe, listToMaybe)
 import Data.Time (toGregorian, Day, parseTimeM, defaultTimeLocale, formatTime)
 import qualified Data.Text as T
 import Data.Text (Text)
-import Text.Pandoc.Citeproc (getReferences)
+-- import Text.Pandoc.Citeproc (getReferences)
 import Text.Pandoc.Class.PandocMonad (PandocMonad, report)
 import Text.Pandoc.Definition
-import Text.Pandoc.Highlighting (languages, languagesByExtension)
+-- import Text.Pandoc.Highlighting (languages, languagesByExtension)
 import Text.Pandoc.Logging
 import Text.Pandoc.MIME (getMimeType)
 import Text.Pandoc.Walk (walk)
@@ -43,7 +43,7 @@ import Text.DocLayout
 import Text.Pandoc.Shared
 import Text.Pandoc.Templates (renderTemplate)
 import Text.DocTemplates (Context(..), Val(..))
-import Text.Pandoc.Writers.JATS.References (referencesToJATS)
+-- import Text.Pandoc.Writers.JATS.References (referencesToJATS)
 import Text.Pandoc.Writers.JATS.Table (tableToJATS)
 import Text.Pandoc.Writers.JATS.Types
 import Text.Pandoc.Writers.Math
@@ -51,45 +51,45 @@ import Text.Pandoc.Writers.Shared
 import Text.Pandoc.XML
 import Text.TeXMath
 import qualified Text.Pandoc.Writers.AnnotatedTable as Ann
-import qualified Text.XML.Light as Xml
+-- import qualified Text.XML.Light as Xml
 
--- | Convert a @'Pandoc'@ document to JATS (Archiving and Interchange
+-- Convert a @'Pandoc'@ document to JATS (Archiving and Interchange
 -- Tag Set.)
 writeJatsArchiving :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeJatsArchiving = writeJats TagSetArchiving
 
--- | Convert a @'Pandoc'@ document to JATS (Journal Publishing Tag Set.)
+-- Convert a @'Pandoc'@ document to JATS (Journal Publishing Tag Set.)
 writeJatsPublishing :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeJatsPublishing = writeJats TagSetPublishing
 
--- | Convert a @'Pandoc'@ document to JATS (Archiving and Interchange
+-- Convert a @'Pandoc'@ document to JATS (Archiving and Interchange
 -- Tag Set.)
 writeJatsArticleAuthoring :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeJatsArticleAuthoring = writeJats TagSetArticleAuthoring
 
--- | Alias for @'writeJatsArchiving'@. This function exists for backwards
+-- Alias for @'writeJatsArchiving'@. This function exists for backwards
 -- compatibility, but will be deprecated in the future. Use
 -- @'writeJatsArchiving'@ instead.
 writeJATS :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeJATS = writeJatsArchiving
 
--- | Convert a @'Pandoc'@ document to JATS.
+-- Convert a @'Pandoc'@ document to JATS.
 writeJats :: PandocMonad m => JATSTagSet -> WriterOptions -> Pandoc -> m Text
 writeJats tagSet opts d = do
-  refs <- if extensionEnabled Ext_element_citations $ writerExtensions opts
-          then getReferences Nothing d
-          else pure []
+  -- refs <- if extensionEnabled Ext_element_citations $ writerExtensions opts
+  --         then getReferences Nothing d
+  --         else pure []
   let environment = JATSEnv
           { jatsTagSet = tagSet
           , jatsInlinesWriter = inlinesToJATS
           , jatsBlockWriter = wrappedBlocksToJATS
-          , jatsReferences = refs
+          -- , jatsReferences = refs
           }
   let initialState = JATSState { jatsNotes = [] }
   runReaderT (evalStateT (docToJATS opts d) initialState)
              environment
 
--- | Convert Pandoc document to string in JATS format.
+-- Convert Pandoc document to string in JATS format.
 docToJATS :: PandocMonad m => WriterOptions -> Pandoc -> JATS m Text
 docToJATS opts (Pandoc meta blocks) = do
   let isBackBlock (Div ("refs",_,_) _) = True
@@ -147,11 +147,11 @@ docToJATS opts (Pandoc meta blocks) = do
        Nothing  -> main
        Just tpl -> renderTemplate tpl context
 
--- | Convert a list of Pandoc blocks to JATS.
+-- Convert a list of Pandoc blocks to JATS.
 blocksToJATS :: PandocMonad m => WriterOptions -> [Block] -> JATS m (Doc Text)
 blocksToJATS = wrappedBlocksToJATS (const False)
 
--- | Like @'blocksToJATS'@, but wraps top-level blocks into a @<p>@
+-- Like @'blocksToJATS'@, but wraps top-level blocks into a @<p>@
 -- element if the @needsWrap@ predicate evaluates to @True@.
 wrappedBlocksToJATS :: PandocMonad m
                     => (Block -> Bool)
@@ -168,12 +168,12 @@ wrappedBlocksToJATS needsWrap opts =
            then inTags True "p" [("specific-use","wrapper")] inner
            else inner
 
--- | Auxiliary function to convert Plain block to Para.
+-- Auxiliary function to convert Plain block to Para.
 plainToPara :: Block -> Block
 plainToPara (Plain x) = Para x
 plainToPara x         = x
 
--- | Convert a list of pairs of terms and definitions into a list of
+-- Convert a list of pairs of terms and definitions into a list of
 -- JATS varlistentrys.
 deflistItemsToJATS :: PandocMonad m
                    => WriterOptions
@@ -181,7 +181,7 @@ deflistItemsToJATS :: PandocMonad m
 deflistItemsToJATS opts items =
   vcat <$> mapM (uncurry (deflistItemToJATS opts)) items
 
--- | Convert a term and a list of blocks into a JATS varlistentry.
+-- Convert a term and a list of blocks into a JATS varlistentry.
 deflistItemToJATS :: PandocMonad m
                   => WriterOptions
                   -> [Inline] -> [[Block]] -> JATS m (Doc Text)
@@ -194,7 +194,7 @@ deflistItemToJATS opts term defs = do
       inTagsSimple "term" term' $$
       inTagsIndented "def" def'
 
--- | Convert a list of lists of blocks to a list of JATS list items.
+-- Convert a list of lists of blocks to a list of JATS list items.
 listItemsToJATS :: PandocMonad m
                 => WriterOptions
                 -> Maybe [Text] -> [[Block]] -> JATS m (Doc Text)
@@ -203,7 +203,7 @@ listItemsToJATS opts markers items =
        Nothing -> vcat <$> mapM (listItemToJATS opts Nothing) items
        Just ms -> vcat <$> zipWithM (listItemToJATS opts) (map Just ms) items
 
--- | Convert a list of blocks into a JATS list item.
+-- Convert a list of blocks into a JATS list item.
 listItemToJATS :: PandocMonad m
                => WriterOptions
                -> Maybe Text -> [Block] -> JATS m (Doc Text)
@@ -225,31 +225,31 @@ imageMimeType src kvs =
                   (T.drop 1 . T.dropWhile (/='/') <$> mbMT)
   in (maintype, subtype)
 
-languageFor :: WriterOptions -> [Text] -> Text
-languageFor opts classes =
-  case langs of
-     (l:_) -> escapeStringForXML l
-     []    -> ""
-    where
-          syntaxMap = writerSyntaxMap opts
-          isLang l    = T.toLower l `elem` map T.toLower (languages syntaxMap)
-          langsFrom s = if isLang s
-                           then [s]
-                           else (languagesByExtension syntaxMap) . T.toLower $ s
-          langs       = concatMap langsFrom classes
+-- languageFor :: WriterOptions -> [Text] -> Text
+-- languageFor opts classes =
+--   case langs of
+--      (l:_) -> escapeStringForXML l
+--      []    -> ""
+--     where
+--           syntaxMap = writerSyntaxMap opts
+--           isLang l    = T.toLower l `elem` map T.toLower (languages syntaxMap)
+--           langsFrom s = if isLang s
+--                            then [s]
+--                            else (languagesByExtension syntaxMap) . T.toLower $ s
+--           langs       = concatMap langsFrom classes
 
 codeAttr :: WriterOptions -> Attr -> (Text, [(Text, Text)])
-codeAttr opts (ident,classes,kvs) = (lang, attr)
+codeAttr opts (ident,classes,kvs) = ("", [])
     where
-       attr = [("id", escapeNCName ident) | not (T.null ident)] ++
-              [("language",lang) | not (T.null lang)] ++
-              [(k,v) | (k,v) <- kvs, k `elem` ["code-type",
-                "code-version", "executable",
-                "language-version", "orientation",
-                    "platforms", "position", "specific-use"]]
-       lang  = languageFor opts classes
+       -- attr = [("id", escapeNCName ident) | not (T.null ident)] ++
+       --        -- [("language",lang) | not (T.null lang)] ++
+       --        [(k,v) | (k,v) <- kvs, k `elem` ["code-type",
+       --          "code-version", "executable",
+       --          "language-version", "orientation",
+       --              "platforms", "position", "specific-use"]]
+       -- lang  = languageFor opts classes
 
--- | Convert a Pandoc block element to JATS.
+-- Convert a Pandoc block element to JATS.
 blockToJATS :: PandocMonad m => WriterOptions -> Block -> JATS m (Doc Text)
 blockToJATS _ Null = return empty
 blockToJATS opts (Div (id',"section":_,kvs) (Header _lvl _ ils : xs)) = do
@@ -267,10 +267,11 @@ blockToJATS opts (Div (ident,_,_) [Para lst]) | "ref-" `T.isPrefixOf` ident =
   inTagsSimple "mixed-citation" <$>
   inlinesToJATS opts lst
 blockToJATS opts (Div ("refs",_,_) xs) = do
-  refs <- asks jatsReferences
-  contents <- if null refs
-              then blocksToJATS opts xs
-              else referencesToJATS opts refs
+  -- refs <- asks jatsReferences
+  contents <- blocksToJATS opts xs
+              -- if null refs
+              -- then blocksToJATS opts xs
+              -- else referencesToJATS opts refs
   return $ inTagsIndented "ref-list" contents
 blockToJATS opts (Div (ident,[cls],kvs) bs) | cls `elem` ["fig", "caption", "table-wrap"] = do
   contents <- blocksToJATS opts bs
@@ -374,7 +375,7 @@ blockToJATS _ HorizontalRule = return empty -- not semantic
 blockToJATS opts (Table attr caption colspecs thead tbody tfoot) =
   tableToJATS opts (Ann.toTable attr caption colspecs thead tbody tfoot)
 
--- | Convert a list of inline elements to JATS.
+-- Convert a list of inline elements to JATS.
 inlinesToJATS :: PandocMonad m => WriterOptions -> [Inline] -> JATS m (Doc Text)
 inlinesToJATS opts lst = hcat <$> mapM (inlineToJATS opts) (fixCitations lst)
   where
@@ -390,7 +391,7 @@ inlinesToJATS opts lst = hcat <$> mapM (inlineToJATS opts) (fixCitations lst)
        (ys,zs)                 = break isRawInline xs
    fixCitations (x:xs) = x : fixCitations xs
 
--- | Convert an inline element to JATS.
+-- Convert an inline element to JATS.
 inlineToJATS :: PandocMonad m => WriterOptions -> Inline -> JATS m (Doc Text)
 inlineToJATS _ (Str str) = return $ text $ T.unpack $ escapeStringForXML str
 inlineToJATS opts (Emph lst) =
@@ -475,35 +476,35 @@ inlineToJATS opts (Span (ident,classes,kvs) ils) = do
     if null attr
     then contents
     else inTags False tag attr contents
-inlineToJATS _ (Math t str) = do
-  let addPref (Xml.Attr q v)
-         | Xml.qName q == "xmlns" = Xml.Attr q{ Xml.qName = "xmlns:mml" } v
-         | otherwise = Xml.Attr q v
-  let fixNS' e = e{ Xml.elName =
-                         (Xml.elName e){ Xml.qPrefix = Just "mml" } }
-  let fixNS = everywhere (mkT fixNS') .
-              (\e -> e{ Xml.elAttribs = map addPref (Xml.elAttribs e) })
-  let conf = Xml.useShortEmptyTags (const False) Xml.defaultConfigPP
-  res <- convertMath writeMathML t str
-  let tagtype = case t of
-                     DisplayMath -> "disp-formula"
-                     InlineMath  -> "inline-formula"
+inlineToJATS _ (Math t str) = undefined -- do
+  -- let addPref (Xml.Attr q v)
+  --        | Xml.qName q == "xmlns" = Xml.Attr q{ Xml.qName = "xmlns:mml" } v
+  --        | otherwise = Xml.Attr q v
+  -- let fixNS' e = e{ Xml.elName =
+  --                        (Xml.elName e){ Xml.qPrefix = Just "mml" } }
+  -- let fixNS = everywhere (mkT fixNS') .
+  --             (\e -> e{ Xml.elAttribs = map addPref (Xml.elAttribs e) })
+  -- let conf = Xml.useShortEmptyTags (const False) Xml.defaultConfigPP
+  -- res <- convertMath writeMathML t str
+  -- let tagtype = case t of
+  --                    DisplayMath -> "disp-formula"
+  --                    InlineMath  -> "inline-formula"
 
-  let rawtex = text "<![CDATA[" <> literal str <> text "]]>"
-  let texMath = inTagsSimple "tex-math" rawtex
+  -- let rawtex = text "<![CDATA[" <> literal str <> text "]]>"
+  -- let texMath = inTagsSimple "tex-math" rawtex
 
-  tagSet <- asks jatsTagSet
-  return . inTagsSimple tagtype $
-    case res of
-      Right r  -> let mathMl = text (Xml.ppcElement conf $ fixNS r)
-                  -- tex-math is unsupported in Article Authoring tag set
-                  in if tagSet == TagSetArticleAuthoring
-                     then mathMl
-                     else inTagsSimple "alternatives" $
-                          cr <> texMath $$ mathMl
-      Left _   -> if tagSet /= TagSetArticleAuthoring
-                  then texMath
-                  else rawtex
+  -- tagSet <- asks jatsTagSet
+  -- return . inTagsSimple tagtype $
+  --   case res of
+  --     Right r  -> let mathMl = text (Xml.ppcElement conf $ fixNS r)
+  --                 -- tex-math is unsupported in Article Authoring tag set
+  --                 in if tagSet == TagSetArticleAuthoring
+  --                    then mathMl
+  --                    else inTagsSimple "alternatives" $
+  --                         cr <> texMath $$ mathMl
+  --     Left _   -> if tagSet /= TagSetArticleAuthoring
+  --                 then texMath
+  --                 else rawtex
 inlineToJATS _ (Link _attr [Str t] (T.stripPrefix "mailto:" -> Just email, _))
   | escapeURI t == email =
   return $ inTagsSimple "email" $ literal (escapeStringForXML email)

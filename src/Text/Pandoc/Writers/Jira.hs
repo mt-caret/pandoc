@@ -34,27 +34,27 @@ import Text.DocLayout (literal, render)
 import qualified Data.Text as T
 import qualified Text.Jira.Markup as Jira
 
--- | Convert Pandoc to Jira.
+-- Convert Pandoc to Jira.
 writeJira :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeJira opts = runDefaultConverter (writerWrapText opts) (pandocToJira opts)
 
--- | State to keep track of footnotes.
+-- State to keep track of footnotes.
 data ConverterState = ConverterState
   { stNotes   :: [Text] -- ^ Footnotes to be appended to the end of the text
   , stInPanel :: Bool   -- ^ whether we are in a @{panel}@ block
   }
 
--- | Initial converter state.
+-- Initial converter state.
 startState :: ConverterState
 startState = ConverterState
   { stNotes = []
   , stInPanel = False
   }
 
--- | Converter monad
+-- Converter monad
 type JiraConverter m = ReaderT WrapOption (StateT ConverterState m)
 
--- | Run a converter using the default state
+-- Run a converter using the default state
 runDefaultConverter :: PandocMonad m
                     => WrapOption
                     -> (a -> JiraConverter m Text)
@@ -62,7 +62,7 @@ runDefaultConverter :: PandocMonad m
                     -> m Text
 runDefaultConverter wrap c x = evalStateT (runReaderT (c x) wrap) startState
 
--- | Return Jira representation of document.
+-- Return Jira representation of document.
 pandocToJira :: PandocMonad m
              => WriterOptions -> Pandoc -> JiraConverter m Text
 pandocToJira opts (Pandoc meta blocks) = do
@@ -137,7 +137,7 @@ toJiraCode (ident, classes, _attribs) code = do
       Nothing -> Jira.NoFormat mempty code
       Just l  -> Jira.Code (Jira.Language l) mempty code
 
--- | Prepends an anchor with the given identifier.
+-- Prepends an anchor with the given identifier.
 addAnchor :: Text -> [Jira.Block] -> [Jira.Block]
 addAnchor ident =
   if T.null ident
@@ -146,7 +146,7 @@ addAnchor ident =
     Jira.Para xs : bs -> (Jira.Para (Jira.Anchor ident : xs) : bs)
     bs                -> (Jira.Para (singleton (Jira.Anchor ident)) : bs)
 
--- | Creates a Jira definition list
+-- Creates a Jira definition list
 toJiraDefinitionList :: PandocMonad m
                      => [([Inline], [[Block]])]
                      -> JiraConverter m [Jira.Block]
@@ -157,7 +157,7 @@ toJiraDefinitionList defItems = do
         return $ jiraTerm : jiraDefs
   singleton . Jira.List Jira.CircleBullets <$> mapM convertDefItem defItems
 
--- | Creates a Jira panel
+-- Creates a Jira panel
 toJiraPanel :: PandocMonad m
             => Attr -> [Block]
             -> JiraConverter m [Jira.Block]
@@ -172,7 +172,7 @@ toJiraPanel (ident, classes, attribs) blocks = do
       let params = map (uncurry Jira.Parameter) attribs
       return $ singleton (Jira.Panel params $ addAnchor ident jiraBlocks)
 
--- | Creates a Jira header
+-- Creates a Jira header
 toJiraHeader :: PandocMonad m
              => Int -> Attr -> [Inline]
              -> JiraConverter m [Jira.Block]
@@ -180,7 +180,7 @@ toJiraHeader lvl (ident, _, _) inlines =
   let anchor = Jira.Anchor ident
   in singleton . Jira.Header lvl . (anchor :) <$> toJiraInlines inlines
 
--- | Handles raw block. Jira is included verbatim, everything else is
+-- Handles raw block. Jira is included verbatim, everything else is
 -- discarded.
 rawBlockToJira :: PandocMonad m
                => Format -> Text
@@ -242,7 +242,7 @@ styled :: PandocMonad m
        -> JiraConverter m [Jira.Inline]
 styled s = fmap (singleton . Jira.Styled s) . toJiraInlines
 
--- | Converts a plain text value to Jira inlines, ensuring that all
+-- Converts a plain text value to Jira inlines, ensuring that all
 -- special characters will be handled appropriately.
 escapeSpecialChars :: Text -> [Jira.Inline]
 escapeSpecialChars t = case plainText t of
@@ -263,7 +263,7 @@ imageToJira (_, classes, kvs) caption src title =
           . (if T.null alt then id else (("alt", alt):))
           $ kvs
 
--- | Creates a Jira Link element.
+-- Creates a Jira Link element.
 toJiraLink :: PandocMonad m
            => Attr
            -> Target
@@ -329,7 +329,7 @@ registerNotes contents = do
   return . singleton . Jira.Str $
     "[" <> T.pack (show newnum) <> "]"
 
--- | Language codes recognized by jira
+-- Language codes recognized by jira
 knownLanguages :: [Text]
 knownLanguages =
   [ "actionscript", "ada", "applescript", "bash", "c", "c#", "c++"

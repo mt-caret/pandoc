@@ -52,7 +52,7 @@ import Text.Pandoc.Writers.Markdown.Types (MarkdownVariant(..),
                                            WriterEnv(..),
                                            Ref, Refs, MD, evalMD)
 
--- | Convert Pandoc to Markdown.
+-- Convert Pandoc to Markdown.
 writeMarkdown :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeMarkdown opts document =
   evalMD (pandocToMarkdown opts{
@@ -61,13 +61,13 @@ writeMarkdown opts document =
                               else writerWrapText opts }
              document) def def
 
--- | Convert Pandoc to plain text (like markdown, but without links,
+-- Convert Pandoc to plain text (like markdown, but without links,
 -- pictures, or inline formatting).
 writePlain :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writePlain opts document =
   evalMD (pandocToMarkdown opts document) def{ envVariant = PlainText } def
 
--- | Convert Pandoc to Commonmark.
+-- Convert Pandoc to Commonmark.
 writeCommonMark :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeCommonMark opts document =
   evalMD (pandocToMarkdown opts' document) def{ envVariant = Commonmark } def
@@ -81,7 +81,7 @@ writeCommonMark opts document =
                    enableExtension Ext_intraword_underscores $
                      writerExtensions opts }
 
--- | Convert Pandoc to Markua.
+-- Convert Pandoc to Markua.
 writeMarkua :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeMarkua opts document =
   evalMD (pandocToMarkdown opts' document) def{ envVariant = Markua } def
@@ -196,7 +196,7 @@ valToYaml (SimpleVal x)
       escapeInDoubleQuotes = T.replace "\"" "\\\"" . T.replace "\\" "\\\\"
 valToYaml _ = empty
 
--- | Return markdown representation of document.
+-- Return markdown representation of document.
 pandocToMarkdown :: PandocMonad m => WriterOptions -> Pandoc -> MD m Text
 pandocToMarkdown opts (Pandoc meta blocks) = do
   let colwidth = if writerWrapText opts == WrapAuto
@@ -248,11 +248,11 @@ pandocToMarkdown opts (Pandoc meta blocks) = do
        Nothing  -> main
        Just tpl -> renderTemplate tpl context
 
--- | Return markdown representation of reference key table.
+-- Return markdown representation of reference key table.
 refsToMarkdown :: PandocMonad m => WriterOptions -> Refs -> MD m (Doc Text)
 refsToMarkdown opts refs = vcat <$> mapM (keyToMarkdown opts) refs
 
--- | Return markdown representation of a reference key.
+-- Return markdown representation of a reference key.
 keyToMarkdown :: PandocMonad m
               => WriterOptions
               -> Ref
@@ -265,7 +265,7 @@ keyToMarkdown opts (label', (src, tit), attr) = do
             ("[" <> literal label' <> "]:" <> space) (literal src <> tit')
             <+> linkAttributes opts attr
 
--- | Return markdown representation of notes.
+-- Return markdown representation of notes.
 notesToMarkdown :: PandocMonad m => WriterOptions -> [[Block]] -> MD m (Doc Text)
 notesToMarkdown opts notes = do
   n <- gets stNoteNum
@@ -273,7 +273,7 @@ notesToMarkdown opts notes = do
   modify $ \st -> st { stNoteNum = stNoteNum st + length notes }
   return $ vsep notes'
 
--- | Return markdown representation of a note.
+-- Return markdown representation of a note.
 noteToMarkdown :: PandocMonad m => WriterOptions -> Int -> [Block] -> MD m (Doc Text)
 noteToMarkdown opts num blocks = do
   contents  <- blockListToMarkdown opts blocks
@@ -293,13 +293,13 @@ noteToMarkdown opts num blocks = do
               then hang (writerTabStop opts) (marker <> spacer) contents
               else marker <> spacer <> contents
 
--- | (Code) blocks with a single class and no attributes can just use it
+-- (Code) blocks with a single class and no attributes can just use it
 -- standalone, no need to bother with curly braces.
 classOrAttrsToMarkdown :: Attr -> Doc Text
 classOrAttrsToMarkdown ("",[cls],[]) = literal cls
 classOrAttrsToMarkdown attrs = attrsToMarkdown attrs
 
--- | Ordered list start parser for use in Para below.
+-- Ordered list start parser for use in Para below.
 olMarker :: Parser Text ParserState ()
 olMarker = do (start, style', delim) <- anyOrderedListMarker
               if delim == Period &&
@@ -308,7 +308,7 @@ olMarker = do (start, style', delim) <- anyOrderedListMarker
                           then mzero -- it needs 2 spaces anyway
                           else eof
 
--- | True if string begins with an ordered list marker
+-- True if string begins with an ordered list marker
 beginsWithOrderedListMarker :: Text -> Bool
 beginsWithOrderedListMarker str =
   case runParser olMarker defaultParserState "para start" (T.take 10 str) of
@@ -333,7 +333,7 @@ notesAndRefs opts = do
     (if isEmpty refs' then empty else blankline <> refs') <>
     endSpacing
 
--- | Convert Pandoc block element to markdown.
+-- Convert Pandoc block element to markdown.
 blockToMarkdown :: PandocMonad m
                 => WriterOptions -- ^ Options
                 -> Block         -- ^ Block element
@@ -360,7 +360,7 @@ blockToMarkdown' opts (Div attrs ils) = do
                    case () of
                         () | "blurb" `elem` classes' -> prefixed "B> " contents <> blankline
                            | "aside" `elem` classes' -> prefixed "A> " contents <> blankline
-                           -- | necessary to enable option to create a bibliography
+                           -- necessary to enable option to create a bibliography
                            | (take 3 (T.unpack id')) == "ref" -> contents <> blankline
                            | otherwise -> contents <> blankline
            | isEnabled Ext_fenced_divs opts &&
@@ -757,7 +757,7 @@ itemEndsWithTightList bs =
         [Plain _, OrderedList _ xs] -> isTightList xs
         _                           -> False
 
--- | Convert bullet list item (list of blocks) to markdown.
+-- Convert bullet list item (list of blocks) to markdown.
 bulletListItemToMarkdown :: PandocMonad m => WriterOptions -> [Block] -> MD m (Doc Text)
 bulletListItemToMarkdown opts bs = do
   variant <- asks envVariant
@@ -773,7 +773,7 @@ bulletListItemToMarkdown opts bs = do
                      else contents
   return $ hang (writerTabStop opts) start contents'
 
--- | Convert ordered list item (a list of blocks) to markdown.
+-- Convert ordered list item (a list of blocks) to markdown.
 orderedListItemToMarkdown :: PandocMonad m
                           => WriterOptions -- ^ options
                           -> Text          -- ^ list item marker
@@ -798,7 +798,7 @@ orderedListItemToMarkdown opts marker bs = do
                      else contents
   return $ hang ind start contents'
 
--- | Convert definition list item (label, list of blocks) to markdown.
+-- Convert definition list item (label, list of blocks) to markdown.
 definitionListItemToMarkdown :: PandocMonad m
                              => WriterOptions
                              -> ([Inline],[[Block]])
@@ -835,7 +835,7 @@ definitionListItemToMarkdown opts (label, defs) = do
        return $ nowrap (chomp labelText <> literal "  " <> cr) <>
                 vsep (map vsep defs') <> blankline
 
--- | Convert list of Pandoc block elements to markdown.
+-- Convert list of Pandoc block elements to markdown.
 blockListToMarkdown :: PandocMonad m
                     => WriterOptions -- ^ Options
                     -> [Block]       -- ^ List of block elements

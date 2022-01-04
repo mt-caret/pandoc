@@ -50,7 +50,7 @@ import Text.Pandoc.Sources (ToSources(..))
 -- parsing blocks
 --
 
--- | Get a list of blocks.
+-- Get a list of blocks.
 blockList :: PandocMonad m => OrgParser m [Block]
 blockList = do
   fHeadlineTree  <- documentTree blocks inline
@@ -58,7 +58,7 @@ blockList = do
   let headlineTree = runF fHeadlineTree st
   unprunedHeadlineToBlocks headlineTree st
 
--- | Get the meta information saved in the state.
+-- Get the meta information saved in the state.
 meta :: Monad m => OrgParser m Meta
 meta = do
   meta' <- metaExport
@@ -85,7 +85,7 @@ block = choice [ mempty <$ blanklines
                ] <?> "block"
 
 
--- | Parse a horizontal rule into a block element
+-- Parse a horizontal rule into a block element
 horizontalRule :: Monad m => OrgParser m (F Blocks)
 horizontalRule = return B.horizontalRule <$ try hline
 
@@ -94,7 +94,7 @@ horizontalRule = return B.horizontalRule <$ try hline
 -- Block Attributes
 --
 
--- | Attributes that may be added to figures (like a name or caption).
+-- Attributes that may be added to figures (like a name or caption).
 data BlockAttributes = BlockAttributes
   { blockAttrName      :: Maybe Text
   , blockAttrLabel     :: Maybe Text
@@ -102,7 +102,7 @@ data BlockAttributes = BlockAttributes
   , blockAttrKeyValues :: [(Text, Text)]
   }
 
--- | Convert BlockAttributes into pandoc Attr
+-- Convert BlockAttributes into pandoc Attr
 attrFromBlockAttributes :: BlockAttributes -> Attr
 attrFromBlockAttributes BlockAttributes{..} =
   let
@@ -119,7 +119,7 @@ stringyMetaAttribute = try $ do
   attrValue <- anyLine <|> ("" <$ newline)
   return (attrName, attrValue)
 
--- | Parse a set of block attributes. Block attributes are given through
+-- Parse a set of block attributes. Block attributes are given through
 -- lines like @#+caption: block caption@ or @#+attr_html: :width 20@.
 -- Parsing will fail if any line contains an attribute different from
 -- those attributes known to work on blocks.
@@ -155,7 +155,7 @@ blockAttributes = try $ do
             Just acc -> Just $ acc <> " " <> value
             Nothing  -> Just value
 
--- | Parse key-value pairs for HTML attributes
+-- Parse key-value pairs for HTML attributes
 keyValues :: Monad m => OrgParser m [(Text, Text)]
 keyValues = try $
   manyTill ((,) <$> key <*> value) newline
@@ -175,7 +175,7 @@ keyValues = try $
 -- Org Blocks (#+begin_... / #+end_...)
 --
 
--- | Read an org-mode block delimited by #+begin_type and #+end_type.
+-- Read an org-mode block delimited by #+begin_type and #+end_type.
 orgBlock :: PandocMonad m => OrgParser m (F Blocks)
 orgBlock = try $ do
   blockAttrs <- blockAttributes
@@ -222,7 +222,7 @@ parseBlockLines f blockType = ignHeaders *> (f <$> parsedBlockContent)
      raw <- rawBlockContent blockType
      parseFromString blocks (raw <> "\n")
 
--- | Read the raw string content of a block
+-- Read the raw string content of a block
 rawBlockContent :: Monad m => Text -> OrgParser m Text
 rawBlockContent blockType = try $ do
   blkLines <- manyTill rawLine blockEnder
@@ -260,11 +260,11 @@ rawBlockContent blockType = try $ do
              | "#+" <- T.take 2 cs -> ind <> cs
            _                       -> t
 
--- | Read but ignore all remaining block headers.
+-- Read but ignore all remaining block headers.
 ignHeaders :: Monad m => OrgParser m ()
 ignHeaders = (() <$ newline) <|> (() <$ anyLine)
 
--- | Read a block containing code intended for export in specific backends
+-- Read a block containing code intended for export in specific backends
 -- only.
 exportBlock :: Monad m => Text -> OrgParser m (F Blocks)
 exportBlock blockType = try $ do
@@ -290,7 +290,7 @@ verseBlock blockType = try $ do
      line <- parseFromString inlines (indentedLine <> "\n")
      return (trimInlinesF $ pure nbspIndent <> line)
 
--- | Read a code block and the associated results block if present.  Which of
+-- Read a code block and the associated results block if present.  Which of
 -- the blocks is included in the output is determined using the "exports"
 -- argument in the block header.
 codeBlock :: PandocMonad m => BlockAttributes -> Text -> OrgParser m (F Blocks)
@@ -316,7 +316,7 @@ codeBlock blockAttrs blockType = do
    exportsResults :: [(Text, Text)] -> Bool
    exportsResults = maybe False (`elem` ["results", "both"]) . lookup "exports"
 
--- | Parse the result of an evaluated babel code block.
+-- Parse the result of an evaluated babel code block.
 babelResultsBlock :: PandocMonad m => OrgParser m (F Blocks)
 babelResultsBlock = try $ do
   blanklines
@@ -327,7 +327,7 @@ babelResultsBlock = try $ do
  where
   resultsMarker = try . void $ stringAnyCase "#+RESULTS:" *> blankline
 
--- | Parse code block arguments
+-- Parse code block arguments
 codeHeaderArgs :: Monad m => OrgParser m ([Text], [(Text, Text)])
 codeHeaderArgs = try $ do
   language   <- skipSpaces *> orgArgWord
@@ -355,15 +355,15 @@ switchesAsAttributes = try $ do
     in ("numberLines":cls', kv')
   addToAttr _ x = x
 
--- | Whether a switch flag is specified with @+@ or @-@.
+-- Whether a switch flag is specified with @+@ or @-@.
 data SwitchPolarity = SwitchPlus | SwitchMinus
   deriving (Show, Eq)
 
--- | Parses a switch's polarity.
+-- Parses a switch's polarity.
 switchPolarity :: Monad m => OrgParser m SwitchPolarity
 switchPolarity = (SwitchMinus <$ char '-') <|> (SwitchPlus <$ char '+')
 
--- | Parses a source block switch option.
+-- Parses a source block switch option.
 switch :: Monad m => OrgParser m (Char, Maybe Text, SwitchPolarity)
 switch = try $ lineNumberSwitch <|> labelSwitch
                <|> whitespaceSwitch <|> simpleSwitch
@@ -378,7 +378,7 @@ whitespaceSwitch = do
   updateState $ \s -> s { orgStateTrimLeadBlkIndent = False }
   return ('i', Nothing, SwitchMinus)
 
--- | Generic source block switch-option parser.
+-- Generic source block switch-option parser.
 genericSwitch :: Monad m
               => Char
               -> OrgParser m Text
@@ -388,7 +388,7 @@ genericSwitch c p = try $ do
   arg <- optionMaybe p
   return (c, arg, polarity)
 
--- | Reads a line number switch option. The line number switch can be used with
+-- Reads a line number switch option. The line number switch can be used with
 -- example and source blocks.
 lineNumberSwitch :: Monad m => OrgParser m (Char, Maybe Text, SwitchPolarity)
 lineNumberSwitch = genericSwitch 'n' (manyChar digit)
@@ -414,7 +414,7 @@ orgParamValue = try $ fmap T.pack $
 -- Drawers
 --
 
--- | A generic drawer which has no special meaning for org-mode.
+-- A generic drawer which has no special meaning for org-mode.
 -- Whether or not this drawer is included in the output depends on the drawers
 -- export setting.
 genericDrawer :: PandocMonad m => OrgParser m (F Blocks)
@@ -449,7 +449,7 @@ drawerEnd = try $
 -- Figures
 --
 
--- | Figures or an image paragraph (i.e. an image on a line by itself). Only
+-- Figures or an image paragraph (i.e. an image on a line by itself). Only
 -- images with a caption attribute are interpreted as figures.
 figure :: PandocMonad m => OrgParser m (F Blocks)
 figure = try $ do
@@ -484,7 +484,7 @@ figure = try $ do
            then T.drop 4 figName
            else figName
 
--- | Succeeds if looking at the end of the current paragraph
+-- Succeeds if looking at the end of the current paragraph
 endOfParagraph :: Monad m => OrgParser m ()
 endOfParagraph = try $ skipSpaces *> newline *> endOfBlock
 
@@ -493,7 +493,7 @@ endOfParagraph = try $ skipSpaces *> newline *> endOfBlock
 -- Examples
 --
 
--- | Example code marked up by a leading colon.
+-- Example code marked up by a leading colon.
 example :: Monad m => OrgParser m (F Blocks)
 example = try $ returnF . exampleCode . T.unlines =<< many1 exampleLine
  where
@@ -511,7 +511,7 @@ exampleCode = B.codeBlockWith ("", ["example"], [])
 specialLine :: PandocMonad m => OrgParser m (F Blocks)
 specialLine = fmap return . try $ rawExportLine <|> metaLine <|> commentLine
 
--- | Include the content of a file.
+-- Include the content of a file.
 include :: PandocMonad m => OrgParser m (F Blocks)
 include = try $ do
   metaLineStart <* stringAnyCase "include:" <* skipSpaces
@@ -561,7 +561,7 @@ include = try $ do
        | otherwise        -> Para content
       _ -> blk
 
--- | Parses a meta line which defines a raw block. Currently recognized:
+-- Parses a meta line which defines a raw block. Currently recognized:
 -- @#+LATEX:@, @#+HTML:@, @#+TEXINFO:@, and @#+BEAMER@.
 rawExportLine :: PandocMonad m => OrgParser m Blocks
 rawExportLine = try $ do
@@ -571,7 +571,7 @@ rawExportLine = try $ do
     then B.rawBlock key <$> anyLine
     else mzero
 
--- | Parses any meta line, i.e., a line starting with @#+@, into a raw
+-- Parses any meta line, i.e., a line starting with @#+@, into a raw
 -- org block. This should be the last resort when trying to parse
 -- keywords. Leading spaces are discarded.
 rawOrgLine :: PandocMonad m => OrgParser m (F Blocks)
@@ -614,7 +614,7 @@ table = do
   tbl <- gridTableWith blocks True <|> orgTable
   return $ if withTables then tbl else mempty
 
--- | A normal org table
+-- A normal org table
 orgTable :: PandocMonad m => OrgParser m (F Blocks)
 orgTable = try $ do
   -- don't allow a table on the first line of a list item; org requires that
@@ -854,13 +854,13 @@ definitionListItem parseIndentedMarker = try $ do
    definitionMarker =
      spaceChar *> string "::" <* (spaceChar <|> lookAhead newline)
 
--- | Checkbox for tasks.
+-- Checkbox for tasks.
 data Checkbox
   = UncheckedBox
   | CheckedBox
   | SemicheckedBox
 
--- | Parses a checkbox in a plain list.
+-- Parses a checkbox in a plain list.
 checkbox :: PandocMonad m
          => OrgParser m Checkbox
 checkbox = do
@@ -879,7 +879,7 @@ checkboxToInlines = B.Str . \case
   SemicheckedBox -> "☐"
   CheckedBox     -> "☒"
 
--- | parse raw text for one list item
+-- parse raw text for one list item
 listItem :: PandocMonad m
          => OrgParser m Int
          -> OrgParser m (F Blocks)
@@ -895,7 +895,7 @@ listItem parseIndentedMarker = try . withContext ListItemState $ do
                 (firstLine <> blank <> rest)
   return (maybe id (prependInlines . checkboxToInlines) box <$> contents)
 
--- | Prepend inlines to blocks, adding them to the first paragraph or
+-- Prepend inlines to blocks, adding them to the first paragraph or
 -- creating a new Plain element if necessary.
 prependInlines :: Inline -> Blocks -> Blocks
 prependInlines inlns = B.fromList . prepend . B.toList

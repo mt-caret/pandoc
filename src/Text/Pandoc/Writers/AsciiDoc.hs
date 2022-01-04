@@ -47,7 +47,7 @@ data WriterState = WriterState { defListMarker       :: Text
                                , asciidoctorVariant  :: Bool
                                , inList              :: Bool
                                , hasMath             :: Bool
-                               -- |0 is no table
+                               --0 is no table
                                -- 1 is top level table
                                -- 2 is a table in a table
                                , tableNestingLevel   :: Int
@@ -65,12 +65,12 @@ defaultWriterState = WriterState { defListMarker      = "::"
                                  , tableNestingLevel  = 0
                                  }
 
--- | Convert Pandoc to AsciiDoc.
+-- Convert Pandoc to AsciiDoc.
 writeAsciiDoc :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeAsciiDoc opts document =
   evalStateT (pandocToAsciiDoc opts document) defaultWriterState
 
--- | Convert Pandoc to AsciiDoctor compatible AsciiDoc.
+-- Convert Pandoc to AsciiDoctor compatible AsciiDoc.
 writeAsciiDoctor :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeAsciiDoctor opts document =
   evalStateT (pandocToAsciiDoc opts document)
@@ -78,7 +78,7 @@ writeAsciiDoctor opts document =
 
 type ADW = StateT WriterState
 
--- | Return asciidoc representation of document.
+-- Return asciidoc representation of document.
 pandocToAsciiDoc :: PandocMonad m => WriterOptions -> Pandoc -> ADW m Text
 pandocToAsciiDoc opts (Pandoc meta blocks) = do
   let titleblock = not $ null (docTitle meta) && null (docAuthors meta) &&
@@ -103,7 +103,7 @@ pandocToAsciiDoc opts (Pandoc meta blocks) = do
        Nothing  -> main
        Just tpl -> renderTemplate tpl context
 
--- | Escape special characters for AsciiDoc.
+-- Escape special characters for AsciiDoc.
 escapeString :: Text -> Text
 escapeString t
   | T.any (== '{') t = T.concatMap escChar t
@@ -111,7 +111,7 @@ escapeString t
   where escChar '{' = "\\{"
         escChar c   = T.singleton c
 
--- | Ordered list start parser for use in Para below.
+-- Ordered list start parser for use in Para below.
 olMarker :: Parser Text ParserState Char
 olMarker = do (start, style', delim) <- anyOrderedListMarker
               if delim == Period &&
@@ -120,7 +120,7 @@ olMarker = do (start, style', delim) <- anyOrderedListMarker
                           then spaceChar >> spaceChar
                           else spaceChar
 
--- | True if string begins with an ordered list marker
+-- True if string begins with an ordered list marker
 -- or would be interpreted as an AsciiDoc option command
 needsEscaping :: Text -> Bool
 needsEscaping s = beginsWithOrderedListMarker s || isBracketed s
@@ -135,7 +135,7 @@ needsEscaping s = beginsWithOrderedListMarker s || isBracketed s
       = True
       | otherwise = False
 
--- | Convert Pandoc block element to asciidoc.
+-- Convert Pandoc block element to asciidoc.
 blockToAsciiDoc :: PandocMonad m
                 => WriterOptions -- ^ Options
                 -> Block         -- ^ Block element
@@ -336,7 +336,7 @@ blockToAsciiDoc opts (Div (ident,classes,_) bs) = do
          _ -> blockListToAsciiDoc opts bs
   return $ identifier $$ contents $$ blankline
 
--- | Convert bullet list item (list of blocks) to asciidoc.
+-- Convert bullet list item (list of blocks) to asciidoc.
 bulletListItemToAsciiDoc :: PandocMonad m
                          => WriterOptions -> [Block] -> ADW m (Doc Text)
 bulletListItemToAsciiDoc opts blocks = do
@@ -372,7 +372,7 @@ listBegin blocks =
           _ : _                            -> "{blank}"
           []                               -> "{blank}"
 
--- | Convert ordered list item (a list of blocks) to asciidoc.
+-- Convert ordered list item (a list of blocks) to asciidoc.
 orderedListItemToAsciiDoc :: PandocMonad m
                           => WriterOptions -- ^ options
                           -> [Block]       -- ^ list item (list of blocks)
@@ -385,7 +385,7 @@ orderedListItemToAsciiDoc opts blocks = do
   let marker = text (replicate (lev + 1) '.')
   return $ marker <> text " " <> listBegin blocks <> contents <> cr
 
--- | Convert definition list item (label, list of blocks) to asciidoc.
+-- Convert definition list item (label, list of blocks) to asciidoc.
 definitionListItemToAsciiDoc :: PandocMonad m
                              => WriterOptions
                              -> ([Inline],[[Block]])
@@ -405,7 +405,7 @@ definitionListItemToAsciiDoc opts (label, defs) = do
   let contents = nest 2 $ vcat $ intersperse divider $ map chomp defs'
   return $ labelText <> literal marker <> cr <> contents <> cr
 
--- | Convert list of Pandoc block elements to asciidoc.
+-- Convert list of Pandoc block elements to asciidoc.
 blockListToAsciiDoc :: PandocMonad m
                     => WriterOptions -- ^ Options
                     -> [Block]       -- ^ List of block elements
@@ -415,7 +415,7 @@ blockListToAsciiDoc opts blocks =
 
 data SpacyLocation = End | Start
 
--- | Convert list of Pandoc inline elements to asciidoc.
+-- Convert list of Pandoc inline elements to asciidoc.
 inlineListToAsciiDoc :: PandocMonad m =>
                         WriterOptions ->
                         [Inline] ->
@@ -462,7 +462,7 @@ setIntraword b = modify $ \st -> st{ intraword = b }
 withIntraword :: PandocMonad m => ADW m a -> ADW m a
 withIntraword p = setIntraword True *> p <* setIntraword False
 
--- | Convert Pandoc inline element to asciidoc.
+-- Convert Pandoc inline element to asciidoc.
 inlineToAsciiDoc :: PandocMonad m => WriterOptions -> Inline -> ADW m (Doc Text)
 inlineToAsciiDoc opts (Emph [Strong xs]) =
   inlineToAsciiDoc opts (Strong [Emph xs])  -- see #5565
@@ -586,7 +586,7 @@ inlineToAsciiDoc opts (Span (ident,classes,_) ils) = do
             [ "#" <> ident | not (T.null ident)] ++ map ("." <>) classes
        return $ modifier <> marker <> contents <> marker
 
--- | Provides the arguments for both `image:` and `image::`
+-- Provides the arguments for both `image:` and `image::`
 -- e.g.: sunset.jpg[Sunset,300,200]
 imageArguments :: PandocMonad m => WriterOptions ->
   Attr -> [Inline] -> Text -> Text ->

@@ -44,7 +44,7 @@ import Numeric (showFFloat)
 import Text.Pandoc.Definition
 import Text.Pandoc.Options
 import qualified Text.Pandoc.UTF8 as UTF8
-import Text.Pandoc.XML.Light hiding (Attr)
+-- import Text.Pandoc.XML.Light hiding (Attr)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Encoding as TE
@@ -145,7 +145,7 @@ imageSize opts img = checkDpi <$>
 sizeInPixels :: ImageSize -> (Integer, Integer)
 sizeInPixels s = (pxX s, pxY s)
 
--- | Calculate (height, width) in points using the image file's dpi metadata,
+-- Calculate (height, width) in points using the image file's dpi metadata,
 -- using 72 Points == 1 Inch.
 sizeInPoints :: ImageSize -> (Double, Double)
 sizeInPoints s = (pxXf * 72 / dpiXf, pxYf * 72 / dpiYf)
@@ -155,7 +155,7 @@ sizeInPoints s = (pxXf * 72 / dpiXf, pxYf * 72 / dpiYf)
     dpiXf = fromIntegral $ dpiX s
     dpiYf = fromIntegral $ dpiY s
 
--- | Calculate (height, width) in points, considering the desired dimensions in the
+-- Calculate (height, width) in points, considering the desired dimensions in the
 -- attribute, while falling back on the image file's dpi metadata if no dimensions
 -- are specified in the attribute (or only dimensions in percentages).
 desiredSizeInPoints :: WriterOptions -> Attr -> ImageSize -> (Double, Double)
@@ -200,25 +200,25 @@ inPixel opts dim =
   where
     dpi = fromIntegral $ writerDpi opts
 
--- | Convert a Dimension to Text denoting its equivalent in inches, for example "2.00000".
+-- Convert a Dimension to Text denoting its equivalent in inches, for example "2.00000".
 -- Note: Dimensions in percentages are converted to the empty string.
 showInInch :: WriterOptions -> Dimension -> T.Text
 showInInch _ (Percent _) = ""
 showInInch opts dim = showFl $ inInch opts dim
 
--- | Convert a Dimension to Text denoting its equivalent in pixels, for example "600".
+-- Convert a Dimension to Text denoting its equivalent in pixels, for example "600".
 -- Note: Dimensions in percentages are converted to the empty string.
 showInPixel :: WriterOptions -> Dimension -> T.Text
 showInPixel _ (Percent _) = ""
 showInPixel opts dim = T.pack $ show $ inPixel opts dim
 
--- | Maybe split a string into a leading number and trailing unit, e.g. "3cm" to Just (3.0, "cm")
+-- Maybe split a string into a leading number and trailing unit, e.g. "3cm" to Just (3.0, "cm")
 numUnit :: T.Text -> Maybe (Double, T.Text)
 numUnit s =
   let (nums, unit) = T.span (\c -> isDigit c || ('.'==c)) s
   in (\n -> (n, unit)) <$> safeRead nums
 
--- | Scale a dimension by a factor.
+-- Scale a dimension by a factor.
 scaleDimension :: Double -> Dimension -> Dimension
 scaleDimension factor dim =
   case dim of
@@ -229,7 +229,7 @@ scaleDimension factor dim =
         Percent x    -> Percent (factor * x)
         Em x         -> Em (factor * x)
 
--- | Read a Dimension from an Attr attribute.
+-- Read a Dimension from an Attr attribute.
 -- `dimension Width attr` might return `Just (Pixel 3)` or for example `Just (Centimeter 2.0)`, etc.
 dimension :: Direction -> Attr -> Maybe Dimension
 dimension dir (_, _, kvs) =
@@ -331,25 +331,25 @@ getSize img =
 
 
 svgSize :: WriterOptions -> ByteString -> Maybe ImageSize
-svgSize opts img = do
-  doc <- either (const mzero) return $ parseXMLElement
-                                     $ TL.fromStrict $ UTF8.toText img
-  let viewboxSize = do
-        vb <- findAttrBy (== QName "viewBox" Nothing Nothing) doc
-        [_,_,w,h] <- mapM safeRead (T.words vb)
-        return (w,h)
-  let dpi = fromIntegral $ writerDpi opts
-  let dirToInt dir = do
-        dim <- findAttrBy (== QName dir Nothing Nothing) doc >>= lengthToDim
-        return $ inPixel opts dim
-  w <- dirToInt "width" <|> (fst <$> viewboxSize)
-  h <- dirToInt "height" <|> (snd <$> viewboxSize)
-  return ImageSize {
-    pxX  = w
-  , pxY  = h
-  , dpiX = dpi
-  , dpiY = dpi
-  }
+svgSize opts img = Nothing -- do
+  -- doc <- either (const mzero) return $ parseXMLElement
+  --                                    $ TL.fromStrict $ UTF8.toText img
+  -- let viewboxSize = do
+  --       vb <- findAttrBy (== QName "viewBox" Nothing Nothing) doc
+  --       [_,_,w,h] <- mapM safeRead (T.words vb)
+  --       return (w,h)
+  -- let dpi = fromIntegral $ writerDpi opts
+  -- let dirToInt dir = do
+  --       dim <- findAttrBy (== QName dir Nothing Nothing) doc >>= lengthToDim
+  --       return $ inPixel opts dim
+  -- w <- dirToInt "width" <|> (fst <$> viewboxSize)
+  -- h <- dirToInt "height" <|> (snd <$> viewboxSize)
+  -- return ImageSize {
+  --   pxX  = w
+  -- , pxY  = h
+  -- , dpiX = dpi
+  -- , dpiY = dpi
+  -- }
 
 emfSize :: ByteString -> Maybe ImageSize
 emfSize img =

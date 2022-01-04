@@ -35,7 +35,7 @@ import qualified Data.Map as M
 import Data.String
 import qualified Data.Set as Set
 
--- | Escape one character as needed for XML.
+-- Escape one character as needed for XML.
 escapeCharForXML :: Char -> Text
 escapeCharForXML x = case x of
                        '&' -> "&amp;"
@@ -44,7 +44,7 @@ escapeCharForXML x = case x of
                        '"' -> "&quot;"
                        c   -> T.singleton c
 
--- | Escape string as needed for XML.  Entity references are not preserved.
+-- Escape string as needed for XML.  Entity references are not preserved.
 escapeStringForXML :: Text -> Text
 escapeStringForXML = T.concatMap escapeCharForXML . T.filter isLegalXMLChar
   where isLegalXMLChar c = c == '\t' || c == '\n' || c == '\r' ||
@@ -53,19 +53,19 @@ escapeStringForXML = T.concatMap escapeCharForXML . T.filter isLegalXMLChar
                            (c >= '\x10000' && c <= '\x10FFFF')
   -- see https://www.w3.org/TR/xml/#charsets
 
--- | Escape newline characters as &#10;
+-- Escape newline characters as &#10;
 escapeNls :: Text -> Text
 escapeNls = T.concatMap $ \case
   '\n' -> "&#10;"
   c    -> T.singleton c
 
--- | Return a text object with a string of formatted XML attributes.
+-- Return a text object with a string of formatted XML attributes.
 attributeList :: (HasChars a, IsString a) => [(Text, Text)] -> Doc a
 attributeList = hcat . map
   (\(a, b) -> text (T.unpack $ " " <> escapeStringForXML a <> "=\"" <>
   escapeNls (escapeStringForXML b) <> "\""))
 
--- | Put the supplied contents between start and end tags of tagType,
+-- Put the supplied contents between start and end tags of tagType,
 --   with specified attributes and (if specified) indentation.
 inTags :: (HasChars a, IsString a)
       => Bool -> Text -> [(Text, Text)] -> Doc a -> Doc a
@@ -77,29 +77,29 @@ inTags isIndented tagType attribs contents =
          then openTag $$ nest 2 contents $$ closeTag
          else openTag <> contents <> closeTag
 
--- | Return a self-closing tag of tagType with specified attributes
+-- Return a self-closing tag of tagType with specified attributes
 selfClosingTag :: (HasChars a, IsString a)
                => Text -> [(Text, Text)] -> Doc a
 selfClosingTag tagType attribs =
   char '<' <> text (T.unpack tagType) <> attributeList attribs <> text " />"
 
--- | Put the supplied contents between start and end tags of tagType.
+-- Put the supplied contents between start and end tags of tagType.
 inTagsSimple :: (HasChars a, IsString a)
              => Text -> Doc a -> Doc a
 inTagsSimple tagType = inTags False tagType []
 
--- | Put the supplied contents in indented block btw start and end tags.
+-- Put the supplied contents in indented block btw start and end tags.
 inTagsIndented :: (HasChars a, IsString a)
                => Text -> Doc a -> Doc a
 inTagsIndented tagType = inTags True tagType []
 
--- | Escape all non-ascii characters using numerical entities.
+-- Escape all non-ascii characters using numerical entities.
 toEntities :: Text -> Text
 toEntities = T.concatMap go
   where go c | isAscii c = T.singleton c
              | otherwise = T.pack (printf "&#x%X;" (ord c))
 
--- | Escape all non-ascii characters using HTML5 entities, falling
+-- Escape all non-ascii characters using HTML5 entities, falling
 -- back to numerical entities.
 toHtml5Entities :: Text -> Text
 toHtml5Entities = T.concatMap go
@@ -120,7 +120,7 @@ html5EntityMap = foldr go mempty htmlEntities
              where ent' = T.takeWhile (/=';') (T.pack ent)
            _   -> entmap
 
--- | Converts a string into an NCName, i.e., an XML name without colons.
+-- Converts a string into an NCName, i.e., an XML name without colons.
 -- Disallowed characters are escaped using @ux%x@, where @%x@ is the
 -- hexadecimal unicode identifier of the escaped character.
 escapeNCName :: Text -> Text
@@ -146,7 +146,7 @@ escapeNCName t = case T.uncons t of
     escapeChar :: Char -> Text
     escapeChar = T.pack . printf "U%04X" . ord
 
--- | Unescapes XML entities
+-- Unescapes XML entities
 fromEntities :: Text -> Text
 fromEntities t
   = let (x, y) = T.break (== '&') t

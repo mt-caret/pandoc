@@ -258,7 +258,7 @@ getData mimetype src
 
 
 
--- | Convert HTML into self-contained HTML, incorporating images,
+-- Convert HTML into self-contained HTML, incorporating images,
 -- scripts, and CSS using data: URIs.
 makeSelfContained :: PandocMonad m => T.Text -> m T.Text
 makeSelfContained inp = do

@@ -43,7 +43,7 @@ import Text.Pandoc.Writers.Markdown.Types (MarkdownVariant(..),
                                            WriterState(..),
                                            WriterEnv(..), MD)
 
--- | Escape special characters for Markdown.
+-- Escape special characters for Markdown.
 escapeText :: WriterOptions -> Text -> Text
 escapeText opts = T.pack . go' . T.unpack
  where
@@ -160,7 +160,7 @@ attrsToMarkua attributes
               intercalateDocText [x] = x
               intercalateDocText (x:xs) = x <> ", " <> (intercalateDocText xs)
 
--- | Add a (key, value) pair to Pandoc attr type
+-- Add a (key, value) pair to Pandoc attr type
 addKeyValueToAttr :: Attr -> (Text,Text) -> Attr
 addKeyValueToAttr (ident,classes,kvs) (key,value) 
     | not (T.null key) && not (T.null value) = (ident,
@@ -192,7 +192,7 @@ getNextIndex = do
   let refLbls = map (\(r,_,_) -> r) $ prevRefs ++ refs
   return $ findUsableIndex refLbls i
 
--- | Get reference for target; if none exists, create unique one and return.
+-- Get reference for target; if none exists, create unique one and return.
 --   Prefer label if possible; otherwise, generate a unique key.
 getReference :: PandocMonad m => Attr -> Doc Text -> Target -> MD m Text
 getReference attr label target = do
@@ -246,7 +246,7 @@ getReference attr label target = do
 
 
 
--- | Convert list of Pandoc inline elements to markdown.
+-- Convert list of Pandoc inline elements to markdown.
 inlineListToMarkdown :: PandocMonad m => WriterOptions -> [Inline] -> MD m (Doc Text)
 inlineListToMarkdown opts ils = do
     inlist <- asks envInList
@@ -319,7 +319,7 @@ isOrderedListMarker xs = not (T.null xs) && (T.last xs `elem` ['.',')']) &&
   isRight (Right _) = True
   isRight (Left  _) = False
 
--- | Convert Pandoc inline element to markdown.
+-- Convert Pandoc inline element to markdown.
 inlineToMarkdown :: PandocMonad m => WriterOptions -> Inline -> MD m (Doc Text)
 inlineToMarkdown opts (Span ("",["emoji"],kvs) [Str s]) =
   case lookup "data-emoji" kvs of

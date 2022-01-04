@@ -28,8 +28,8 @@ import Control.Monad.Trans
 import Data.Char (toLower)
 import Data.List (find)
 import Data.Maybe (fromMaybe)
-import Skylighting (defaultSyntaxMap)
-import Skylighting.Parser (addSyntaxDefinition, parseSyntaxDefinition)
+-- import Skylighting (defaultSyntaxMap)
+-- import Skylighting.Parser (addSyntaxDefinition, parseSyntaxDefinition)
 import System.Directory (getCurrentDirectory)
 import System.Exit (exitSuccess)
 import System.FilePath
@@ -37,14 +37,14 @@ import System.IO (stdout)
 import Text.Pandoc
 import Text.Pandoc.App.FormatHeuristics (formatFromFilePaths)
 import Text.Pandoc.App.Opt (Opt (..))
-import Text.Pandoc.App.CommandLineOptions (engines, lookupHighlightStyle,
+import Text.Pandoc.App.CommandLineOptions (engines, -- lookupHighlightStyle,
                                           setVariable)
 import qualified Text.Pandoc.UTF8 as UTF8
 
 readUtf8File :: PandocMonad m => FilePath -> m T.Text
 readUtf8File = fmap UTF8.toText . readFileStrict
 
--- | Settings specifying how document output should be produced.
+-- Settings specifying how document output should be produced.
 data OutputSettings m = OutputSettings
   { outputFormat :: T.Text
   , outputWriter :: Writer m
@@ -53,7 +53,7 @@ data OutputSettings m = OutputSettings
   , outputPdfProgram :: Maybe String
   }
 
--- | Get output settings from command line options.
+-- Get output settings from command line options.
 optToOutputSettings :: (PandocMonad m, MonadIO m) => Opt -> m (OutputSettings m)
 optToOutputSettings opts = do
   let outputFile = fromMaybe "-" (optOutputFile opts)
@@ -105,29 +105,30 @@ optToOutputSettings opts = do
 
 
   (writer, writerExts) <-
-            if ".lua" `T.isSuffixOf` format
-               then return (TextWriter
-                       (\o d -> writeCustom (T.unpack writerName) o d), mempty)
-               else if optSandbox opts
-                       then
-                         case runPure (getWriter writerName) of
-                           Left e -> throwError e
-                           Right (w, wexts) ->
-                                  return (makeSandboxed w, wexts)
-                       else getWriter (T.toLower writerName)
+            --if ".lua" `T.isSuffixOf` format
+            --   then return (TextWriter
+            --           (\o d -> writeCustom (T.unpack writerName) o d), mempty)
+            --   else if optSandbox opts
+            if optSandbox opts
+            then
+              case runPure (getWriter writerName) of
+                Left e -> throwError e
+                Right (w, wexts) ->
+                      return (makeSandboxed w, wexts)
+            else getWriter (T.toLower writerName)
 
   let standalone = optStandalone opts || not (isTextFormat format) || pdfOutput
 
-  let addSyntaxMap existingmap f = do
-        res <- liftIO (parseSyntaxDefinition f)
-        case res of
-              Left errstr -> throwError $ PandocSyntaxMapError $ T.pack errstr
-              Right syn   -> return $ addSyntaxDefinition syn existingmap
+  -- let addSyntaxMap existingmap f = do
+  --       res <- liftIO (parseSyntaxDefinition f)
+  --       case res of
+  --             Left errstr -> throwError $ PandocSyntaxMapError $ T.pack errstr
+  --             Right syn   -> return $ addSyntaxDefinition syn existingmap
 
-  syntaxMap <- foldM addSyntaxMap defaultSyntaxMap
-                     (optSyntaxDefinitions opts)
+  -- syntaxMap <- foldM addSyntaxMap defaultSyntaxMap
+  --                    (optSyntaxDefinitions opts)
 
-  hlStyle <- traverse (lookupHighlightStyle . T.unpack) $ optHighlightStyle opts
+  -- hlStyle <- traverse (lookupHighlightStyle . T.unpack) $ optHighlightStyle opts
 
   let setVariableM k v = return . setVariable k v
 
@@ -220,7 +221,7 @@ optToOutputSettings opts = do
         , writerTopLevelDivision = optTopLevelDivision opts
         , writerListings         = optListings opts
         , writerSlideLevel       = optSlideLevel opts
-        , writerHighlightStyle   = hlStyle
+        -- , writerHighlightStyle   = hlStyle
         , writerSetextHeaders    = optSetextHeaders opts
         , writerEpubSubdirectory = T.pack $ optEpubSubdirectory opts
         , writerEpubMetadata     = epubMetadata
@@ -228,7 +229,7 @@ optToOutputSettings opts = do
         , writerEpubChapterLevel = optEpubChapterLevel opts
         , writerTOCDepth         = optTOCDepth opts
         , writerReferenceDoc     = optReferenceDoc opts
-        , writerSyntaxMap        = syntaxMap
+        -- , writerSyntaxMap        = syntaxMap
         , writerPreferAscii      = optAscii opts
         }
   return $ OutputSettings

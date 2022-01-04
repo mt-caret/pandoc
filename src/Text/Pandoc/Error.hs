@@ -27,7 +27,7 @@ import Data.List (sortOn)
 import qualified Data.Text as T
 import Data.Ord (Down(..))
 import GHC.Generics (Generic)
-import Network.HTTP.Client (HttpException)
+-- import Network.HTTP.Client (HttpException)
 import System.Exit (ExitCode (..), exitWith)
 import System.IO (stderr)
 import qualified Text.Pandoc.UTF8 as UTF8
@@ -36,10 +36,10 @@ import Text.Printf (printf)
 import Text.Parsec.Error
 import Text.Parsec.Pos hiding (Line)
 import Text.Pandoc.Shared (tshow)
-import Citeproc (CiteprocError, prettyCiteprocError)
+-- import Citeproc (CiteprocError, prettyCiteprocError)
 
 data PandocError = PandocIOError Text IOError
-                 | PandocHttpError Text HttpException
+                 | PandocHttpError Text -- HttpException
                  | PandocShouldNeverHappenError Text
                  | PandocSomeError Text
                  | PandocParseError Text
@@ -65,7 +65,6 @@ data PandocError = PandocIOError Text IOError
                  | PandocUnknownReaderError Text
                  | PandocUnknownWriterError Text
                  | PandocUnsupportedExtensionError Text Text
-                 | PandocCiteprocError CiteprocError
                  | PandocBibliographyError Text Text
                  deriving (Show, Typeable, Generic)
 
@@ -75,8 +74,10 @@ renderError :: PandocError -> Text
 renderError e =
   case e of
     PandocIOError _ err' -> T.pack $ displayException err'
-    PandocHttpError u err' ->
-      "Could not fetch " <> u <> "\n" <> tshow err'
+    -- PandocHttpError u err' ->
+    --   "Could not fetch " <> u <> "\n" <> tshow err'
+    PandocHttpError u ->
+       "Could not fetch " <> u <> "\n" <> "HTTP is not supported"
     PandocShouldNeverHappenError s ->
       "Something we thought was impossible happened!\n" <>
       "Please report this to pandoc's developers: " <> s
@@ -154,13 +155,13 @@ renderError e =
     PandocUnsupportedExtensionError ext f ->
       "The extension " <> ext <> " is not supported " <>
       "for " <> f
-    PandocCiteprocError e' ->
-      prettyCiteprocError e'
+    --PandocCiteprocError e' ->
+    --  prettyCiteprocError e'
     PandocBibliographyError fp msg ->
       "Error reading bibliography file " <> fp <> ":\n" <> msg
 
 
--- | Handle PandocError by exiting with an error message.
+-- Handle PandocError by exiting with an error message.
 handleError :: Either PandocError a -> IO a
 handleError (Right r) = return r
 handleError (Left e) =
@@ -178,7 +179,7 @@ handleError (Left e) =
       PandocUnknownReaderError{} -> 21
       PandocUnknownWriterError{} -> 22
       PandocUnsupportedExtensionError{} -> 23
-      PandocCiteprocError{} -> 24
+      -- PandocCiteprocError{} -> 24
       PandocBibliographyError{} -> 25
       PandocEpubSubdirectoryError{} -> 31
       PandocPDFError{} -> 43

@@ -42,10 +42,10 @@ import Data.Text (Text)
 import qualified Data.Set as Set
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
-import Skylighting (SyntaxMap, defaultSyntaxMap)
+-- import Skylighting (SyntaxMap, defaultSyntaxMap)
 import Text.DocTemplates (Context(..), Template)
 import Text.Pandoc.Extensions
-import Text.Pandoc.Highlighting (Style, pygments)
+-- import Text.Pandoc.Highlighting (Style, pygments)
 import Text.Pandoc.UTF8 (toStringLazy)
 import Data.Aeson.TH (deriveJSON)
 import Data.Aeson
@@ -163,7 +163,7 @@ instance ToJSON CiteMethod where
   toJSON Natbib = String "natbib"
   toJSON Biblatex = String "biblatex"
 
--- | Methods for obfuscating email addresses in HTML.
+-- Methods for obfuscating email addresses in HTML.
 data ObfuscationMethod = NoObfuscation
                        | ReferenceObfuscation
                        | JavascriptObfuscation
@@ -182,7 +182,7 @@ instance ToJSON ObfuscationMethod where
    toJSON ReferenceObfuscation = String "references"
    toJSON JavascriptObfuscation = String "javascript"
 
--- | Varieties of HTML slide shows.
+-- Varieties of HTML slide shows.
 data HTMLSlideVariant = S5Slides
                       | SlidySlides
                       | SlideousSlides
@@ -191,7 +191,7 @@ data HTMLSlideVariant = S5Slides
                       | NoSlides
                       deriving (Show, Read, Eq, Data, Typeable, Generic)
 
--- | Options for accepting or rejecting MS Word track-changes.
+-- Options for accepting or rejecting MS Word track-changes.
 data TrackChanges = AcceptChanges
                   | RejectChanges
                   | AllChanges
@@ -214,7 +214,7 @@ instance ToJSON TrackChanges where
   toJSON RejectChanges = String "reject-changes"
   toJSON AllChanges = String "all-changes"
 
--- | Options for wrapping text in the output.
+-- Options for wrapping text in the output.
 data WrapOption = WrapAuto        -- ^ Automatically wrap to width
                 | WrapNone        -- ^ No non-semantic newlines
                 | WrapPreserve    -- ^ Preserve wrapping of input source
@@ -236,7 +236,7 @@ instance ToJSON WrapOption where
   toJSON WrapNone = "wrap-none"
   toJSON WrapPreserve = "wrap-preserve"
 
--- | Options defining the type of top-level headers.
+-- Options defining the type of top-level headers.
 data TopLevelDivision = TopLevelPart      -- ^ Top-level headers become parts
                       | TopLevelChapter   -- ^ Top-level headers become chapters
                       | TopLevelSection   -- ^ Top-level headers become sections
@@ -263,7 +263,7 @@ instance ToJSON TopLevelDivision where
   toJSON TopLevelSection = "top-level-section"
   toJSON TopLevelDefault = "top-level-default"
 
--- | Locations for footnotes and references in markdown output
+-- Locations for footnotes and references in markdown output
 data ReferenceLocation = EndOfBlock    -- ^ End of block
                        | EndOfSection  -- ^ prior to next section header (or end of document)
                        | EndOfDocument -- ^ at end of document
@@ -285,7 +285,7 @@ instance ToJSON ReferenceLocation where
    toJSON EndOfSection = "end-of-section"
    toJSON EndOfDocument = "end-of-document"
 
--- | Options for writers
+-- Options for writers
 data WriterOptions = WriterOptions
   { writerTemplate          :: Maybe (Template Text) -- ^ Template to use
   , writerVariables         :: Context Text -- ^ Variables to set in template
@@ -309,7 +309,7 @@ data WriterOptions = WriterOptions
   , writerSlideLevel        :: Maybe Int  -- ^ Force header level of slides
   , writerTopLevelDivision  :: TopLevelDivision -- ^ Type of top-level divisions
   , writerListings          :: Bool       -- ^ Use listings package for code
-  , writerHighlightStyle    :: Maybe Style  -- ^ Style to use for highlighting
+  -- , writerHighlightStyle    :: Maybe Style  -- ^ Style to use for highlighting
                                            -- (Nothing = no highlighting)
   , writerSetextHeaders     :: Bool       -- ^ Use setext headers for levels 1-2 in markdown
   , writerEpubSubdirectory  :: Text       -- ^ Subdir for epub in OCF
@@ -319,7 +319,7 @@ data WriterOptions = WriterOptions
   , writerTOCDepth          :: Int            -- ^ Number of levels to include in TOC
   , writerReferenceDoc      :: Maybe FilePath -- ^ Path to reference document if specified
   , writerReferenceLocation :: ReferenceLocation    -- ^ Location of footnotes and references for writing markdown
-  , writerSyntaxMap         :: SyntaxMap
+  -- , writerSyntaxMap         :: SyntaxMap
   , writerPreferAscii       :: Bool           -- ^ Prefer ASCII representations of characters when possible
   } deriving (Show, Data, Typeable, Generic)
 
@@ -345,7 +345,7 @@ instance Default WriterOptions where
                       , writerSlideLevel       = Nothing
                       , writerTopLevelDivision = TopLevelDefault
                       , writerListings         = False
-                      , writerHighlightStyle   = Just pygments
+                      -- , writerHighlightStyle   = Just pygments
                       , writerSetextHeaders    = False
                       , writerEpubSubdirectory = "EPUB"
                       , writerEpubMetadata     = Nothing
@@ -354,14 +354,14 @@ instance Default WriterOptions where
                       , writerTOCDepth         = 3
                       , writerReferenceDoc     = Nothing
                       , writerReferenceLocation = EndOfDocument
-                      , writerSyntaxMap        = defaultSyntaxMap
+                      -- , writerSyntaxMap        = defaultSyntaxMap
                       , writerPreferAscii      = False
                       }
 
 instance HasSyntaxExtensions WriterOptions where
   getExtensions opts = writerExtensions opts
 
--- | Returns True if the given extension is enabled.
+-- Returns True if the given extension is enabled.
 isEnabled :: HasSyntaxExtensions a => Extension -> a -> Bool
 isEnabled ext opts = ext `extensionEnabled` getExtensions opts
 

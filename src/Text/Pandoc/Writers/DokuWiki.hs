@@ -62,7 +62,7 @@ instance Default WriterEnvironment where
 
 type DokuWiki m = ReaderT WriterEnvironment (StateT WriterState m)
 
--- | Convert Pandoc to DokuWiki.
+-- Convert Pandoc to DokuWiki.
 writeDokuWiki :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeDokuWiki opts document =
   runDokuWiki (pandocToDokuWiki opts document)
@@ -70,7 +70,7 @@ writeDokuWiki opts document =
 runDokuWiki :: PandocMonad m => DokuWiki m a -> m a
 runDokuWiki = flip evalStateT def . flip runReaderT def
 
--- | Return DokuWiki representation of document.
+-- Return DokuWiki representation of document.
 pandocToDokuWiki :: PandocMonad m
                  => WriterOptions -> Pandoc -> DokuWiki m Text
 pandocToDokuWiki opts (Pandoc meta blocks) = do
@@ -86,13 +86,13 @@ pandocToDokuWiki opts (Pandoc meta blocks) = do
        Nothing  -> body
        Just tpl -> render Nothing $ renderTemplate tpl context
 
--- | Escape special characters for DokuWiki.
+-- Escape special characters for DokuWiki.
 escapeString :: Text -> Text
 escapeString = T.replace "__" "%%__%%" .
                T.replace "**" "%%**%%" .
                T.replace "//" "%%//%%"
 
--- | Convert Pandoc block element to DokuWiki.
+-- Convert Pandoc block element to DokuWiki.
 blockToDokuWiki :: PandocMonad m
                 => WriterOptions -- ^ Options
                 -> Block         -- ^ Block element
@@ -242,7 +242,7 @@ blockToDokuWiki opts x@(DefinitionList items) = do
 
 -- Auxiliary functions for lists:
 
--- | Convert ordered list attributes to HTML attribute string
+-- Convert ordered list attributes to HTML attribute string
 listAttribsToString :: ListAttributes -> Text
 listAttribsToString (startnum, numstyle, _) =
   let numstyle' = camelCaseToHyphenated $ tshow numstyle
@@ -253,7 +253,7 @@ listAttribsToString (startnum, numstyle, _) =
           then " style=\"list-style-type: " <> numstyle' <> ";\""
           else "")
 
--- | Convert bullet list item (list of blocks) to DokuWiki.
+-- Convert bullet list item (list of blocks) to DokuWiki.
 listItemToDokuWiki :: PandocMonad m
                    => WriterOptions -> [Block] -> DokuWiki m Text
 listItemToDokuWiki opts items = do
@@ -272,8 +272,8 @@ listItemToDokuWiki opts items = do
        let indent' = if backSlash then T.drop 2 indent else indent
        return $ indent' <> "* " <> contents
 
--- | Convert ordered list item (list of blocks) to DokuWiki.
--- | TODO Emiminate dreadful duplication of text from listItemToDokuWiki
+-- Convert ordered list item (list of blocks) to DokuWiki.
+-- TODO Emiminate dreadful duplication of text from listItemToDokuWiki
 orderedListItemToDokuWiki :: PandocMonad m => WriterOptions -> [Block] -> DokuWiki m Text
 orderedListItemToDokuWiki opts items = do
   contents <- blockListToDokuWiki opts items
@@ -286,7 +286,7 @@ orderedListItemToDokuWiki opts items = do
        let indent' = if backSlash then T.drop 2 indent else indent
        return $ indent' <> "- " <> contents
 
--- | Convert definition list item (label, list of blocks) to DokuWiki.
+-- Convert definition list item (label, list of blocks) to DokuWiki.
 definitionListItemToDokuWiki :: PandocMonad m
                              => WriterOptions
                              -> ([Inline],[[Block]])
@@ -304,7 +304,7 @@ definitionListItemToDokuWiki opts (label, items) = do
        let indent' = if backSlash then T.drop 2 indent else indent
        return $ indent' <> "* **" <> labelText <> "** " <> T.concat contents
 
--- | True if the list can be handled by simple wiki markup, False if HTML tags will be needed.
+-- True if the list can be handled by simple wiki markup, False if HTML tags will be needed.
 isSimpleList :: Block -> Bool
 isSimpleList x =
   case x of
@@ -313,7 +313,7 @@ isSimpleList x =
        DefinitionList items        -> all (all isSimpleListItem . snd) items
        _                           -> False
 
--- | True if list item can be handled with the simple wiki syntax.  False if
+-- True if list item can be handled with the simple wiki syntax.  False if
 --   HTML tags will be needed.
 isSimpleListItem :: [Block] -> Bool
 isSimpleListItem []  = True
@@ -329,11 +329,11 @@ isPlainOrPara _         = False
 isSimpleBlockQuote :: [Block] -> Bool
 isSimpleBlockQuote bs  = all isPlainOrPara bs
 
--- | Concatenates strings with line breaks between them.
+-- Concatenates strings with line breaks between them.
 vcat :: [Text] -> Text
 vcat = T.intercalate "\n"
 
--- | For each string in the input list, convert all newlines to
+-- For each string in the input list, convert all newlines to
 -- dokuwiki escaped newlines. Then concat the list using double linebreaks.
 backSlashLineBreaks :: [Text] -> Text
 backSlashLineBreaks ls = vcatBackSlash $ map (T.pack . escape . T.unpack) ls
@@ -362,7 +362,7 @@ tableItemToDokuWiki opts align' item = do
               blockListToDokuWiki opts item
   return $ mkcell contents
 
--- | Convert list of Pandoc block elements to DokuWiki.
+-- Convert list of Pandoc block elements to DokuWiki.
 blockListToDokuWiki :: PandocMonad m
                     => WriterOptions -- ^ Options
                     -> [Block]       -- ^ List of block elements
@@ -380,13 +380,13 @@ consolidateRawBlocks (RawBlock f1 b1 : RawBlock f2 b2 : xs)
   | f1 == f2 = consolidateRawBlocks (RawBlock f1 (b1 <> "\n" <> b2) : xs)
 consolidateRawBlocks (x:xs) = x : consolidateRawBlocks xs
 
--- | Convert list of Pandoc inline elements to DokuWiki.
+-- Convert list of Pandoc inline elements to DokuWiki.
 inlineListToDokuWiki :: PandocMonad m
                      => WriterOptions -> [Inline] -> DokuWiki m Text
 inlineListToDokuWiki opts lst =
   T.concat <$> mapM (inlineToDokuWiki opts) lst
 
--- | Convert Pandoc inline element to DokuWiki.
+-- Convert Pandoc inline element to DokuWiki.
 inlineToDokuWiki :: PandocMonad m
                  => WriterOptions -> Inline -> DokuWiki m Text
 

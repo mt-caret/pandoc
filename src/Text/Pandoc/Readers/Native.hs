@@ -23,7 +23,7 @@ import Text.Pandoc.Class.PandocMonad (PandocMonad)
 import Text.Pandoc.Error
 import Text.Pandoc.Sources (ToSources(..), sourcesToText)
 
--- | Read native formatted text and return a Pandoc document.
+-- Read native formatted text and return a Pandoc document.
 -- The input may be a full pandoc document, a block list, a block,
 -- an inline list, or an inline.  Thus, for example,
 --

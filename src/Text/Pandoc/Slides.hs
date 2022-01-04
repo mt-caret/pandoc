@@ -14,7 +14,7 @@ show formats (dzslides, revealjs, s5, slidy, slideous, beamer).
 module Text.Pandoc.Slides ( getSlideLevel, prepSlides ) where
 import Text.Pandoc.Definition
 
--- | Find level of header that starts slides (defined as the least header
+-- Find level of header that starts slides (defined as the least header
 -- level that occurs before a non-header/non-hrule in the blocks).
 getSlideLevel :: [Block] -> Int
 getSlideLevel = go 6
@@ -28,7 +28,7 @@ getSlideLevel = go 6
         nonHOrHR HorizontalRule = False
         nonHOrHR _              = True
 
--- | Prepare a block list to be passed to makeSections.
+-- Prepare a block list to be passed to makeSections.
 prepSlides :: Int -> [Block] -> [Block]
 prepSlides slideLevel = ensureStartWithH . splitHrule . extractRefsHeader
   where splitHrule (HorizontalRule : Header n attr xs : ys)

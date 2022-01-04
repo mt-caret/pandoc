@@ -22,14 +22,14 @@ import Data.Char (toLower)
 import Data.Maybe (listToMaybe)
 import Data.Text (Text, unpack)
 
--- | Read and handle space separated org-mode export settings.
+-- Read and handle space separated org-mode export settings.
 exportSettings :: PandocMonad m => OrgParser m ()
 exportSettings = void $ sepBy skipSpaces exportSetting
 
--- | Setter function for export settings.
+-- Setter function for export settings.
 type ExportSettingSetter a = a -> ExportSettings -> ExportSettings
 
--- | Read and process a single org-mode export option.
+-- Read and process a single org-mode export option.
 exportSetting :: PandocMonad m => OrgParser m ()
 exportSetting = choice
   [ booleanSetting "^" (\val es -> es { exportSubSuperscripts = val })
@@ -68,7 +68,7 @@ exportSetting = choice
   , ignoreAndWarn
   ] <?> "export setting"
 
--- | Generic handler for export settings. Takes a parser which converts
+-- Generic handler for export settings. Takes a parser which converts
 -- the plain option text into a data structure.
 genericExportSetting :: Monad m
                      => OrgParser m a
@@ -83,18 +83,18 @@ genericExportSetting optionParser settingIdentifier setter = try $ do
    modifyExportSettings val st =
      st { orgStateExportSettings = setter val . orgStateExportSettings $ st }
 
--- | A boolean option, either nil (False) or non-nil (True).
+-- A boolean option, either nil (False) or non-nil (True).
 booleanSetting :: Monad m => Text ->  ExportSettingSetter Bool -> OrgParser m ()
 booleanSetting = genericExportSetting elispBoolean
 
--- | An integer-valued option.
+-- An integer-valued option.
 integerSetting :: Monad m => Text -> ExportSettingSetter Int -> OrgParser m ()
 integerSetting = genericExportSetting parseInt
  where
    parseInt = try $
      many1 digit >>= maybe mzero (return . fst) . listToMaybe . reads
 
--- | Either the string "headline" or an elisp boolean and treated as an
+-- Either the string "headline" or an elisp boolean and treated as an
 -- @ArchivedTreesOption@.
 archivedTreeSetting :: Monad m
                     => Text
@@ -113,7 +113,7 @@ archivedTreeSetting =
        then ArchivedTreesExport
        else ArchivedTreesNoExport
 
--- | A list or a complement list (i.e. a list starting with `not`).
+-- A list or a complement list (i.e. a list starting with `not`).
 complementableListSetting :: Monad m
                           => Text
                           -> ExportSettingSetter (Either [Text] [Text])
@@ -143,7 +143,7 @@ complementableListSetting = genericExportSetting $ choice
      char '"'
        *> manyTillChar alphaNum (char '"')
 
--- | Parses either @t@, @nil@, or @verbatim@ into a 'TeXExport' value.
+-- Parses either @t@, @nil@, or @verbatim@ into a 'TeXExport' value.
 texSetting :: Monad m
            => Text
            -> ExportSettingSetter TeXExport
@@ -159,18 +159,18 @@ texSetting = genericExportSetting $ texVerbatim <|> texBoolean
        then TeXExport
        else TeXIgnore
 
--- | Read but ignore the export setting.
+-- Read but ignore the export setting.
 ignoredSetting :: Monad m => Text -> OrgParser m ()
 ignoredSetting s = try (() <$ textStr s <* char ':' <* many1 nonspaceChar)
 
--- | Read any setting string, but ignore it and emit a warning.
+-- Read any setting string, but ignore it and emit a warning.
 ignoreAndWarn :: PandocMonad m => OrgParser m ()
 ignoreAndWarn = try $ do
   opt <- many1Char nonspaceChar
   report (UnknownOrgExportOption opt)
   return ()
 
--- | Read an elisp boolean.  Only NIL is treated as false, non-NIL values are
+-- Read an elisp boolean.  Only NIL is treated as false, non-NIL values are
 -- interpreted as true.
 elispBoolean :: Monad m => OrgParser m Bool
 elispBoolean = try $ do
@@ -181,7 +181,7 @@ elispBoolean = try $ do
              "()"  -> False
              _     -> True
 
--- | Try to parse a literal string as the option value. Returns the
+-- Try to parse a literal string as the option value. Returns the
 -- string on success.
 optionString :: Monad m => Text -> OrgParser m Text
 optionString s = try $ do

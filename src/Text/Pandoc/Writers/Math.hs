@@ -14,7 +14,7 @@ import Text.Pandoc.Logging
 import Text.TeXMath (DisplayType (..), Exp, readTeX, writePandoc)
 import Text.Pandoc.Options (defaultMathJaxURL, defaultKaTeXURL)
 
--- | Converts a raw TeX math formula to a list of 'Pandoc' inlines.
+-- Converts a raw TeX math formula to a list of 'Pandoc' inlines.
 -- Defaults to raw formula between @$@ or @$$@ characters if entire formula
 -- can't be converted.
 texMathToInlines :: PandocMonad m
@@ -36,7 +36,7 @@ mkFallback mt str = Str (delim <> str <> delim)
                       DisplayMath -> "$$"
                       InlineMath  -> "$"
 
--- | Converts a raw TeX math formula using a writer function,
+-- Converts a raw TeX math formula using a writer function,
 -- issuing a warning and producing a fallback (a raw string)
 -- on failure.
 convertMath :: PandocMonad m

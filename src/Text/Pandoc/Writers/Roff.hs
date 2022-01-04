@@ -73,7 +73,7 @@ combiningAccentsMap = Map.fromList combiningAccents
 essentialEscapes :: Map.Map Char Text
 essentialEscapes = Map.fromList standardEscapes
 
--- | Escape special characters for roff.
+-- Escape special characters for roff.
 escapeString :: EscapeMode -> Text -> Text
 escapeString e = Text.concat . escapeString' e . Text.unpack
   where

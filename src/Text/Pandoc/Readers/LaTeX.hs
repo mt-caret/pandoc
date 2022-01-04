@@ -32,7 +32,7 @@ import Data.Maybe (fromMaybe, maybeToList)
 import qualified Data.Set as Set
 import Data.Text (Text)
 import qualified Data.Text as T
-import Skylighting (defaultSyntaxMap)
+-- import Skylighting (defaultSyntaxMap)
 import System.FilePath (addExtension, replaceExtension, takeExtension)
 import Text.Collate.Lang (renderLang)
 import Text.Pandoc.Builder as B
@@ -41,7 +41,7 @@ import Text.Pandoc.Class.PandocMonad (PandocMonad (..), getResourcePath,
                                       readFileFromDirs, report,
                                       setResourcePath)
 import Text.Pandoc.Error (PandocError (PandocParseError, PandocParsecError))
-import Text.Pandoc.Highlighting (languagesByExtension)
+-- import Text.Pandoc.Highlighting (languagesByExtension)
 import Text.Pandoc.ImageSize (numUnit, showFl)
 import Text.Pandoc.Logging
 import Text.Pandoc.Options
@@ -76,7 +76,7 @@ import Data.List.NonEmpty (nonEmpty)
 -- import Text.Pandoc.Class.PandocIO (runIOorExplode, PandocIO)
 -- import Debug.Trace (traceShowId)
 
--- | Parse LaTeX from string and return 'Pandoc' document.
+-- Parse LaTeX from string and return 'Pandoc' document.
 readLaTeX :: (PandocMonad m, ToSources a)
           => ReaderOptions -- ^ Reader options
           -> a             -- ^ Input to parse
@@ -1168,8 +1168,9 @@ inputListing = do
   let (ident,classes,kvs) = parseListingsOptions options
   let classes' =
         (case listingsLanguage options of
-           Nothing -> (take 1 (languagesByExtension defaultSyntaxMap
-                                (T.pack $ takeExtension $ T.unpack f)) <>)
+           Nothing -> id
+           --Nothing -> (take 1 (languagesByExtension defaultSyntaxMap
+           --                     (T.pack $ takeExtension $ T.unpack f)) <>)
            Just _  -> id) classes
   let firstline = fromMaybe 1 $ lookup "firstline" options >>= safeRead
   let lastline = fromMaybe (length codeLines) $

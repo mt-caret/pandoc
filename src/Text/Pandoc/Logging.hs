@@ -36,7 +36,7 @@ import Text.Pandoc.Definition
 import Text.Parsec.Pos
 import Text.Pandoc.Shared (tshow)
 
--- | Verbosity level.
+-- Verbosity level.
 data Verbosity = ERROR | WARNING | INFO
      deriving (Show, Read, Eq, Data, Enum, Ord, Bounded, Typeable, Generic)
 

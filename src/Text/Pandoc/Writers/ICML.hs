@@ -129,7 +129,7 @@ subListParName    = "subParagraph"
 footnoteName      = "Footnote"
 citeName          = "Cite"
 
--- | Convert Pandoc document to string in ICML format.
+-- Convert Pandoc document to string in ICML format.
 writeICML :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeICML opts (Pandoc meta blocks) = do
   let colwidth = if writerWrapText opts == WrapAuto
@@ -152,20 +152,20 @@ writeICML opts (Pandoc meta blocks) = do
        Nothing  -> main
        Just tpl -> renderTemplate tpl context
 
--- | Auxiliary functions for parStylesToDoc and charStylesToDoc.
+-- Auxiliary functions for parStylesToDoc and charStylesToDoc.
 contains :: Text -> (Text, (Text, Text)) -> [(Text, Text)]
 contains s rule =
   [snd rule | fst rule `Text.isInfixOf` s]
 
--- | The monospaced font to use as default.
+-- The monospaced font to use as default.
 monospacedFont :: Doc Text
 monospacedFont = inTags False "AppliedFont" [("type", "string")] $ text "Courier New"
 
--- | How much to indent blockquotes etc.
+-- How much to indent blockquotes etc.
 defaultIndent :: Int
 defaultIndent = 20
 
--- | How much to indent numbered lists before the number.
+-- How much to indent numbered lists before the number.
 defaultListIndent :: Int
 defaultListIndent = 10
 
@@ -173,7 +173,7 @@ defaultListIndent = 10
 lineSeparator :: Text
 lineSeparator = "&#x2028;"
 
--- | Convert a WriterState with its block styles to the ICML listing of Paragraph Styles.
+-- Convert a WriterState with its block styles to the ICML listing of Paragraph Styles.
 parStylesToDoc :: WriterState -> Doc Text
 parStylesToDoc st = vcat $ map makeStyle $ Set.toAscList $ blockStyles st
   where
@@ -239,7 +239,7 @@ parStylesToDoc st = vcat $ map makeStyle $ Set.toAscList $ blockStyles st
                        | otherwise = empty
       in  inTags True "ParagraphStyle" ([("Self", "ParagraphStyle/"<>s), ("Name", s)] ++ attrs') props
 
--- | Convert a WriterState with its inline styles to the ICML listing of Character Styles.
+-- Convert a WriterState with its inline styles to the ICML listing of Character Styles.
 charStylesToDoc :: WriterState -> Doc Text
 charStylesToDoc st = vcat $ map makeStyle $ Set.toAscList $ inlineStyles st
   where
@@ -264,12 +264,12 @@ charStylesToDoc st = vcat $ map makeStyle $ Set.toAscList $ inlineStyles st
                          else empty
       in  inTags True "CharacterStyle" ([("Self", "CharacterStyle/"<>s), ("Name", s)] ++ attrs') props
 
--- | Escape colon characters as %3a
+-- Escape colon characters as %3a
 escapeColons :: Text -> Text
 escapeColons txt = Text.replace ":" "%3a" txt
 
--- | figure out the link destination for a given URL
--- | HyperlinkURLDestination with more than one colon crashes CS6
+-- figure out the link destination for a given URL
+-- HyperlinkURLDestination with more than one colon crashes CS6
 makeDest :: Text -> Doc Text
 makeDest txt = literal $
   if "#" `Text.isPrefixOf` txt
@@ -278,7 +278,7 @@ makeDest txt = literal $
   where
     escTxt = escapeColons $ escapeStringForXML txt
 
--- | Convert a list of (identifier, url) pairs to the ICML listing of hyperlinks.
+-- Convert a list of (identifier, url) pairs to the ICML listing of hyperlinks.
 hyperlinksToDoc :: Hyperlink -> Doc Text
 hyperlinksToDoc []     = empty
 hyperlinksToDoc (x:xs) = hyp x $$ hyperlinksToDoc xs
@@ -295,17 +295,17 @@ hyperlinksToDoc (x:xs) = hyp x $$ hyperlinksToDoc xs
                   $ inTags False "BorderColor" [("type","enumeration")] (text "Black")
                  $$ inTags False "Destination" [("type","object")] (makeDest url)
 
--- | Key for specifying user-defined styles
+-- Key for specifying user-defined styles
 dynamicStyleKey :: Text
 dynamicStyleKey = "custom-style"
 
--- | Convert a list of Pandoc blocks to ICML.
+-- Convert a list of Pandoc blocks to ICML.
 blocksToICML :: PandocMonad m => WriterOptions -> Style -> [Block] -> WS m (Doc Text)
 blocksToICML opts style lst = do
   docs <- mapM (blockToICML opts style) lst
   return $ intersperseBrs docs
 
--- | Convert a Pandoc block element to ICML.
+-- Convert a Pandoc block element to ICML.
 blockToICML :: PandocMonad m => WriterOptions -> Style -> Block -> WS m (Doc Text)
 blockToICML opts style (Plain lst) = parStyle opts style "" lst
 blockToICML opts style (SimpleFigure attr txt (src, tit)) = do
@@ -381,7 +381,7 @@ blockToICML opts style (Div (_ident, _, kvs) lst) =
   in  blocksToICML opts (dynamicStyle <> style) lst
 blockToICML _ _ Null = return empty
 
--- | Convert a list of lists of blocks to ICML list items.
+-- Convert a list of lists of blocks to ICML list items.
 listItemsToICML :: PandocMonad m => WriterOptions -> Text -> Style -> Maybe ListAttributes -> [[Block]] -> WS m (Doc Text)
 listItemsToICML _ _ _ _ [] = return empty
 listItemsToICML opts listType style attribs (first:rest) = do
@@ -396,7 +396,7 @@ listItemsToICML opts listType style attribs (first:rest) = do
   put s{ listDepth = 1, maxListDepth = maxD }
   return $ intersperseBrs docs
 
--- | Convert a list of blocks to ICML list items.
+-- Convert a list of blocks to ICML list items.
 listItemToICML :: PandocMonad m => WriterOptions -> Style -> Bool-> Maybe ListAttributes -> [Block] -> WS m (Doc Text)
 listItemToICML opts style isFirst attribs item =
   let makeNumbStart (Just (beginsWith, numbStl, _)) =
@@ -430,11 +430,11 @@ definitionListItemToICML opts style (term,defs) = do
   return $ intersperseBrs (term' : defs')
 
 
--- | Convert a list of inline elements to ICML.
+-- Convert a list of inline elements to ICML.
 inlinesToICML :: PandocMonad m => WriterOptions -> Style -> Text -> [Inline] -> WS m (Doc Text)
 inlinesToICML opts style ident lst = vcat `fmap` mapM (inlineToICML opts style ident) (mergeStrings opts lst)
 
--- | Convert an inline element to ICML.
+-- Convert an inline element to ICML.
 inlineToICML :: PandocMonad m => WriterOptions -> Style -> Text -> Inline -> WS m (Doc Text)
 inlineToICML _    style ident (Str str) = charStyle style ident $ literal $ escapeStringForXML str
 inlineToICML opts style ident (Emph lst) = inlinesToICML opts (emphName:style) ident lst
@@ -485,7 +485,7 @@ inlineToICML opts style _ (Span (ident, _, kvs) lst) =
 --     then 
 --     else do
 
--- | Convert a list of block elements to an ICML footnote.
+-- Convert a list of block elements to an ICML footnote.
 footnoteToICML :: PandocMonad m => WriterOptions -> Style -> [Block] -> WS m (Doc Text)
 footnoteToICML opts style lst =
   let insertTab (Para ls) = blockToICML opts (footnoteName:style) $ Para $ Str "\t":ls
@@ -498,7 +498,7 @@ footnoteToICML opts style lst =
       [("AppliedCharacterStyle","$ID/NormalCharacterStyle"), ("Position","Superscript")]
       $ inTags True "Footnote" [] $ number $$ intersperseBrs contents
 
--- | Auxiliary function to merge Space elements into the adjacent Strs.
+-- Auxiliary function to merge Space elements into the adjacent Strs.
 mergeStrings :: WriterOptions -> [Inline] -> [Inline]
 mergeStrings opts = mergeStrings' . map spaceToStr
   where spaceToStr Space = Str " "
@@ -511,11 +511,11 @@ mergeStrings opts = mergeStrings' . map spaceToStr
         mergeStrings' (x : xs) = x : mergeStrings' xs
         mergeStrings' []       = []
 
--- | Intersperse line breaks
+-- Intersperse line breaks
 intersperseBrs :: [Doc Text] -> Doc Text
 intersperseBrs = vcat . intersperse (selfClosingTag "Br" []) . filter (not . isEmpty)
 
--- | Wrap a list of inline elements in an ICML Paragraph Style
+-- Wrap a list of inline elements in an ICML Paragraph Style
 parStyle :: PandocMonad m => WriterOptions -> Style -> Text -> [Inline] -> WS m (Doc Text)
 parStyle opts style ident lst =
   let slipIn x y = if Text.null y
@@ -540,11 +540,11 @@ parStyle opts style ident lst =
       let cont = inTags True "ParagraphStyleRange" attrs' content
       state $ \st -> (cont, st{ blockStyles = Set.insert stlStr $ blockStyles st })
 
--- | Create the destination name
+-- Create the destination name
 makeDestName :: Text -> Text
 makeDestName name = "#" <> Text.replace " " "-" name
 
--- | Create a HyperlinkTextDestination for a given identifier
+-- Create a HyperlinkTextDestination for a given identifier
 makeLinkDest :: Text -> Doc Text -> Doc Text
 makeLinkDest ident cont = vcat [
     selfClosingTag "HyperlinkTextDestination"
@@ -552,15 +552,15 @@ makeLinkDest ident cont = vcat [
     , inTagsSimple "Content" $ flush cont
   ]
 
--- | Create the markup for the content (incl. named destinations)
--- |  NOTE: since we have no easy way to get actual named dests, we just create them for any short content blocks
+-- Create the markup for the content (incl. named destinations)
+--  NOTE: since we have no easy way to get actual named dests, we just create them for any short content blocks
 makeContent :: Text -> Doc Text -> Doc Text
 makeContent ident cont 
               | isEmpty cont = empty
               | not (Text.null ident) = makeLinkDest ident cont
               | otherwise = inTagsSimple "Content" $ flush cont
 
--- | Wrap a Doc in an ICML Character Style.
+-- Wrap a Doc in an ICML Character Style.
 charStyle :: PandocMonad m => Style -> Text -> Doc Text -> WS m (Doc Text)
 charStyle style ident content =
   let (stlStr, attrs) = styleToStrAttr style
@@ -573,7 +573,7 @@ charStyle style ident content =
                     else st{ inlineStyles = Set.insert stlStr $ inlineStyles st }
     in  (doc, styles)
 
--- | Transform a Style to a tuple of String (eliminating duplicates and ordered) and corresponding attribute.
+-- Transform a Style to a tuple of String (eliminating duplicates and ordered) and corresponding attribute.
 styleToStrAttr :: Style -> (Text, [(Text, Text)])
 styleToStrAttr style =
   let stlStr = Text.unwords $ Set.toAscList $ Set.fromList style
@@ -583,7 +583,7 @@ styleToStrAttr style =
       attrs = [("AppliedCharacterStyle", stl)]
   in  (stlStr, attrs)
 
--- | Assemble an ICML Image.
+-- Assemble an ICML Image.
 imageICML :: PandocMonad m => WriterOptions -> Style -> Attr -> Target -> WS m (Doc Text)
 imageICML opts style attr (src, _) = do
   imgS <- catchError

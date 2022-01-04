@@ -27,7 +27,7 @@ import Text.Pandoc.Class (PandocMonad, toLang)
 import Text.Pandoc.Options (WriterOptions(..), isEnabled)
 import Text.Pandoc.Writers.LaTeX.Types (LW, WriterState(..))
 import Text.Pandoc.Writers.LaTeX.Lang (toBabel)
-import Text.Pandoc.Highlighting (toListingsLanguage)
+-- import Text.Pandoc.Highlighting (toListingsLanguage)
 import Text.DocLayout
 import Text.Pandoc.Definition
 import Text.Pandoc.ImageSize (showFl)
@@ -185,7 +185,7 @@ toLabel z = go `fmap` stringToLaTeX URLString z
        | x `elemText` "_-+=:;." -> T.singleton x
        | otherwise -> T.pack $ "ux" <> printf "%x" (ord x)
 
--- | Puts contents into LaTeX command.
+-- Puts contents into LaTeX command.
 inCmd :: Text -> Doc Text -> Doc Text
 inCmd cmd contents = char '\\' <> literal cmd <> braces contents
 
@@ -265,7 +265,7 @@ labelFor ident = do
 -- Determine listings language from list of class attributes.
 getListingsLanguage :: [Text] -> Maybe Text
 getListingsLanguage xs
-  = foldr ((<|>) . toListingsLanguage) Nothing xs
+  = Nothing -- foldr ((<|>) . toListingsLanguage) Nothing xs
 
 mbBraced :: Text -> Text
 mbBraced x = if not (T.all isAlphaNum x)

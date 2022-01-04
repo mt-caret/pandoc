@@ -37,7 +37,7 @@ data WriterState = WriterState {
 
 type TW = StateT WriterState
 
--- | Convert Pandoc to Textile.
+-- Convert Pandoc to Textile.
 writeTextile :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeTextile opts document =
   evalStateT (pandocToTextile opts document)
@@ -46,7 +46,7 @@ writeTextile opts document =
                           stStartNum = Nothing,
                           stUseTags = False }
 
--- | Return Textile representation of document.
+-- Return Textile representation of document.
 pandocToTextile :: PandocMonad m
                 => WriterOptions -> Pandoc -> TW m Text
 pandocToTextile opts (Pandoc meta blocks) = do
@@ -70,7 +70,7 @@ withUseTags action = do
   modify $ \s -> s { stUseTags = oldUseTags }
   return result
 
--- | Escape one character as needed for Textile.
+-- Escape one character as needed for Textile.
 escapeCharForTextile :: Char -> Text
 escapeCharForTextile x = case x of
                          '&'      -> "&amp;"
@@ -89,11 +89,11 @@ escapeCharForTextile x = case x of
                          '\x2026' -> "..."
                          c        -> T.singleton c
 
--- | Escape string as needed for Textile.
+-- Escape string as needed for Textile.
 escapeTextForTextile :: Text -> Text
 escapeTextForTextile = T.concatMap escapeCharForTextile
 
--- | Convert Pandoc block element to Textile.
+-- Convert Pandoc block element to Textile.
 blockToTextile :: PandocMonad m
                => WriterOptions -- ^ Options
                -> Block         -- ^ Block element
@@ -244,7 +244,7 @@ blockToTextile opts (DefinitionList items) = do
 
 -- Auxiliary functions for lists:
 
--- | Convert ordered list attributes to HTML attribute string
+-- Convert ordered list attributes to HTML attribute string
 listAttribsToString :: ListAttributes -> Text
 listAttribsToString (startnum, numstyle, _) =
   let numstyle' = camelCaseToHyphenated $ tshow numstyle
@@ -255,7 +255,7 @@ listAttribsToString (startnum, numstyle, _) =
           then " style=\"list-style-type: " <> numstyle' <> ";\""
           else "")
 
--- | Convert bullet or ordered list item (list of blocks) to Textile.
+-- Convert bullet or ordered list item (list of blocks) to Textile.
 listItemToTextile :: PandocMonad m
                   => WriterOptions -> [Block] -> TW m Text
 listItemToTextile opts items = do
@@ -272,7 +272,7 @@ listItemToTextile opts items = do
               return $ T.pack marker <> tshow n <> " " <> contents
             Nothing -> return $ T.pack marker <> " " <> contents
 
--- | Convert definition list item (label, list of blocks) to Textile.
+-- Convert definition list item (label, list of blocks) to Textile.
 definitionListItemToTextile :: PandocMonad m
                             => WriterOptions
                              -> ([Inline],[[Block]])
@@ -283,7 +283,7 @@ definitionListItemToTextile opts (label, items) = do
   return $ "<dt>" <> labelText <> "</dt>\n" <>
           T.intercalate "\n" (map (\d -> "<dd>" <> d <> "</dd>") contents)
 
--- | True if the list can be handled by simple wiki markup, False if HTML tags will be needed.
+-- True if the list can be handled by simple wiki markup, False if HTML tags will be needed.
 isSimpleList :: Block -> Bool
 isSimpleList x =
   case x of
@@ -292,7 +292,7 @@ isSimpleList x =
                                             sty `elem` [DefaultStyle, Decimal]
        _                                -> False
 
--- | True if list item can be handled with the simple wiki syntax.  False if
+-- True if list item can be handled with the simple wiki syntax.  False if
 --   HTML tags will be needed.
 isSimpleListItem :: [Block] -> Bool
 isSimpleListItem []  = True
@@ -315,7 +315,7 @@ isPlainOrPara (Plain _) = True
 isPlainOrPara (Para  _) = True
 isPlainOrPara _         = False
 
--- | Concatenates strings with line breaks between them.
+-- Concatenates strings with line breaks between them.
 vcat :: [Text] -> Text
 vcat = T.intercalate "\n"
 
@@ -358,7 +358,7 @@ tableItemToTextile opts celltype align' item = do
   contents <- blockListToTextile opts item
   return $ mkcell contents
 
--- | Convert list of Pandoc block elements to Textile.
+-- Convert list of Pandoc block elements to Textile.
 blockListToTextile :: PandocMonad m
                    => WriterOptions -- ^ Options
                    -> [Block]       -- ^ List of block elements
@@ -366,13 +366,13 @@ blockListToTextile :: PandocMonad m
 blockListToTextile opts blocks =
   vcat <$> mapM (blockToTextile opts) blocks
 
--- | Convert list of Pandoc inline elements to Textile.
+-- Convert list of Pandoc inline elements to Textile.
 inlineListToTextile :: PandocMonad m
                     => WriterOptions -> [Inline] -> TW m Text
 inlineListToTextile opts lst =
   T.concat <$> mapM (inlineToTextile opts) lst
 
--- | Convert Pandoc inline element to Textile.
+-- Convert Pandoc inline element to Textile.
 inlineToTextile :: PandocMonad m => WriterOptions -> Inline -> TW m Text
 
 inlineToTextile opts (Span _ lst) =

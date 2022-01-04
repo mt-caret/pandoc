@@ -49,14 +49,14 @@ data WriterState =
 
 type TI m = StateT WriterState m
 
--- | Convert Pandoc to Texinfo.
+-- Convert Pandoc to Texinfo.
 writeTexinfo :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeTexinfo options document =
   evalStateT (pandocToTexinfo options $ wrapTop document)
   WriterState { stStrikeout = False, stEscapeComma = False,
                 stIdentifiers = Set.empty, stOptions = options}
 
--- | Add a "Top" node around the document, needed by Texinfo.
+-- Add a "Top" node around the document, needed by Texinfo.
 wrapTop :: Pandoc -> Pandoc
 wrapTop (Pandoc meta blocks) =
   Pandoc meta (Header 0 nullAttr (docTitle meta) : blocks)
@@ -83,7 +83,7 @@ pandocToTexinfo options (Pandoc meta blocks) = do
        Nothing  -> body
        Just tpl -> renderTemplate tpl context
 
--- | Escape things as needed for Texinfo.
+-- Escape things as needed for Texinfo.
 stringToTexinfo :: Text -> Text
 stringToTexinfo t
   | T.all isAlphaNum t = t
@@ -106,11 +106,11 @@ escapeCommas parser = do
   modify $ \st -> st{ stEscapeComma = oldEscapeComma }
   return res
 
--- | Puts contents into Texinfo command.
+-- Puts contents into Texinfo command.
 inCmd :: Text -> Doc Text -> Doc Text
 inCmd cmd contents = char '@' <> literal cmd <> braces contents
 
--- | Convert Pandoc block element to Texinfo.
+-- Convert Pandoc block element to Texinfo.
 blockToTexinfo :: PandocMonad m
                => Block     -- ^ Block to convert
                -> TI m (Doc Text)
@@ -297,7 +297,7 @@ alignedBlock AlignRight col = do
 alignedBlock _ col = blockListToTexinfo col
 -}
 
--- | Convert Pandoc block elements to Texinfo.
+-- Convert Pandoc block elements to Texinfo.
 blockListToTexinfo :: PandocMonad m
                    => [Block]
                    -> TI m (Doc Text)
@@ -370,13 +370,13 @@ defListItemToTexinfo (term, defs) = do
     defs' <- mapM defToTexinfo defs
     return $ text "@item " <> term' $+$ vcat defs'
 
--- | Convert list of inline elements to Texinfo.
+-- Convert list of inline elements to Texinfo.
 inlineListToTexinfo :: PandocMonad m
                     => [Inline]  -- ^ Inlines to convert
                     -> TI m (Doc Text)
 inlineListToTexinfo lst = hcat <$> mapM inlineToTexinfo lst
 
--- | Convert list of inline elements to Texinfo acceptable for a node name.
+-- Convert list of inline elements to Texinfo acceptable for a node name.
 inlineListForNode :: PandocMonad m
                   => [Inline]  -- ^ Inlines to convert
                   -> TI m (Doc Text)
@@ -387,7 +387,7 @@ inlineListForNode = return . literal . stringToTexinfo .
 disallowedInNode :: Char -> Bool
 disallowedInNode c = c `elem` (".,:()" :: String)
 
--- | Convert inline element to Texinfo
+-- Convert inline element to Texinfo
 inlineToTexinfo :: PandocMonad m
                 => Inline    -- ^ Inline to convert
                 -> TI m (Doc Text)

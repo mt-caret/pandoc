@@ -49,7 +49,7 @@ import Data.Char (isSpace, isLetter, isAlphaNum, isDigit, isHexDigit)
 import Data.String (IsString(..))
 import qualified Data.List.NonEmpty as NonEmpty
 
--- | A list of inputs labeled with source positions.  It is assumed
+-- A list of inputs labeled with source positions.  It is assumed
 -- that the 'Text's have @\n@ line endings.
 newtype Sources = Sources { unSources :: [(SourcePos, Text)] }
   deriving (Show, Semigroup, Monoid)
@@ -123,12 +123,12 @@ instance UpdateSourcePos Sources Char where
              '\t' -> incSourceColumn pos (4 - ((sourceColumn pos - 1) `mod` 4))
              _    -> incSourceColumn pos 1
 
--- | Get name of first source in 'Sources'.
+-- Get name of first source in 'Sources'.
 initialSourceName :: Sources -> FilePath
 initialSourceName (Sources []) = ""
 initialSourceName (Sources ((pos,_):_)) = sourceName pos
 
--- | Add some text to the beginning of the input sources.
+-- Add some text to the beginning of the input sources.
 -- This simplifies code that expands macros.
 addToInput :: Monad m => Text -> ParsecT Sources u m ()
 addToInput t = do

@@ -30,7 +30,7 @@ import Text.Pandoc.Options
 import Text.DocLayout
 import Text.Pandoc.Shared
 import Text.Pandoc.Templates (renderTemplate)
-import Text.Pandoc.Citeproc.Locator (parseLocator, LocatorMap(..), LocatorInfo(..))
+-- import Text.Pandoc.Citeproc.Locator (parseLocator, LocatorMap(..), LocatorInfo(..))
 import Text.Pandoc.Writers.Shared
 
 data WriterState =
@@ -41,7 +41,7 @@ data WriterState =
 
 type Org = StateT WriterState
 
--- | Convert Pandoc to Org.
+-- Convert Pandoc to Org.
 writeOrg :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeOrg opts document = do
   let st = WriterState { stNotes = [],
@@ -49,7 +49,7 @@ writeOrg opts document = do
                          stOptions = opts }
   evalStateT (pandocToOrg document) st
 
--- | Return Org representation of document.
+-- Return Org representation of document.
 pandocToOrg :: PandocMonad m => Pandoc -> Org m Text
 pandocToOrg (Pandoc meta blocks) = do
   opts <- gets stOptions
@@ -72,19 +72,19 @@ pandocToOrg (Pandoc meta blocks) = do
        Nothing  -> main
        Just tpl -> renderTemplate tpl context
 
--- | Return Org representation of notes.
+-- Return Org representation of notes.
 notesToOrg :: PandocMonad m => [[Block]] -> Org m (Doc Text)
 notesToOrg notes =
   vsep <$> zipWithM noteToOrg [1..] notes
 
--- | Return Org representation of a note.
+-- Return Org representation of a note.
 noteToOrg :: PandocMonad m => Int -> [Block] -> Org m (Doc Text)
 noteToOrg num note = do
   contents <- blockListToOrg note
   let marker = "[fn:" ++ show num ++ "] "
   return $ hang (length marker) (text marker) contents
 
--- | Escape special characters for Org.
+-- Escape special characters for Org.
 escapeString :: Text -> Text
 escapeString t
   | T.all (\c -> c < '\x2013' || c > '\x2026') t = t
@@ -100,7 +100,7 @@ isRawFormat :: Format -> Bool
 isRawFormat f =
   f == Format "latex" || f == Format "tex" || f == Format "org"
 
--- | Convert Pandoc block element to Org.
+-- Convert Pandoc block element to Org.
 blockToOrg :: PandocMonad m
            => Block         -- ^ Block element
            -> Org m (Doc Text)
@@ -219,7 +219,7 @@ blockToOrg (DefinitionList items) = do
   contents <- mapM definitionListItemToOrg items
   return $ vcat contents $$ blankline
 
--- | Convert bullet list item (list of blocks) to Org.
+-- Convert bullet list item (list of blocks) to Org.
 bulletListItemToOrg :: PandocMonad m => [Block] -> Org m (Doc Text)
 bulletListItemToOrg items = do
   exts <- gets $ writerExtensions . stOptions
@@ -229,7 +229,7 @@ bulletListItemToOrg items = do
              then cr
              else blankline
 
--- | Convert ordered list item (a list of blocks) to Org.
+-- Convert ordered list item (a list of blocks) to Org.
 orderedListItemToOrg :: PandocMonad m
                      => Text   -- ^ marker for list item
                      -> [Block]  -- ^ list item (list of blocks)
@@ -242,7 +242,7 @@ orderedListItemToOrg marker items = do
              then cr
              else blankline
 
--- | Convert a list item containing text starting with @U+2610 BALLOT BOX@
+-- Convert a list item containing text starting with @U+2610 BALLOT BOX@
 -- or @U+2612 BALLOT BOX WITH X@ to org checkbox syntax (e.g. @[X]@).
 taskListItemToOrg :: Extensions -> [Block] -> [Block]
 taskListItemToOrg = handleTaskListItem toOrg
@@ -251,7 +251,7 @@ taskListItemToOrg = handleTaskListItem toOrg
     toOrg (Str "☒" : Space : is) = Str "[X]" : Space : is
     toOrg is = is
 
--- | Convert definition list item (label, list of blocks) to Org.
+-- Convert definition list item (label, list of blocks) to Org.
 definitionListItemToOrg :: PandocMonad m
                         => ([Inline], [[Block]]) -> Org m (Doc Text)
 definitionListItemToOrg (label, defs) = do
@@ -262,7 +262,7 @@ definitionListItemToOrg (label, defs) = do
          then cr
          else blankline
 
--- | Convert list of key/value pairs to Org :PROPERTIES: drawer.
+-- Convert list of key/value pairs to Org :PROPERTIES: drawer.
 propertiesDrawer :: Attr -> Doc Text
 propertiesDrawer (ident, classes, kv) =
   let
@@ -278,7 +278,7 @@ propertiesDrawer (ident, classes, kv) =
    kvToOrgProperty (key, value) =
      text ":" <> literal key <> text ": " <> literal value <> cr
 
--- | The different methods to represent a Div block.
+-- The different methods to represent a Div block.
 data DivBlockType
   = GreaterBlock Text Attr   -- ^ Greater block like @center@ or @quote@.
   | Drawer Text Attr         -- ^ Org drawer with of given name; keeps
@@ -286,7 +286,7 @@ data DivBlockType
   | UnwrappedWithAnchor Text -- ^ Not mapped to other type, only
                              --   identifier is retained (if any).
 
--- | Gives the most suitable method to render a list of blocks
+-- Gives the most suitable method to render a list of blocks
 -- with attributes.
 divBlockType :: Attr-> DivBlockType
 divBlockType (ident, classes, kvs)
@@ -303,7 +303,7 @@ divBlockType (ident, classes, kvs)
   isGreaterBlockClass :: Text -> Bool
   isGreaterBlockClass = (`elem` ["center", "quote"]) . T.toLower
 
--- | Converts a Div to an org-mode element.
+-- Converts a Div to an org-mode element.
 divToOrg :: PandocMonad m
          => Attr -> [Block] -> Org m (Doc Text)
 divToOrg attr bs = do
@@ -345,13 +345,13 @@ attrHtml (ident, classes, kvs) =
     kvStrings = map (\(k,v) -> ":" <> k <> " " <> v) (classKv:kvs)
   in name <> keyword <> ": " <> literal (T.unwords kvStrings) <> cr
 
--- | Convert list of Pandoc block elements to Org.
+-- Convert list of Pandoc block elements to Org.
 blockListToOrg :: PandocMonad m
                => [Block]       -- ^ List of block elements
                -> Org m (Doc Text)
 blockListToOrg blocks = vcat <$> mapM blockToOrg blocks
 
--- | Convert list of Pandoc inline elements to Org.
+-- Convert list of Pandoc inline elements to Org.
 inlineListToOrg :: PandocMonad m
                 => [Inline]
                 -> Org m (Doc Text)
@@ -372,7 +372,7 @@ inlineListToOrg lst = hcat <$> mapM inlineToOrg (fixMarkers lst)
                                          (c == '.' || c == ')')
         shouldFix _ = False
 
--- | Convert Pandoc inline element to Org.
+-- Convert Pandoc inline element to Org.
 inlineToOrg :: PandocMonad m => Inline -> Org m (Doc Text)
 inlineToOrg (Span (uid, [], []) []) =
   return $ "<<" <> literal uid <> ">>"
@@ -403,35 +403,35 @@ inlineToOrg (Quoted SingleQuote lst) = do
 inlineToOrg (Quoted DoubleQuote lst) = do
   contents <- inlineListToOrg lst
   return $ "\"" <> contents <> "\""
-inlineToOrg (Cite cs lst) = do
-  opts <- gets stOptions
-  if isEnabled Ext_citations opts
-     then do
-       let renderCiteItem c = do
-             citePref <- inlineListToOrg (citationPrefix c)
-             let (locinfo, suffix) = parseLocator locmap (citationSuffix c)
-             citeSuff <- inlineListToOrg suffix
-             let locator = case locinfo of
-                            Just info -> literal $
-                              T.replace "\160" " " $
-                              T.replace "{" "" $
-                              T.replace "}" "" $ locatorRaw info
-                            Nothing -> mempty
-             return $ hsep [ citePref
-                           , ("@" <> literal (citationId c))
-                           , locator
-                           , citeSuff ]
-       citeItems <- mconcat . intersperse "; " <$> mapM renderCiteItem cs
-       let sty = case cs of
-                   (d:_)
-                     | citationMode d == AuthorInText
-                     -> literal "/t"
-                   [d]
-                     | citationMode d == SuppressAuthor
-                     -> literal "/na"
-                   _ -> mempty
-       return $ "[cite" <> sty <> ":" <> citeItems <> "]"
-     else inlineListToOrg lst
+inlineToOrg (Cite cs lst) = undefined -- do
+  -- opts <- gets stOptions
+  -- if isEnabled Ext_citations opts
+  --    then do
+  --      let renderCiteItem c = do
+  --            citePref <- inlineListToOrg (citationPrefix c)
+  --            let (locinfo, suffix) = parseLocator locmap (citationSuffix c)
+  --            citeSuff <- inlineListToOrg suffix
+  --            let locator = case locinfo of
+  --                           Just info -> literal $
+  --                             T.replace "\160" " " $
+  --                             T.replace "{" "" $
+  --                             T.replace "}" "" $ locatorRaw info
+  --                           Nothing -> mempty
+  --            return $ hsep [ citePref
+  --                          , ("@" <> literal (citationId c))
+  --                          , locator
+  --                          , citeSuff ]
+  --      citeItems <- mconcat . intersperse "; " <$> mapM renderCiteItem cs
+  --      let sty = case cs of
+  --                  (d:_)
+  --                    | citationMode d == AuthorInText
+  --                    -> literal "/t"
+  --                  [d]
+  --                    | citationMode d == SuppressAuthor
+  --                    -> literal "/na"
+  --                  _ -> mempty
+  --      return $ "[cite" <> sty <> ":" <> citeItems <> "]"
+  --    else inlineListToOrg lst
 inlineToOrg (Code _ str) = return $ "=" <> literal str <> "="
 inlineToOrg (Str str) = return . literal $ escapeString str
 inlineToOrg (Math t str) = do
@@ -486,7 +486,7 @@ orgPath src = case T.uncons src of
       in T.all (\c -> isAlphaNum c || c `elemText` ".-") scheme
          && not (T.null path)
 
--- | Translate from pandoc's programming language identifiers to those used by
+-- Translate from pandoc's programming language identifiers to those used by
 -- org-mode.
 pandocLangToOrg :: Text -> Text
 pandocLangToOrg cs =
@@ -497,7 +497,7 @@ pandocLangToOrg cs =
     "bash"       -> "sh"
     _            -> cs
 
--- | List of language identifiers recognized by org-mode.
+-- List of language identifiers recognized by org-mode.
 -- See <https://orgmode.org/manual/Languages.html>.
 orgLangIdentifiers :: [Text]
 orgLangIdentifiers =
@@ -545,58 +545,58 @@ orgLangIdentifiers =
   , "vala" ]
 
 -- taken from oc-csl.el in the org source tree:
-locmap :: LocatorMap
-locmap = LocatorMap $ M.fromList
-  [ ("bk."       , "book")
-  , ("bks."      , "book")
-  , ("book"      , "book")
-  , ("chap."     , "chapter")
-  , ("chaps."    , "chapter")
-  , ("chapter"   , "chapter")
-  , ("col."      , "column")
-  , ("cols."     , "column")
-  , ("column"    , "column")
-  , ("figure"    , "figure")
-  , ("fig."      , "figure")
-  , ("figs."     , "figure")
-  , ("folio"     , "folio")
-  , ("fol."      , "folio")
-  , ("fols."     , "folio")
-  , ("number"    , "number")
-  , ("no."       , "number")
-  , ("nos."      , "number")
-  , ("line"      , "line")
-  , ("l."        , "line")
-  , ("ll."       , "line")
-  , ("note"      , "note")
-  , ("n."        , "note")
-  , ("nn."       , "note")
-  , ("opus"      , "opus")
-  , ("op."       , "opus")
-  , ("opp."      , "opus")
-  , ("page"      , "page")
-  , ("p"         , "page")
-  , ("p."        , "page")
-  , ("pp."       , "page")
-  , ("paragraph" , "paragraph")
-  , ("para."     , "paragraph")
-  , ("paras."    , "paragraph")
-  , ("¶"         , "paragraph")
-  , ("¶¶"        , "paragraph")
-  , ("part"      , "part")
-  , ("pt."       , "part")
-  , ("pts."      , "part")
-  , ("§"         , "section")
-  , ("§§"        , "section")
-  , ("section"   , "section")
-  , ("sec."      , "section")
-  , ("secs."     , "section")
-  , ("sub verbo" , "sub verbo")
-  , ("s.v."      , "sub verbo")
-  , ("s.vv."     , "sub verbo")
-  , ("verse"     , "verse")
-  , ("v."        , "verse")
-  , ("vv."       , "verse")
-  , ("volume"    , "volume")
-  , ("vol."      , "volume")
-  , ("vols."     , "volume") ]
+-- locmap :: LocatorMap
+-- locmap = LocatorMap $ M.fromList
+--   [ ("bk."       , "book")
+--   , ("bks."      , "book")
+--   , ("book"      , "book")
+--   , ("chap."     , "chapter")
+--   , ("chaps."    , "chapter")
+--   , ("chapter"   , "chapter")
+--   , ("col."      , "column")
+--   , ("cols."     , "column")
+--   , ("column"    , "column")
+--   , ("figure"    , "figure")
+--   , ("fig."      , "figure")
+--   , ("figs."     , "figure")
+--   , ("folio"     , "folio")
+--   , ("fol."      , "folio")
+--   , ("fols."     , "folio")
+--   , ("number"    , "number")
+--   , ("no."       , "number")
+--   , ("nos."      , "number")
+--   , ("line"      , "line")
+--   , ("l."        , "line")
+--   , ("ll."       , "line")
+--   , ("note"      , "note")
+--   , ("n."        , "note")
+--   , ("nn."       , "note")
+--   , ("opus"      , "opus")
+--   , ("op."       , "opus")
+--   , ("opp."      , "opus")
+--   , ("page"      , "page")
+--   , ("p"         , "page")
+--   , ("p."        , "page")
+--   , ("pp."       , "page")
+--   , ("paragraph" , "paragraph")
+--   , ("para."     , "paragraph")
+--   , ("paras."    , "paragraph")
+--   , ("¶"         , "paragraph")
+--   , ("¶¶"        , "paragraph")
+--   , ("part"      , "part")
+--   , ("pt."       , "part")
+--   , ("pts."      , "part")
+--   , ("§"         , "section")
+--   , ("§§"        , "section")
+--   , ("section"   , "section")
+--   , ("sec."      , "section")
+--   , ("secs."     , "section")
+--   , ("sub verbo" , "sub verbo")
+--   , ("s.v."      , "sub verbo")
+--   , ("s.vv."     , "sub verbo")
+--   , ("verse"     , "verse")
+--   , ("v."        , "verse")
+--   , ("vv."       , "verse")
+--   , ("volume"    , "volume")
+--   , ("vol."      , "volume")
+--   , ("vols."     , "volume") ]

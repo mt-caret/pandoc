@@ -41,14 +41,14 @@ import Data.ByteString.Lazy (toChunks)
 import Data.Text (Text, pack, unpack)
 import Data.Time (TimeZone, UTCTime)
 import Data.Unique (hashUnique)
-import Network.Connection (TLSSettings (TLSSettingsSimple))
-import Network.HTTP.Client
-       (httpLbs, responseBody, responseHeaders,
-        Request(port, host, requestHeaders), parseRequest, newManager)
-import Network.HTTP.Client.Internal (addProxy)
-import Network.HTTP.Client.TLS (mkManagerSettings)
+-- import Network.Connection (TLSSettings (TLSSettingsSimple))
+-- import Network.HTTP.Client
+--        (httpLbs, responseBody, responseHeaders,
+--         Request(port, host, requestHeaders), parseRequest, newManager)
+-- import Network.HTTP.Client.Internal (addProxy)
+-- import Network.HTTP.Client.TLS (mkManagerSettings)
 import Network.HTTP.Types.Header ( hContentType )
-import Network.Socket (withSocketsDo)
+-- import Network.Socket (withSocketsDo)
 import Network.URI (unEscapeString)
 import System.Directory (createDirectoryIfMissing)
 import System.Environment (getEnv)
@@ -82,7 +82,7 @@ import qualified Text.Pandoc.UTF8 as UTF8
 import qualified Paths_pandoc as Paths
 #endif
 
--- | Utility function to lift IO errors into 'PandocError's.
+-- Utility function to lift IO errors into 'PandocError's.
 liftIOError :: (PandocMonad m, MonadIO m) => (String -> IO a) -> String -> m a
 liftIOError f u = do
   res <- liftIO $ tryIOError $ f u
@@ -90,7 +90,7 @@ liftIOError f u = do
          Left e  -> throwError $ PandocIOError (pack u) e
          Right r -> return r
 
--- | Show potential IO errors to the user continuing execution anyway
+-- Show potential IO errors to the user continuing execution anyway
 logIOError :: (PandocMonad m, MonadIO m) => IO () -> m ()
 logIOError f = do
   res <- liftIO $ tryIOError f
@@ -98,23 +98,23 @@ logIOError f = do
     Left e -> report $ IgnoredIOError $ pack $ E.displayException e
     Right _ -> pure ()
 
--- | Lookup an environment variable in the programs environment.
+-- Lookup an environment variable in the programs environment.
 lookupEnv :: MonadIO m => Text -> m (Maybe Text)
 lookupEnv = fmap (fmap pack) . liftIO . Env.lookupEnv . unpack
 
--- | Get the current (UTC) time.
+-- Get the current (UTC) time.
 getCurrentTime :: MonadIO m => m UTCTime
 getCurrentTime = liftIO Data.Time.getCurrentTime
 
--- | Get the locale's time zone.
+-- Get the locale's time zone.
 getCurrentTimeZone :: MonadIO m => m TimeZone
 getCurrentTimeZone = liftIO Data.Time.LocalTime.getCurrentTimeZone
 
--- | Return a new generator for random numbers.
+-- Return a new generator for random numbers.
 newStdGen :: MonadIO m => m StdGen
 newStdGen = liftIO System.Random.newStdGen
 
--- | Return a new unique integer.
+-- Return a new unique integer.
 newUniqueHash :: MonadIO m => m Int
 newUniqueHash = hashUnique <$> liftIO Data.Unique.newUnique
 
@@ -125,55 +125,55 @@ openURL u
      let contents = UTF8.fromString $
                      unEscapeString $ T.unpack $ T.drop 1 $ T.dropWhile (/=',') u''
      return (decodeLenient contents, Just mime)
- | otherwise = do
-     let toReqHeader (n, v) = (CI.mk (UTF8.fromText n), UTF8.fromText v)
-     customHeaders <- map toReqHeader <$> getsCommonState stRequestHeaders
-     disableCertificateValidation <- getsCommonState stNoCheckCertificate
-     report $ Fetching u
-     res <- liftIO $ E.try $ withSocketsDo $ do
-       let parseReq = parseRequest
-       proxy <- tryIOError (getEnv "http_proxy")
-       let addProxy' x = case proxy of
-                            Left _ -> return x
-                            Right pr -> parseReq pr >>= \r ->
-                                return (addProxy (host r) (port r) x)
-       req <- parseReq (unpack u) >>= addProxy'
-       let req' = req{requestHeaders = customHeaders ++ requestHeaders req}
-       let tlsSimple = TLSSettingsSimple disableCertificateValidation False False
-       let tlsManagerSettings = mkManagerSettings tlsSimple  Nothing
-       resp <- newManager tlsManagerSettings >>= httpLbs req'
-       return (B.concat $ toChunks $ responseBody resp,
-               UTF8.toText `fmap` lookup hContentType (responseHeaders resp))
+ | otherwise = throwError $ PandocHttpError u -- do
+     -- let toReqHeader (n, v) = (CI.mk (UTF8.fromText n), UTF8.fromText v)
+     -- customHeaders <- map toReqHeader <$> getsCommonState stRequestHeaders
+     -- disableCertificateValidation <- getsCommonState stNoCheckCertificate
+     -- report $ Fetching u
+     -- res <- liftIO $ E.try $ withSocketsDo $ do
+     --   let parseReq = parseRequest
+     --   proxy <- tryIOError (getEnv "http_proxy")
+     --   let addProxy' x = case proxy of
+     --                        Left _ -> return x
+     --                        Right pr -> parseReq pr >>= \r ->
+     --                            return (addProxy (host r) (port r) x)
+     --   req <- parseReq (unpack u) >>= addProxy'
+     --   let req' = req{requestHeaders = customHeaders ++ requestHeaders req}
+     --   let tlsSimple = TLSSettingsSimple disableCertificateValidation False False
+     --   let tlsManagerSettings = mkManagerSettings tlsSimple  Nothing
+     --   resp <- newManager tlsManagerSettings >>= httpLbs req'
+     --   return (B.concat $ toChunks $ responseBody resp,
+     --           UTF8.toText `fmap` lookup hContentType (responseHeaders resp))
 
-     case res of
-          Right r -> return r
-          Left e  -> throwError $ PandocHttpError u e
+     -- case res of
+     --      Right r -> return r
+     --      Left e  -> throwError $ PandocHttpError u e
 
--- | Read the lazy ByteString contents from a file path, raising an error on
+-- Read the lazy ByteString contents from a file path, raising an error on
 -- failure.
 readFileLazy :: (PandocMonad m, MonadIO m) => FilePath -> m BL.ByteString
 readFileLazy s = liftIOError BL.readFile s
 
--- | Read the strict ByteString contents from a file path,
+-- Read the strict ByteString contents from a file path,
 -- raising an error on failure.
 readFileStrict :: (PandocMonad m, MonadIO m) => FilePath -> m B.ByteString
 readFileStrict s = liftIOError B.readFile s
 
--- | Read the strict ByteString contents from stdin, raising
+-- Read the strict ByteString contents from stdin, raising
 -- an error on failure.
 readStdinStrict :: (PandocMonad m, MonadIO m) => m B.ByteString
 readStdinStrict = liftIOError (const B.getContents) "stdin"
 
--- | Return a list of paths that match a glob, relative to the working
+-- Return a list of paths that match a glob, relative to the working
 -- directory. See 'System.FilePath.Glob' for the glob syntax.
 glob :: (PandocMonad m, MonadIO m) => String -> m [FilePath]
 glob = liftIOError System.FilePath.Glob.glob
 
--- | Returns True if file exists.
+-- Returns True if file exists.
 fileExists :: (PandocMonad m, MonadIO m) => FilePath -> m Bool
 fileExists = liftIOError System.Directory.doesFileExist
 
--- | Returns the path of data file.
+-- Returns the path of data file.
 getDataFileName :: (PandocMonad m, MonadIO m) => FilePath -> m FilePath
 #ifdef EMBED_DATA_FILES
 getDataFileName = return
@@ -181,18 +181,18 @@ getDataFileName = return
 getDataFileName = liftIOError Paths.getDataFileName
 #endif
 
--- | Return the modification time of a file.
+-- Return the modification time of a file.
 getModificationTime :: (PandocMonad m, MonadIO m) => FilePath -> m UTCTime
 getModificationTime = liftIOError System.Directory.getModificationTime
 
--- | Output a log message.
+-- Output a log message.
 logOutput :: (PandocMonad m, MonadIO m) => LogMessage -> m ()
 logOutput msg = liftIO $ do
   UTF8.hPutStr stderr $
       "[" <> T.pack (show (messageVerbosity msg)) <> "] "
   alertIndent $ T.lines $ showLogMessage msg
 
--- | Prints the list of lines to @stderr@, indenting every but the first
+-- Prints the list of lines to @stderr@, indenting every but the first
 -- line by two spaces.
 alertIndent :: [Text] -> IO ()
 alertIndent [] = return ()
@@ -202,7 +202,7 @@ alertIndent (l:ls) = do
   where go l' = do UTF8.hPutStr stderr "  "
                    UTF8.hPutStrLn stderr l'
 
--- | Extract media from the mediabag into a directory.
+-- Extract media from the mediabag into a directory.
 extractMedia :: (PandocMonad m, MonadIO m) => FilePath -> Pandoc -> m Pandoc
 extractMedia dir d = do
   media <- getMediaBag
@@ -213,7 +213,7 @@ extractMedia dir d = do
       mapM_ (writeMedia dir) items
       return $ walk (adjustImagePath dir media) d
 
--- | Write the contents of a media bag to a path.
+-- Write the contents of a media bag to a path.
 writeMedia :: (PandocMonad m, MonadIO m)
            => FilePath
            -> (FilePath, MimeType, BL.ByteString)
@@ -224,7 +224,7 @@ writeMedia dir (fp, _mt, bs) = do
   liftIOError (createDirectoryIfMissing True) (takeDirectory fullpath)
   logIOError $ BL.writeFile fullpath bs
 
--- | If the given Inline element is an image with a @src@ path equal to
+-- If the given Inline element is an image with a @src@ path equal to
 -- one in the list of @paths@, then prepends @dir@ to the image source;
 -- returns the element unchanged otherwise.
 adjustImagePath :: FilePath -> MediaBag -> Inline -> Inline

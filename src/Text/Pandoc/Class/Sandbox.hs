@@ -23,7 +23,7 @@ import Text.Pandoc.Class.PandocPure
 import Text.Pandoc.Class.CommonState (CommonState(..))
 import Text.Pandoc.Logging (messageVerbosity)
 
--- | Lift a PandocPure action into any instance of PandocMonad.
+-- Lift a PandocPure action into any instance of PandocMonad.
 -- The main computation is done purely, but CommonState is preserved
 -- continuously, and warnings are emitted after the action completes.
 -- The parameter is a list of FilePaths which will be added to the

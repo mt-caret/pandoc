@@ -43,14 +43,14 @@ data WriterReader = WriterReader {
 
 type MediaWikiWriter m = ReaderT WriterReader (StateT WriterState m)
 
--- | Convert Pandoc to MediaWiki.
+-- Convert Pandoc to MediaWiki.
 writeMediaWiki :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeMediaWiki opts document =
   let initialState = WriterState { stNotes = False, stOptions = opts }
       env = WriterReader { options = opts, listLevel = [], useTags = False }
   in  evalStateT (runReaderT (pandocToMediaWiki document) env) initialState
 
--- | Return MediaWiki representation of document.
+-- Return MediaWiki representation of document.
 pandocToMediaWiki :: PandocMonad m => Pandoc -> MediaWikiWriter m Text
 pandocToMediaWiki (Pandoc meta blocks) = do
   opts <- asks options
@@ -71,11 +71,11 @@ pandocToMediaWiki (Pandoc meta blocks) = do
          Nothing  -> main
          Just tpl -> render Nothing $ renderTemplate tpl context
 
--- | Escape special characters for MediaWiki.
+-- Escape special characters for MediaWiki.
 escapeText :: Text -> Text
 escapeText =  escapeStringForXML
 
--- | Convert Pandoc block element to MediaWiki.
+-- Convert Pandoc block element to MediaWiki.
 blockToMediaWiki :: PandocMonad m
                  => Block         -- ^ Block element
                  -> MediaWikiWriter m Text
@@ -212,7 +212,7 @@ blockToMediaWiki x@(DefinitionList items) = do
 
 -- Auxiliary functions for lists:
 
--- | Convert ordered list attributes to HTML attribute string
+-- Convert ordered list attributes to HTML attribute string
 listAttribsToText :: ListAttributes -> Text
 listAttribsToText (startnum, numstyle, _) =
   let numstyle' = camelCaseToHyphenated $ tshow numstyle
@@ -223,7 +223,7 @@ listAttribsToText (startnum, numstyle, _) =
           then " style=\"list-style-type: " <> numstyle' <> ";\""
           else "")
 
--- | Convert bullet or ordered list item (list of blocks) to MediaWiki.
+-- Convert bullet or ordered list item (list of blocks) to MediaWiki.
 listItemToMediaWiki :: PandocMonad m => [Block] -> MediaWikiWriter m Text
 listItemToMediaWiki items = do
   contents <- blockListToMediaWiki items
@@ -234,7 +234,7 @@ listItemToMediaWiki items = do
        marker <- asks listLevel
        return $ T.pack marker <> " " <> contents
 
--- | Convert definition list item (label, list of blocks) to MediaWiki.
+-- Convert definition list item (label, list of blocks) to MediaWiki.
 definitionListItemToMediaWiki :: PandocMonad m
                               => ([Inline],[[Block]])
                               -> MediaWikiWriter m Text
@@ -250,7 +250,7 @@ definitionListItemToMediaWiki (label, items) = do
        return $ T.pack marker <> " " <> labelText <> "\n" <>
            T.intercalate "\n" (map (\d -> T.pack (init marker) <> ": " <> d) contents)
 
--- | True if the list can be handled by simple wiki markup, False if HTML tags will be needed.
+-- True if the list can be handled by simple wiki markup, False if HTML tags will be needed.
 isSimpleList :: Block -> Bool
 isSimpleList x =
   case x of
@@ -260,7 +260,7 @@ isSimpleList x =
        DefinitionList items             -> all isSimpleListItem $ concatMap snd items
        _                                -> False
 
--- | True if list item can be handled with the simple wiki syntax.  False if
+-- True if list item can be handled with the simple wiki syntax.  False if
 --   HTML tags will be needed.
 isSimpleListItem :: [Block] -> Bool
 isSimpleListItem []  = True
@@ -285,7 +285,7 @@ isPlainOrPara (Plain _) = True
 isPlainOrPara (Para  _) = True
 isPlainOrPara _         = False
 
--- | Concatenates strings with line breaks between them.
+-- Concatenates strings with line breaks between them.
 vcat :: [Text] -> Text
 vcat = T.intercalate "\n"
 
@@ -349,14 +349,14 @@ imageToMediaWiki attr = do
                    else "class=" <> T.unwords cls
   return $ T.intercalate "|" $ filter (not . T.null) [dims, classes]
 
--- | Convert list of Pandoc block elements to MediaWiki.
+-- Convert list of Pandoc block elements to MediaWiki.
 blockListToMediaWiki :: PandocMonad m
                      => [Block]       -- ^ List of block elements
                      -> MediaWikiWriter m Text
 blockListToMediaWiki blocks =
   vcat <$> mapM blockToMediaWiki blocks
 
--- | Convert list of Pandoc inline elements to MediaWiki.
+-- Convert list of Pandoc inline elements to MediaWiki.
 inlineListToMediaWiki :: PandocMonad m => [Inline] -> MediaWikiWriter m Text
 inlineListToMediaWiki lst =
   fmap T.concat $ mapM inlineToMediaWiki $ fixup lst
@@ -371,7 +371,7 @@ inlineListToMediaWiki lst =
      isLinkOrImage Image{} = True
      isLinkOrImage _         = False
 
--- | Convert Pandoc inline element to MediaWiki.
+-- Convert Pandoc inline element to MediaWiki.
 inlineToMediaWiki :: PandocMonad m => Inline -> MediaWikiWriter m Text
 
 inlineToMediaWiki (Span attrs ils) = do

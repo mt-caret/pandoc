@@ -24,7 +24,7 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Options
 import Text.Pandoc.Parsing hiding (enclosed)
 
--- | Read creole from an input string and return a Pandoc document.
+-- Read creole from an input string and return a Pandoc document.
 readCreole :: (PandocMonad m, ToSources a)
           => ReaderOptions
           -> a

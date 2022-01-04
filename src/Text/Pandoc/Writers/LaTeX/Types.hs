@@ -12,7 +12,7 @@ import Text.Pandoc.Options
   , TopLevelDivision (..)
   )
 
--- | LaTeX writer type. The type constructor @m@ will typically be an
+-- LaTeX writer type. The type constructor @m@ will typically be an
 -- instance of PandocMonad.
 type LW m = StateT WriterState m
 

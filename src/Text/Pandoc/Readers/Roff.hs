@@ -718,7 +718,7 @@ linePartsToText = mconcat . map go
   go (RoffStr s) = s
   go _ = mempty
 
--- | Tokenize a string as a sequence of roff tokens.
+-- Tokenize a string as a sequence of roff tokens.
 lexRoff :: PandocMonad m => SourcePos -> T.Text -> m RoffTokens
 lexRoff pos txt = do
   eithertokens <- readWithM (do setPosition pos

@@ -31,11 +31,11 @@ import Text.Pandoc.Error
 import qualified Text.Pandoc.Class.IO as IO
 import Control.Monad.Catch (MonadCatch, MonadMask, MonadThrow)
 
--- | Evaluate a 'PandocIO' operation.
+-- Evaluate a 'PandocIO' operation.
 runIO :: PandocIO a -> IO (Either PandocError a)
 runIO ma = flip evalStateT def $ runExceptT $ unPandocIO ma
 
--- | Evaluate a 'PandocIO' operation, handling any errors
+-- Evaluate a 'PandocIO' operation, handling any errors
 -- by exiting with an appropriate message and error status.
 runIOorExplode :: PandocIO a -> IO a
 runIOorExplode ma = runIO ma >>= handleError
@@ -74,6 +74,6 @@ instance PandocMonad PandocIO where
 
   logOutput = IO.logOutput
 
--- | Extract media from the mediabag into a directory.
+-- Extract media from the mediabag into a directory.
 extractMedia :: (PandocMonad m, MonadIO m) => FilePath -> Pandoc -> m Pandoc
 extractMedia = IO.extractMedia

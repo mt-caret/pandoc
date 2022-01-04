@@ -50,7 +50,7 @@ import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified System.Directory as Directory (getModificationTime)
 
--- | The 'PureState' contains ersatz representations
+-- The 'PureState' contains ersatz representations
 -- of things that would normally be obtained through IO.
 data PureState = PureState
   { stStdGen     :: StdGen
@@ -87,41 +87,41 @@ instance Default PureState where
         }
 
 
--- | Retrieve the underlying state of the @'PandocPure'@ type.
+-- Retrieve the underlying state of the @'PandocPure'@ type.
 getPureState :: PandocPure PureState
 getPureState = PandocPure $ lift $ lift get
 
--- | Retrieve a value from the underlying state of the @'PandocPure'@
+-- Retrieve a value from the underlying state of the @'PandocPure'@
 -- type.
 getsPureState :: (PureState -> a) -> PandocPure a
 getsPureState f = f <$> getPureState
 
--- | Set a new state for the @'PandocPure'@ type.
+-- Set a new state for the @'PandocPure'@ type.
 putPureState :: PureState -> PandocPure ()
 putPureState ps= PandocPure $ lift $ lift $ put ps
 
--- | Modify the underlying state of the @'PandocPure'@ type.
+-- Modify the underlying state of the @'PandocPure'@ type.
 modifyPureState :: (PureState -> PureState) -> PandocPure ()
 modifyPureState f = PandocPure $ lift $ lift $ modify f
 
--- | Captures all file-level information necessary for a @'PandocMonad'@
+-- Captures all file-level information necessary for a @'PandocMonad'@
 -- conforming mock file system.
 data FileInfo = FileInfo
   { infoFileMTime :: UTCTime
   , infoFileContents :: B.ByteString
   }
 
--- | Basis of the mock file system used by @'PandocPure'@.
+-- Basis of the mock file system used by @'PandocPure'@.
 newtype FileTree = FileTree { unFileTree :: M.Map FilePath FileInfo }
   deriving (Semigroup, Monoid)
 
--- | Retrieve @'FileInfo'@ of the given @'FilePath'@ from a
+-- Retrieve @'FileInfo'@ of the given @'FilePath'@ from a
 -- @'FileTree'@.
 getFileInfo :: FilePath -> FileTree -> Maybe FileInfo
 getFileInfo fp tree =
   M.lookup (makeCanonical fp) (unFileTree tree)
 
--- | Add the specified file to the FileTree. If file
+-- Add the specified file to the FileTree. If file
 -- is a directory, add its contents recursively.
 addToFileTree :: FileTree -> FilePath -> IO FileTree
 addToFileTree tree fp = do
@@ -139,7 +139,7 @@ addToFileTree tree fp = do
        return $ insertInFileTree fp FileInfo{ infoFileMTime = mtime
                                             , infoFileContents = contents } tree
 
--- | Insert an ersatz file into the 'FileTree'.
+-- Insert an ersatz file into the 'FileTree'.
 insertInFileTree :: FilePath -> FileInfo -> FileTree -> FileTree
 insertInFileTree fp info (FileTree treemap) =
   FileTree $ M.insert (makeCanonical fp) info treemap
@@ -153,7 +153,7 @@ newtype PandocPure a = PandocPure {
              , MonadError PandocError
              )
 
--- | Run a 'PandocPure' operation.
+-- Run a 'PandocPure' operation.
 runPure :: PandocPure a -> Either PandocError a
 runPure x = flip evalState def $
             flip evalStateT def $

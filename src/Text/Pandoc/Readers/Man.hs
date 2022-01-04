@@ -48,7 +48,7 @@ instance Default ManState where
 type ManParser m = ParserT [RoffToken] ManState m
 
 
--- | Read man (troff) from an input string and return a Pandoc document.
+-- Read man (troff) from an input string and return a Pandoc document.
 readMan :: (PandocMonad m, ToSources a)
         => ReaderOptions
         -> a

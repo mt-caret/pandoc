@@ -46,7 +46,7 @@ data Tabl = Xtb | Ntb deriving (Show, Eq)
 orderedListStyles :: [Char]
 orderedListStyles = cycle "narg"
 
--- | Convert Pandoc to ConTeXt.
+-- Convert Pandoc to ConTeXt.
 writeConTeXt :: PandocMonad m => WriterOptions -> Pandoc -> m Text
 writeConTeXt options document =
   let defaultWriterState = WriterState { stNextRef = 1
@@ -119,7 +119,7 @@ toContextDir = fmap (\t -> case t of
                               "rtl" -> "r2l"
                               _     -> t)
 
--- | escape things as needed for ConTeXt
+-- escape things as needed for ConTeXt
 escapeCharForConTeXt :: WriterOptions -> Char -> Text
 escapeCharForConTeXt opts ch =
  let ligatures = isEnabled Ext_smart opts in
@@ -141,18 +141,18 @@ escapeCharForConTeXt opts ch =
     '\x2026' -> "\\ldots{}"
     x        -> T.singleton x
 
--- | Escape string for ConTeXt
+-- Escape string for ConTeXt
 stringToConTeXt :: WriterOptions -> Text -> Text
 stringToConTeXt opts = T.concatMap (escapeCharForConTeXt opts)
 
--- | Sanitize labels
+-- Sanitize labels
 toLabel :: Text -> Text
 toLabel z = T.concatMap go z
  where go x
          | x `elem` ("\\#[]\",{}%()|=" :: String) = "ux" <> T.pack (printf "%x" (ord x))
          | otherwise = T.singleton x
 
--- | Convert Pandoc block element to ConTeXt.
+-- Convert Pandoc block element to ConTeXt.
 blockToConTeXt :: PandocMonad m => Block -> WM m (Doc Text)
 blockToConTeXt Null = return empty
 blockToConTeXt (Div attr@(_,"section":_,_)
@@ -336,11 +336,11 @@ defListItemToConTeXt (term, defs) = do
   return $ "\\startdescription" <> braces term' $$ nest 2 def' $$
            "\\stopdescription" <> blankline
 
--- | Convert list of block elements to ConTeXt.
+-- Convert list of block elements to ConTeXt.
 blockListToConTeXt :: PandocMonad m => [Block] -> WM m (Doc Text)
 blockListToConTeXt lst = liftM vcat $ mapM blockToConTeXt lst
 
--- | Convert list of inline elements to ConTeXt.
+-- Convert list of inline elements to ConTeXt.
 inlineListToConTeXt :: PandocMonad m
                     => [Inline]  -- ^ Inlines to convert
                     -> WM m (Doc Text)
@@ -356,7 +356,7 @@ inlineListToConTeXt lst = liftM hcat $ mapM inlineToConTeXt $ addStruts lst
         isSpacey (Str (T.uncons -> Just ('\160',_))) = True
         isSpacey _                                   = False
 
--- | Convert inline element to ConTeXt
+-- Convert inline element to ConTeXt
 inlineToConTeXt :: PandocMonad m
                 => Inline    -- ^ Inline to convert
                 -> WM m (Doc Text)
@@ -492,7 +492,7 @@ inlineToConTeXt (Span (ident,_,kvs) ils) = do
         else (("\\reference" <> brackets (literal ident) <> "{}") <>)
   addReference . wrapLang . wrapDir <$> inlineListToConTeXt ils
 
--- | Craft the section header, inserting the section reference, if supplied.
+-- Craft the section header, inserting the section reference, if supplied.
 sectionHeader :: PandocMonad m
               => Attr
               -> Int
@@ -517,7 +517,7 @@ sectionHeader (ident,classes,kvs) hdrLevel lst = do
                 else "\\"
   return $ starter <> levelText <> options <> blankline
 
--- | Craft the section footer
+-- Craft the section footer
 sectionFooter :: PandocMonad m => Attr -> Int -> WM m (Doc Text)
 sectionFooter attr hdrLevel = do
   opts <- gets stOptions
@@ -526,7 +526,7 @@ sectionFooter attr hdrLevel = do
            then "\\stop" <> levelText <> blankline
            else empty
 
--- | Generate a textual representation of the section level
+-- Generate a textual representation of the section level
 sectionLevelToText :: PandocMonad m => WriterOptions -> Attr -> Int -> WM m (Doc Text)
 sectionLevelToText opts (_,classes,_) hdrLevel = do
   let level' = case writerTopLevelDivision opts of

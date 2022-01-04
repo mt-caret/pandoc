@@ -91,61 +91,61 @@ import qualified Text.Pandoc.UTF8 as UTF8
 import Text.Pandoc.Data (dataFiles)
 #endif
 
--- | The PandocMonad typeclass contains all the potentially
+-- The PandocMonad typeclass contains all the potentially
 -- IO-related functions used in pandoc's readers and writers.
 -- Instances of this typeclass may implement these functions
 -- in IO (as in 'PandocIO') or using an internal state that
 -- represents a file system, time, and so on (as in 'PandocPure').
 class (Functor m, Applicative m, Monad m, MonadError PandocError m)
       => PandocMonad m where
-  -- | Lookup an environment variable.
+  -- Lookup an environment variable.
   lookupEnv :: T.Text -> m (Maybe T.Text)
-  -- | Get the current (UTC) time.
+  -- Get the current (UTC) time.
   getCurrentTime :: m UTCTime
-  -- | Get the locale's time zone.
+  -- Get the locale's time zone.
   getCurrentTimeZone :: m TimeZone
-  -- | Return a new generator for random numbers.
+  -- Return a new generator for random numbers.
   newStdGen :: m StdGen
-  -- | Return a new unique integer.
+  -- Return a new unique integer.
   newUniqueHash :: m Int
-  -- | Retrieve contents and mime type from a URL, raising
+  -- Retrieve contents and mime type from a URL, raising
   -- an error on failure.
   openURL :: T.Text -> m (B.ByteString, Maybe MimeType)
-  -- | Read the lazy ByteString contents from a file path,
+  -- Read the lazy ByteString contents from a file path,
   -- raising an error on failure.
   readFileLazy :: FilePath -> m BL.ByteString
-  -- | Read the strict ByteString contents from a file path,
+  -- Read the strict ByteString contents from a file path,
   -- raising an error on failure.
   readFileStrict :: FilePath -> m B.ByteString
-  -- | Read the contents of stdin as a strict ByteString, raising
+  -- Read the contents of stdin as a strict ByteString, raising
   -- an error on failure.
   readStdinStrict :: m B.ByteString
-  -- | Return a list of paths that match a glob, relative to
+  -- Return a list of paths that match a glob, relative to
   -- the working directory.  See 'System.FilePath.Glob' for
   -- the glob syntax.
   glob :: String -> m [FilePath]
-  -- | Returns True if file exists.
+  -- Returns True if file exists.
   fileExists :: FilePath -> m Bool
-  -- | Returns the path of data file.
+  -- Returns the path of data file.
   getDataFileName :: FilePath -> m FilePath
-  -- | Return the modification time of a file.
+  -- Return the modification time of a file.
   getModificationTime :: FilePath -> m UTCTime
-  -- | Get the value of the 'CommonState' used by all instances
+  -- Get the value of the 'CommonState' used by all instances
   -- of 'PandocMonad'.
   getCommonState :: m CommonState
-  -- | Set the value of the 'CommonState' used by all instances
+  -- Set the value of the 'CommonState' used by all instances
   -- of 'PandocMonad'.
-  -- | Get the value of a specific field of 'CommonState'.
+  -- Get the value of a specific field of 'CommonState'.
   putCommonState :: CommonState -> m ()
-  -- | Get the value of a specific field of 'CommonState'.
+  -- Get the value of a specific field of 'CommonState'.
   getsCommonState :: (CommonState -> a) -> m a
   getsCommonState f = f <$> getCommonState
-  -- | Modify the 'CommonState'.
+  -- Modify the 'CommonState'.
   modifyCommonState :: (CommonState -> CommonState) -> m ()
   modifyCommonState f = getCommonState >>= putCommonState . f
-  -- | Output a log message.
+  -- Output a log message.
   logOutput :: LogMessage -> m ()
-  -- | Output a debug message to sterr, using 'Debug.Trace.trace',
+  -- Output a debug message to sterr, using 'Debug.Trace.trace',
   -- if tracing is enabled.  Note: this writes to stderr even in
   -- pure instances.
   trace :: T.Text -> m ()
@@ -155,20 +155,20 @@ class (Functor m, Applicative m, Monad m, MonadError PandocError m)
 
 -- * Functions defined for all PandocMonad instances
 
--- | Set the verbosity level.
+-- Set the verbosity level.
 setVerbosity :: PandocMonad m => Verbosity -> m ()
 setVerbosity verbosity =
   modifyCommonState $ \st -> st{ stVerbosity = verbosity }
 
--- | Get the verbosity level.
+-- Get the verbosity level.
 getVerbosity :: PandocMonad m => m Verbosity
 getVerbosity = getsCommonState stVerbosity
 
--- | Get the accumulated log messages (in temporal order).
+-- Get the accumulated log messages (in temporal order).
 getLog :: PandocMonad m => m [LogMessage]
 getLog = reverse <$> getsCommonState stLog
 
--- | Log a message using 'logOutput'.  Note that 'logOutput' is
+-- Log a message using 'logOutput'.  Note that 'logOutput' is
 -- called only if the verbosity level exceeds the level of the
 -- message, but the message is added to the list of log messages
 -- that will be retrieved by 'getLog' regardless of its verbosity level.
@@ -179,7 +179,7 @@ report msg = do
   when (level <= verbosity) $ logOutput msg
   modifyCommonState $ \st -> st{ stLog = msg : stLog st }
 
--- | Get the time from the @SOURCE_DATE_EPOCH@
+-- Get the time from the @SOURCE_DATE_EPOCH@
 -- environment variable. The variable should contain a
 -- unix time stamp, the number of seconds since midnight Jan 01
 -- 1970 UTC.  If the variable is not set or cannot be
@@ -194,13 +194,13 @@ getTimestamp = do
       return $ posixSecondsToUTCTime $ fromIntegral epoch
     Nothing -> getCurrentTime
 
--- | Determine whether tracing is enabled.  This affects
+-- Determine whether tracing is enabled.  This affects
 -- the behavior of 'trace'.  If tracing is not enabled,
 -- 'trace' does nothing.
 setTrace :: PandocMonad m => Bool -> m ()
 setTrace useTracing = modifyCommonState $ \st -> st{stTrace = useTracing}
 
--- | Set request header to use in HTTP requests.
+-- Set request header to use in HTTP requests.
 setRequestHeader :: PandocMonad m
                  => T.Text  -- ^ Header name
                  -> T.Text  -- ^ Value
@@ -209,30 +209,30 @@ setRequestHeader name val = modifyCommonState $ \st ->
   st{ stRequestHeaders =
        (name, val) : filter (\(n,_) -> n /= name) (stRequestHeaders st)  }
 
--- | Determine whether certificate validation is disabled
+-- Determine whether certificate validation is disabled
 setNoCheckCertificate :: PandocMonad m => Bool -> m ()
 setNoCheckCertificate noCheckCertificate = modifyCommonState $ \st -> st{stNoCheckCertificate = noCheckCertificate}
 
--- | Initialize the media bag.
+-- Initialize the media bag.
 setMediaBag :: PandocMonad m => MediaBag -> m ()
 setMediaBag mb = modifyCommonState $ \st -> st{stMediaBag = mb}
 
--- | Retrieve the media bag.
+-- Retrieve the media bag.
 getMediaBag :: PandocMonad m => m MediaBag
 getMediaBag = getsCommonState stMediaBag
 
--- | Insert an item into the media bag.
+-- Insert an item into the media bag.
 insertMedia :: PandocMonad m => FilePath -> Maybe MimeType -> BL.ByteString -> m ()
 insertMedia fp mime bs = do
   mb <- getMediaBag
   let mb' = MB.insertMedia fp mime bs mb
   setMediaBag mb'
 
--- | Retrieve the input filenames.
+-- Retrieve the input filenames.
 getInputFiles :: PandocMonad m => m [FilePath]
 getInputFiles = getsCommonState stInputFiles
 
--- | Set the input filenames.
+-- Set the input filenames.
 setInputFiles :: PandocMonad m => [FilePath] -> m ()
 setInputFiles fs = do
   let sourceURL = case fs of
@@ -247,41 +247,41 @@ setInputFiles fs = do
   modifyCommonState $ \st -> st{ stInputFiles = fs
                                , stSourceURL = T.pack <$> sourceURL }
 
--- | Retrieve the output filename.
+-- Retrieve the output filename.
 getOutputFile :: PandocMonad m => m (Maybe FilePath)
 getOutputFile = getsCommonState stOutputFile
 
--- | Set the output filename.
+-- Set the output filename.
 setOutputFile :: PandocMonad m => Maybe FilePath -> m ()
 setOutputFile mbf = modifyCommonState $ \st -> st{ stOutputFile = mbf }
 
--- | Retrieve the resource path searched by 'fetchItem'.
+-- Retrieve the resource path searched by 'fetchItem'.
 getResourcePath :: PandocMonad m => m [FilePath]
 getResourcePath = getsCommonState stResourcePath
 
--- | Set the resource path searched by 'fetchItem'.
+-- Set the resource path searched by 'fetchItem'.
 setResourcePath :: PandocMonad m => [FilePath] -> m ()
 setResourcePath ps = modifyCommonState $ \st -> st{stResourcePath = ps}
 
--- | Get the POSIX time.
+-- Get the POSIX time.
 getPOSIXTime :: PandocMonad m => m POSIXTime
 getPOSIXTime = utcTimeToPOSIXSeconds <$> getCurrentTime
 
--- | Get the zoned time.
+-- Get the zoned time.
 getZonedTime :: PandocMonad m => m ZonedTime
 getZonedTime = do
   t <- getCurrentTime
   tz <- getCurrentTimeZone
   return $ utcToZonedTime tz t
 
--- | Read file, checking in any number of directories.
+-- Read file, checking in any number of directories.
 readFileFromDirs :: PandocMonad m => [FilePath] -> FilePath -> m (Maybe T.Text)
 readFileFromDirs [] _ = return Nothing
 readFileFromDirs (d:ds) f = catchError
     (Just . T.pack . UTF8.toStringLazy <$> readFileLazy (d </> f))
     (\_ -> readFileFromDirs ds f)
 
--- | Convert BCP47 string to a Lang, issuing warning
+-- Convert BCP47 string to a Lang, issuing warning
 -- if there are problems.
 toLang :: PandocMonad m => Maybe T.Text -> m (Maybe Lang)
 toLang Nothing = return Nothing
@@ -292,7 +292,7 @@ toLang (Just s) =
          return Nothing
        Right l -> return (Just l)
 
--- | Select the language to use with 'translateTerm'.
+-- Select the language to use with 'translateTerm'.
 -- Note that this does not read a translation file;
 -- that is only done the first time 'translateTerm' is
 -- used.
@@ -300,7 +300,7 @@ setTranslations :: PandocMonad m => Lang -> m ()
 setTranslations lang =
   modifyCommonState $ \st -> st{ stTranslations = Just (lang, Nothing) }
 
--- | Load term map.
+-- Load term map.
 getTranslations :: PandocMonad m => m Translations
 getTranslations = do
   mbtrans <- getsCommonState stTranslations
@@ -337,7 +337,7 @@ getTranslations = do
                  modifyCommonState $ \st -> st{ stTranslations = Nothing }
                  return mempty))
 
--- | Get a translation from the current term map.
+-- Get a translation from the current term map.
 -- Issue a warning if the term is not defined.
 translateTerm :: PandocMonad m => Term -> m T.Text
 translateTerm term = do
@@ -348,7 +348,7 @@ translateTerm term = do
          report $ NoTranslation $ T.pack $ show term
          return ""
 
--- | Specialized version of parseURIReference that disallows
+-- Specialized version of parseURIReference that disallows
 -- single-letter schemes.  Reason:  these are usually windows absolute
 -- paths.
 parseURIReference' :: T.Text -> Maybe URI
@@ -358,18 +358,18 @@ parseURIReference' s = do
        [_] -> Nothing
        _   -> Just u
 
--- | Set the user data directory in common state.
+-- Set the user data directory in common state.
 setUserDataDir :: PandocMonad m
                => Maybe FilePath
                -> m ()
 setUserDataDir mbfp = modifyCommonState $ \st -> st{ stUserDataDir = mbfp }
 
--- | Get the user data directory from common state.
+-- Get the user data directory from common state.
 getUserDataDir :: PandocMonad m
                => m (Maybe FilePath)
 getUserDataDir = getsCommonState stUserDataDir
 
--- | Fetch an image or other item from the local filesystem or the net.
+-- Fetch an image or other item from the local filesystem or the net.
 -- Returns raw content and maybe mime type.
 fetchItem :: PandocMonad m
           => T.Text
@@ -381,7 +381,7 @@ fetchItem s = do
                          Just (mediaMimeType item))
     Nothing -> downloadOrRead s
 
--- | Returns the content and, if available, the MIME type of a resource.
+-- Returns the content and, if available, the MIME type of a resource.
 -- If the given resource location is a valid URI, then download the
 -- resource from that URI. Otherwise, treat the resource identifier as a
 -- local file name.
@@ -433,7 +433,7 @@ downloadOrRead s = do
          convertSlash '\\' = '/'
          convertSlash x    = x
 
--- | Retrieve default reference.docx.
+-- Retrieve default reference.docx.
 getDefaultReferenceDocx :: PandocMonad m => m Archive
 getDefaultReferenceDocx = do
   let paths = ["[Content_Types].xml",
@@ -470,7 +470,7 @@ getDefaultReferenceDocx = do
      Nothing   -> foldr addEntryToArchive emptyArchive <$>
                      mapM pathToEntry paths
 
--- | Retrieve default reference.odt.
+-- Retrieve default reference.odt.
 getDefaultReferenceODT :: PandocMonad m => m Archive
 getDefaultReferenceODT = do
   let paths = ["mimetype",
@@ -499,7 +499,7 @@ getDefaultReferenceODT = do
      Nothing   -> foldr addEntryToArchive emptyArchive <$>
                      mapM pathToEntry paths
 
--- | Retrieve default reference.pptx.
+-- Retrieve default reference.pptx.
 getDefaultReferencePptx :: PandocMonad m => m Archive
 getDefaultReferencePptx = do
   -- We're going to narrow this down substantially once we get it
@@ -573,7 +573,7 @@ getDefaultReferencePptx = do
      Nothing   -> foldr addEntryToArchive emptyArchive <$>
                      mapM pathToEntry paths
 
--- | Read file from user data directory or,
+-- Read file from user data directory or,
 -- if not found there, from the default data files.
 readDataFile :: PandocMonad m => FilePath -> m B.ByteString
 readDataFile fname = do
@@ -586,7 +586,7 @@ readDataFile fname = do
             then readFileStrict (userDir </> fname)
             else readDefaultDataFile fname
 
--- | Read file from from the default data files.
+-- Read file from from the default data files.
 readDefaultDataFile :: PandocMonad m => FilePath -> m B.ByteString
 readDefaultDataFile "reference.docx" =
   B.concat . BL.toChunks . fromArchive <$> getDefaultReferenceDocx
@@ -603,7 +603,7 @@ readDefaultDataFile fname =
   getDataFileName fname' >>= checkExistence >>= readFileStrict
     where fname' = if fname == "MANUAL.txt" then fname else "data" </> fname
 
--- | Returns the input filename unchanged if the file exits, and throws
+-- Returns the input filename unchanged if the file exits, and throws
 -- a `PandocCouldNotFindDataFileError` if it doesn't.
 checkExistence :: PandocMonad m => FilePath -> m FilePath
 checkExistence fn = do
@@ -613,7 +613,7 @@ checkExistence fn = do
      else throwError $ PandocCouldNotFindDataFileError $ T.pack fn
 #endif
 
--- | Canonicalizes a file path by removing redundant @.@ and @..@.
+-- Canonicalizes a file path by removing redundant @.@ and @..@.
 makeCanonical :: FilePath -> FilePath
 makeCanonical = Posix.joinPath . transformPathParts . splitDirectories
  where  transformPathParts = reverse . foldl' go []
@@ -621,7 +621,7 @@ makeCanonical = Posix.joinPath . transformPathParts . splitDirectories
         go (_:as) ".." = as
         go as     x    = x : as
 
--- | Tries to run an action on a file: for each directory given, a
+-- Tries to run an action on a file: for each directory given, a
 -- filepath is created from the given filename, and the action is run on
 -- that filepath. Returns the result of the first successful execution
 -- of the action, or throws a @PandocResourceNotFound@ exception if the
@@ -633,7 +633,7 @@ withPaths (p:ps) action fp =
   catchError ((p </> fp,) <$> action (p </> fp))
              (\_ -> withPaths ps action fp)
 
--- | Traverse tree, filling media bag for any images that
+-- Traverse tree, filling media bag for any images that
 -- aren't already in the media bag.
 fillMediaBag :: PandocMonad m => Pandoc -> m Pandoc
 fillMediaBag d = walkM handleImage d
@@ -654,9 +654,9 @@ fillMediaBag d = walkM handleImage d
                             "replacing image with description"
                   -- emit alt text
                   return $ Span ("",["image"],[]) lab
-                PandocHttpError u er -> do
+                PandocHttpError u -> do
                   report $ CouldNotFetchResource u
-                            (T.pack $ show er ++ "\rReplacing image with description.")
+                            (T.pack $ "HTTP unsupported" ++ "\rReplacing image with description.")
                   -- emit alt text
                   return $ Span ("",["image"],[]) lab
                 _ -> throwError e)

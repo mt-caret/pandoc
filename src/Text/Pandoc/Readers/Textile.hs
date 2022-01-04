@@ -55,7 +55,7 @@ import Text.Pandoc.Readers.HTML (htmlTag, isBlockTag, isInlineTag)
 import Text.Pandoc.Readers.LaTeX (rawLaTeXBlock, rawLaTeXInline)
 import Text.Pandoc.Shared (trim, tshow)
 
--- | Parse a Textile text and return a Pandoc document.
+-- Parse a Textile text and return a Pandoc document.
 readTextile :: (PandocMonad m, ToSources a)
             => ReaderOptions -- ^ Reader options
             -> a
@@ -69,7 +69,7 @@ readTextile opts s = do
 
 type TextileParser = ParserT Sources ParserState
 
--- | Generate a Pandoc ADT from a textile document
+-- Generate a Pandoc ADT from a textile document
 parseTextile :: PandocMonad m => TextileParser m Pandoc
 parseTextile = do
   many blankline
@@ -105,11 +105,11 @@ noteBlock = try $ do
   -- return blanks so line count isn't affected
   return $ T.replicate (sourceLine endPos - sourceLine startPos) "\n"
 
--- | Parse document blocks
+-- Parse document blocks
 parseBlocks :: PandocMonad m => TextileParser m Blocks
 parseBlocks = mconcat <$> manyTill block eof
 
--- | Block parsers list tried in definition order
+-- Block parsers list tried in definition order
 blockParsers :: PandocMonad m => [TextileParser m Blocks]
 blockParsers = [ codeBlock
                , header
@@ -124,7 +124,7 @@ blockParsers = [ codeBlock
                , mempty <$ blanklines
                ]
 
--- | Any block in the order of definition of blockParsers
+-- Any block in the order of definition of blockParsers
 block :: PandocMonad m => TextileParser m Blocks
 block = do
   res <- choice blockParsers <?> "block"
@@ -159,7 +159,7 @@ codeBlockTextile = try $ do
 trimTrailingNewlines :: Text -> Text
 trimTrailingNewlines = T.dropWhileEnd (=='\n')
 
--- | Code Blocks in Textile are between <pre> and </pre>
+-- Code Blocks in Textile are between <pre> and </pre>
 codeBlockHtml :: PandocMonad m => TextileParser m Blocks
 codeBlockHtml = try $ do
   (t@(TagOpen _ attrs),_) <- htmlTag (tagOpen (=="pre") (const True))
@@ -177,7 +177,7 @@ codeBlockHtml = try $ do
   let kvs = [(k,v) | (k,v) <- attrs, k /= "id" && k /= "class"]
   return $ B.codeBlockWith (ident,classes,kvs) result'''
 
--- | Header of the form "hN. content" with N in 1..6
+-- Header of the form "hN. content" with N in 1..6
 header :: PandocMonad m => TextileParser m Blocks
 header = try $ do
   char 'h'
@@ -189,7 +189,7 @@ header = try $ do
   attr' <- registerHeader attr name
   return $ B.headerWith attr' level name
 
--- | Blockquote of the form "bq. content"
+-- Blockquote of the form "bq. content"
 blockQuote :: PandocMonad m => TextileParser m Blocks
 blockQuote = try $ do
   string "bq" >> attributes >> char '.' >> whitespace
@@ -209,41 +209,41 @@ hrule = try $ do
 
 -- Lists handling
 
--- | Can be a bullet list or an ordered list. This implementation is
+-- Can be a bullet list or an ordered list. This implementation is
 -- strict in the nesting, sublist must start at exactly "parent depth
 -- plus one"
 anyList :: PandocMonad m => TextileParser m Blocks
 anyList = try $ anyListAtDepth 1 <* blanklines
 
--- | This allow one type of list to be nested into an other type,
+-- This allow one type of list to be nested into an other type,
 -- provided correct nesting
 anyListAtDepth :: PandocMonad m => Int -> TextileParser m Blocks
 anyListAtDepth depth = choice [ bulletListAtDepth depth,
                                 orderedListAtDepth depth,
                                 definitionList ]
 
--- | Bullet List of given depth, depth being the number of leading '*'
+-- Bullet List of given depth, depth being the number of leading '*'
 bulletListAtDepth :: PandocMonad m => Int -> TextileParser m Blocks
 bulletListAtDepth depth = try $ B.bulletList  <$> many1 (bulletListItemAtDepth depth)
 
--- | Bullet List Item of given depth, depth being the number of
+-- Bullet List Item of given depth, depth being the number of
 -- leading '*'
 bulletListItemAtDepth :: PandocMonad m => Int -> TextileParser m Blocks
 bulletListItemAtDepth = genericListItemAtDepth '*'
 
--- | Ordered List of given depth, depth being the number of
+-- Ordered List of given depth, depth being the number of
 -- leading '#'
 orderedListAtDepth :: PandocMonad m => Int -> TextileParser m Blocks
 orderedListAtDepth depth = try $ do
   items <- many1 (orderedListItemAtDepth depth)
   return $ B.orderedList items
 
--- | Ordered List Item of given depth, depth being the number of
+-- Ordered List Item of given depth, depth being the number of
 -- leading '#'
 orderedListItemAtDepth :: PandocMonad m => Int -> TextileParser m Blocks
 orderedListItemAtDepth = genericListItemAtDepth '#'
 
--- | Common implementation of list items
+-- Common implementation of list items
 genericListItemAtDepth :: PandocMonad m => Char -> Int -> TextileParser m Blocks
 genericListItemAtDepth c depth = try $ do
   count depth (char c) >> attributes >> whitespace
@@ -253,11 +253,11 @@ genericListItemAtDepth c depth = try $ do
   sublist <- option mempty (anyListAtDepth (depth + 1))
   return $ contents <> sublist
 
--- | A definition list is a set of consecutive definition items
+-- A definition list is a set of consecutive definition items
 definitionList :: PandocMonad m => TextileParser m Blocks
 definitionList = try $ B.definitionList <$> many1 definitionListItem
 
--- | List start character.
+-- List start character.
 listStart :: PandocMonad m => TextileParser m ()
 listStart = genericListStart '*'
         <|> () <$ genericListStart '#'
@@ -281,7 +281,7 @@ definitionListStart = try $ do
     <|> try (lookAhead (() <$ string ":="))
      )
 
--- | A definition list item in textile begins with '- ', followed by
+-- A definition list item in textile begins with '- ', followed by
 -- the term defined, then spaces and ":=". The definition follows, on
 -- the same single line, or spaned on multiple line, after a line
 -- break.
@@ -303,7 +303,7 @@ definitionListItem = try $ do
 
 -- raw content
 
--- | A raw Html Block, optionally followed by blanklines
+-- A raw Html Block, optionally followed by blanklines
 rawHtmlBlock :: PandocMonad m => TextileParser m Blocks
 rawHtmlBlock = try $ do
   skipMany spaceChar
@@ -311,14 +311,14 @@ rawHtmlBlock = try $ do
   optional blanklines
   return $ B.rawBlock "html" b
 
--- | Raw block of LaTeX content
+-- Raw block of LaTeX content
 rawLaTeXBlock' :: PandocMonad m => TextileParser m Blocks
 rawLaTeXBlock' = do
   guardEnabled Ext_raw_tex
   B.rawBlock "latex" <$> (rawLaTeXBlock <* spaces)
 
 
--- | In textile, paragraphs are separated by blank lines.
+-- In textile, paragraphs are separated by blank lines.
 para :: PandocMonad m => TextileParser m Blocks
 para = B.para . trimInlines . mconcat <$> many1 inline
 
@@ -342,7 +342,7 @@ cellAttributes = try $ do
   char '.'
   return (isHeader, alignment)
 
--- | A table cell spans until a pipe |
+-- A table cell spans until a pipe |
 tableCell :: PandocMonad m => TextileParser m ((Bool, Alignment), Blocks)
 tableCell = try $ do
   char '|'
@@ -353,7 +353,7 @@ tableCell = try $ do
   content <- mconcat <$> parseFromString' (many inline) raw
   return ((isHeader, alignment), B.plain content)
 
--- | A table row is made of many table cells
+-- A table row is made of many table cells
 tableRow :: PandocMonad m => TextileParser m [((Bool, Alignment), Blocks)]
 tableRow = try $ do
   -- skip optional row attributes
@@ -363,7 +363,7 @@ tableRow = try $ do
     many1 spaceChar
   many1 tableCell <* char '|' <* blankline
 
--- | A table with an optional header.
+-- A table with an optional header.
 table :: PandocMonad m => TextileParser m Blocks
 table = try $ do
   -- ignore table attributes
@@ -391,7 +391,7 @@ table = try $ do
     [TableBody nullAttr 0 [] $ map (toRow . map snd) rows]
     (TableFoot nullAttr [])
 
--- | Ignore markers for cols, thead, tfoot.
+-- Ignore markers for cols, thead, tfoot.
 ignorableRow :: PandocMonad m => TextileParser m ()
 ignorableRow = try $ do
   char '|'
@@ -409,7 +409,7 @@ explicitBlockStart name = try $ do
   optional whitespace
   optional endline
 
--- | Blocks like 'p' and 'table' do not need explicit block tag.
+-- Blocks like 'p' and 'table' do not need explicit block tag.
 -- However, they can be used to set HTML/CSS attributes when needed.
 maybeExplicitBlock :: PandocMonad m
                    => Text  -- ^ block tag name
@@ -426,11 +426,11 @@ maybeExplicitBlock name blk = try $ do
 ----------
 
 
--- | Any inline element
+-- Any inline element
 inline :: PandocMonad m => TextileParser m Inlines
 inline = choice inlineParsers <?> "inline"
 
--- | Inline parsers tried in order
+-- Inline parsers tried in order
 inlineParsers :: PandocMonad m => [TextileParser m Inlines]
 inlineParsers = [ str
                 , whitespace
@@ -450,7 +450,7 @@ inlineParsers = [ str
                 , symbol
                 ]
 
--- | Inline markups
+-- Inline markups
 inlineMarkup :: PandocMonad m => TextileParser m Inlines
 inlineMarkup = choice [ simpleInline (string "??") (B.cite [])
                       , simpleInline (string "**") B.strong
@@ -464,7 +464,7 @@ inlineMarkup = choice [ simpleInline (string "??") (B.cite [])
                       , simpleInline (char '%') id
                       ]
 
--- | Trademark, registered, copyright
+-- Trademark, registered, copyright
 mark :: PandocMonad m => TextileParser m Inlines
 mark = try $ char '(' >> (try tm <|> try reg <|> copy)
 
@@ -495,11 +495,11 @@ note = try $ do
     Nothing  -> Prelude.fail "note not found"
     Just raw -> B.note <$> parseFromString' parseBlocks raw
 
--- | Special chars
+-- Special chars
 markupChars :: [Char]
 markupChars = "\\*#_@~-+^|%=[]&"
 
--- | Break strings on following chars. Space tab and newline break for
+-- Break strings on following chars. Space tab and newline break for
 --  inlines breaking. Open paren breaks for mark. Quote, dash and dot
 --  break for smart punctuation. Punctuation breaks for regular
 --  punctuation. Double quote breaks for named links. > and < break
@@ -510,7 +510,7 @@ stringBreakers = " \t\n\r.,\"'?!;:<>«»„“”‚‘’()[]"
 wordBoundaries :: [Char]
 wordBoundaries = markupChars <> stringBreakers
 
--- | Parse a hyphened sequence of words
+-- Parse a hyphened sequence of words
 hyphenedWords :: PandocMonad m => TextileParser m Text
 hyphenedWords = do
   x <- wordChunk
@@ -525,7 +525,7 @@ wordChunk = try $ do
                      <* lookAhead (noneOf wordBoundaries) ) )
   return $ T.pack $ hd:tl
 
--- | Any string
+-- Any string
 str :: PandocMonad m => TextileParser m Inlines
 str = do
   baseStr <- hyphenedWords
@@ -538,11 +538,11 @@ str = do
   updateLastStrPos
   return $ B.str fullStr
 
--- | Some number of space chars
+-- Some number of space chars
 whitespace :: PandocMonad m => TextileParser m Inlines
 whitespace = many1 spaceChar >> return B.space <?> "whitespace"
 
--- | In Textile, an isolated endline character is a line break
+-- In Textile, an isolated endline character is a line break
 endline :: PandocMonad m => TextileParser m Inlines
 endline = try $ do
   newline
@@ -554,13 +554,13 @@ endline = try $ do
 rawHtmlInline :: PandocMonad m => TextileParser m Inlines
 rawHtmlInline = B.rawInline "html" . snd <$> htmlTag isInlineTag
 
--- | Raw LaTeX Inline
+-- Raw LaTeX Inline
 rawLaTeXInline' :: PandocMonad m => TextileParser m Inlines
 rawLaTeXInline' = try $ do
   guardEnabled Ext_raw_tex
   B.rawInline "latex" <$> rawLaTeXInline
 
--- | Textile standard link syntax is "label":target. But we
+-- Textile standard link syntax is "label":target. But we
 -- can also have ["label":target].
 link :: PandocMonad m => TextileParser m Inlines
 link = try $ do
@@ -581,7 +581,7 @@ link = try $ do
               then B.link url "" name'
               else B.spanWith attr $ B.link url "" name'
 
--- | image embedding
+-- image embedding
 image :: PandocMonad m => TextileParser m Inlines
 image = try $ do
   char '!' >> notFollowedBy space
@@ -601,19 +601,19 @@ escapedEqs :: PandocMonad m => TextileParser m Inlines
 escapedEqs = B.str . T.pack <$>
   try (string "==" *> manyTill anyChar' (try $ string "=="))
 
--- | literal text escaped btw <notextile> tags
+-- literal text escaped btw <notextile> tags
 escapedTag :: PandocMonad m => TextileParser m Inlines
 escapedTag = B.str . T.pack <$>
   try (string "<notextile>" *>
          manyTill anyChar' (try $ string "</notextile>"))
 
--- | Any special symbol defined in wordBoundaries
+-- Any special symbol defined in wordBoundaries
 symbol :: PandocMonad m => TextileParser m Inlines
 symbol = B.str . T.singleton <$> (notFollowedBy newline *>
                                   notFollowedBy rawHtmlBlock *>
                                   oneOf wordBoundaries)
 
--- | Inline code
+-- Inline code
 code :: PandocMonad m => TextileParser m Inlines
 code = code1 <|> code2
 
@@ -631,7 +631,7 @@ code2 = do
   htmlTag (tagOpen (=="tt") null)
   B.code . T.pack <$> manyTill anyChar' (try $ htmlTag $ tagClose (=="tt"))
 
--- | Html / CSS attributes
+-- Html / CSS attributes
 attributes :: PandocMonad m => TextileParser m Attr
 attributes = foldl' (flip ($)) ("",[],[]) <$>
   try (do special <- option id specialAttribute
@@ -679,7 +679,7 @@ langAttr = do
   lang <- try $ enclosed (char '[') (char ']') alphaNum
   return $ \(id',classes,keyvals) -> (id',classes,("lang",T.pack lang):keyvals)
 
--- | Parses material surrounded by a parser.
+-- Parses material surrounded by a parser.
 surrounded :: (PandocMonad m, Show t)
            => ParserT Sources st m t   -- ^ surrounding parser
            -> ParserT Sources st m a   -- ^ content parser (to be used repeatedly)

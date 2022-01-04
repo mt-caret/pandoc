@@ -38,7 +38,7 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Data.Text as T
 
--- | Returns the current meta, respecting export options.
+-- Returns the current meta, respecting export options.
 metaExport :: Monad m => OrgParser m (F Meta)
 metaExport = do
   st <- getState
@@ -53,7 +53,7 @@ removeMeta key meta' =
   let metaMap = unMeta meta'
   in Meta $ Map.delete key metaMap
 
--- | Parse and handle a single line containing meta information
+-- Parse and handle a single line containing meta information
 -- The order, in which blocks are tried, makes sure that we're not looking at
 -- the beginning of a block, so we don't need to check for it
 metaLine :: PandocMonad m => OrgParser m Blocks
@@ -155,7 +155,7 @@ collectLines key value meta =
     MetaMap _map      -> []
     MetaBool _bool    -> []
 
--- | Accumulate the result as a MetaList under the given key.
+-- Accumulate the result as a MetaList under the given key.
 collectAsList :: Text -> Inlines -> Meta -> Meta
 collectAsList key value meta =
   let value' = metaListAppend meta (B.toMetaValue value)
@@ -167,11 +167,11 @@ collectAsList key value meta =
                 Just x             -> [x]
                 _                  -> []
 
--- | Read an format specific meta definition
+-- Read an format specific meta definition
 metaExportSnippet :: Monad m => Text -> OrgParser m (F Inlines)
 metaExportSnippet format = pure . B.rawInline format <$> anyLine
 
--- | Parse a link type definition (like @wp https://en.wikipedia.org/wiki/@).
+-- Parse a link type definition (like @wp https://en.wikipedia.org/wiki/@).
 addLinkFormatter :: Monad m => OrgParser m ()
 addLinkFormatter = try $ do
   linkType <- T.cons <$> letter <*> manyChar (alphaNum <|> oneOf "-_") <* skipSpaces
@@ -180,7 +180,7 @@ addLinkFormatter = try $ do
     let fs = orgStateLinkFormatters s
     in s{ orgStateLinkFormatters = Map.insert linkType formatter fs }
 
--- | An ad-hoc, single-argument-only implementation of a printf-style format
+-- An ad-hoc, single-argument-only implementation of a printf-style format
 -- parser.
 parseFormat :: Monad m => OrgParser m (Text -> Text)
 parseFormat = try $ replacePlain <|> replaceUrl <|> justAppend
@@ -224,7 +224,7 @@ setEmphasisPostChar csMb st =
   let postChars = fromMaybe (orgStateEmphasisPostChars defaultOrgParserState) csMb
   in st { orgStateEmphasisPostChars = postChars }
 
--- | Parses emphasis border character like @".,?!"@
+-- Parses emphasis border character like @".,?!"@
 emphChars :: Monad m => OrgParser m (Maybe [Char])
 emphChars = do
   skipSpaces
@@ -235,7 +235,7 @@ lineOfInlines = do
   updateLastPreCharPos
   trimInlinesF . mconcat <$> manyTill inline newline
 
--- | Parses ToDo sequences / keywords like @TODO DOING | DONE@.
+-- Parses ToDo sequences / keywords like @TODO DOING | DONE@.
 todoSequence :: Monad m => OrgParser m TodoSequence
 todoSequence = try $ do
   todoKws <- todoKeywords

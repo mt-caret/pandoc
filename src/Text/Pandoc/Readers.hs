@@ -24,8 +24,8 @@ module Text.Pandoc.Readers
     -- * Readers: converting /to/ Pandoc format
     Reader (..)
   , readers
-  , readDocx
-  , readOdt
+  -- , readDocx
+  -- , readOdt
   , readMarkdown
   , readCommonMark
   , readCreole
@@ -36,25 +36,25 @@ module Text.Pandoc.Readers
   , readOrg
   , readLaTeX
   , readHtml
-  , readJATS
+  -- , readJATS
   , readJira
   , readTextile
-  , readDocBook
-  , readOPML
-  , readHaddock
+  -- , readDocBook
+  -- , readOPML
+  -- , readHaddock
   , readNative
   , readJSON
   , readTWiki
   , readTikiWiki
   , readTxt2Tags
-  , readEPUB
+  -- , readEPUB
   , readMuse
-  , readFB2
+  -- , readFB2
   , readIpynb
   , readCSV
-  , readCslJson
-  , readBibTeX
-  , readBibLaTeX
+  -- , readCslJson
+  -- , readibTeX
+  -- , readBibLaTeX
   , readRTF
   -- * Miscellaneous
   , getReader
@@ -76,22 +76,22 @@ import Text.Pandoc.Options
 import Text.Pandoc.Readers.CommonMark
 import Text.Pandoc.Readers.Markdown
 import Text.Pandoc.Readers.Creole
-import Text.Pandoc.Readers.DocBook
-import Text.Pandoc.Readers.Docx
+-- import Text.Pandoc.Readers.DocBook
+-- import Text.Pandoc.Readers.Docx
 import Text.Pandoc.Readers.DokuWiki
-import Text.Pandoc.Readers.EPUB
-import Text.Pandoc.Readers.FB2
+-- import Text.Pandoc.Readers.EPUB
+-- import Text.Pandoc.Readers.FB2
 import Text.Pandoc.Readers.Ipynb
-import Text.Pandoc.Readers.Haddock
+-- import Text.Pandoc.Readers.Haddock
 import Text.Pandoc.Readers.HTML (readHtml)
-import Text.Pandoc.Readers.JATS (readJATS)
+-- import Text.Pandoc.Readers.JATS (readJATS)
 import Text.Pandoc.Readers.Jira (readJira)
 import Text.Pandoc.Readers.LaTeX
 import Text.Pandoc.Readers.MediaWiki
 import Text.Pandoc.Readers.Muse
 import Text.Pandoc.Readers.Native
-import Text.Pandoc.Readers.Odt
-import Text.Pandoc.Readers.OPML
+-- import Text.Pandoc.Readers.Odt
+-- import Text.Pandoc.Readers.OPML
 import Text.Pandoc.Readers.Org
 import Text.Pandoc.Readers.RST
 import Text.Pandoc.Readers.Textile
@@ -101,8 +101,8 @@ import Text.Pandoc.Readers.Txt2Tags
 import Text.Pandoc.Readers.Vimwiki
 import Text.Pandoc.Readers.Man
 import Text.Pandoc.Readers.CSV
-import Text.Pandoc.Readers.CslJson
-import Text.Pandoc.Readers.BibTeX
+-- import Text.Pandoc.Readers.CslJson
+-- import Text.Pandoc.Readers.BibTeX
 import Text.Pandoc.Readers.RTF
 import qualified Text.Pandoc.UTF8 as UTF8
 import Text.Pandoc.Sources (ToSources(..), sourcesToText)
@@ -111,7 +111,7 @@ data Reader m = TextReader (forall a . ToSources a =>
                                 ReaderOptions -> a -> m Pandoc)
               | ByteStringReader (ReaderOptions -> BL.ByteString -> m Pandoc)
 
--- | Association list of formats and readers.
+-- Association list of formats and readers.
 readers :: PandocMonad m => [(Text, Reader m)]
 readers = [("native"       , TextReader readNative)
           ,("json"         , TextReader readJSON)
@@ -128,33 +128,33 @@ readers = [("native"       , TextReader readNative)
           ,("rst"          , TextReader readRST)
           ,("mediawiki"    , TextReader readMediaWiki)
           ,("vimwiki"      , TextReader readVimwiki)
-          ,("docbook"      , TextReader readDocBook)
-          ,("opml"         , TextReader readOPML)
+          -- ,("docbook"      , TextReader readDocBook)
+          -- ,("opml"         , TextReader readOPML)
           ,("org"          , TextReader readOrg)
           ,("textile"      , TextReader readTextile) -- TODO : textile+lhs
           ,("html"         , TextReader readHtml)
-          ,("jats"         , TextReader readJATS)
+          -- ,("jats"         , TextReader readJATS)
           ,("jira"         , TextReader readJira)
           ,("latex"        , TextReader readLaTeX)
-          ,("haddock"      , TextReader readHaddock)
+          -- ,("haddock"      , TextReader readHaddock)
           ,("twiki"        , TextReader readTWiki)
           ,("tikiwiki"     , TextReader readTikiWiki)
-          ,("docx"         , ByteStringReader readDocx)
-          ,("odt"          , ByteStringReader readOdt)
+          -- ,("docx"         , ByteStringReader readDocx)
+          -- ,("odt"          , ByteStringReader readOdt)
           ,("t2t"          , TextReader readTxt2Tags)
-          ,("epub"         , ByteStringReader readEPUB)
+          -- ,("epub"         , ByteStringReader readEPUB)
           ,("muse"         , TextReader readMuse)
           ,("man"          , TextReader readMan)
-          ,("fb2"          , TextReader readFB2)
+          -- ,("fb2"          , TextReader readFB2)
           ,("ipynb"        , TextReader readIpynb)
           ,("csv"          , TextReader readCSV)
-          ,("csljson"      , TextReader readCslJson)
-          ,("bibtex"       , TextReader readBibTeX)
-          ,("biblatex"     , TextReader readBibLaTeX)
+          -- ,("csljson"      , TextReader readCslJson)
+          -- ,("bibtex"       , TextReader readBibTeX)
+          -- ,("biblatex"     , TextReader readBibLaTeX)
           ,("rtf"          , TextReader readRTF)
            ]
 
--- | Retrieve reader, extensions based on formatSpec (format+extensions).
+-- Retrieve reader, extensions based on formatSpec (format+extensions).
 getReader :: PandocMonad m => Text -> m (Reader m, Extensions)
 getReader s =
   case parseFormatSpec s of
@@ -178,7 +178,7 @@ getReader s =
                           (extsToEnable ++ extsToDisable)
                      return (r, exts)
 
--- | Read pandoc document from JSON format.
+-- Read pandoc document from JSON format.
 readJSON :: (PandocMonad m, ToSources a)
          => ReaderOptions
          -> a

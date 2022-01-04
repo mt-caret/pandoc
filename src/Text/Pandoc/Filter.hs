@@ -25,9 +25,9 @@ import Text.Pandoc.Class (report, getVerbosity, PandocMonad)
 import Text.Pandoc.Definition (Pandoc)
 import Text.Pandoc.Filter.Environment (Environment (..))
 import Text.Pandoc.Logging
-import Text.Pandoc.Citeproc (processCitations)
+-- import Text.Pandoc.Citeproc (processCitations)
 import qualified Text.Pandoc.Filter.JSON as JSONFilter
-import qualified Text.Pandoc.Filter.Lua as LuaFilter
+-- import qualified Text.Pandoc.Filter.Lua as LuaFilter
 import qualified Text.Pandoc.Filter.Path as Path
 import qualified Data.Text as T
 import System.FilePath (takeExtension)
@@ -35,11 +35,8 @@ import Control.Applicative ((<|>))
 import Control.Monad.Trans (MonadIO (liftIO))
 import Control.Monad (foldM, when)
 
--- | Type of filter and path to filter file.
-data Filter = LuaFilter FilePath
-            | JSONFilter FilePath
-            | CiteprocFilter -- built-in citeproc
-            deriving (Show, Generic)
+-- Type of filter and path to filter file.
+data Filter = JSONFilter FilePath deriving (Show, Generic)
 
 instance FromJSON Filter where
  parseJSON node =
@@ -49,28 +46,29 @@ instance FromJSON Filter where
     let missingPath = fail $ "Expected 'path' for filter of type " ++ show ty
     let filterWithPath constr = maybe missingPath (return . constr . T.unpack)
     case ty of
-      "citeproc" -> return CiteprocFilter
-      "lua"  -> filterWithPath LuaFilter fp
+      -- "citeproc" -> return CiteprocFilter
+      -- "lua"  -> filterWithPath LuaFilter fp
       "json" -> filterWithPath JSONFilter fp
       _      -> fail $ "Unknown filter type " ++ show (ty :: T.Text)) node
   <|>
   (withText "Filter" $ \t -> do
     let fp = T.unpack t
-    if fp == "citeproc"
-       then return CiteprocFilter
-       else return $
+    -- if fp == "citeproc"
+     --  then return CiteprocFilter
+     --  else return $
+    return $
          case takeExtension fp of
-           ".lua"  -> LuaFilter fp
+           -- ".lua"  -> LuaFilter fp
            _       -> JSONFilter fp) node
 
 instance ToJSON Filter where
- toJSON CiteprocFilter = object [ "type" .= String "citeproc" ]
- toJSON (LuaFilter fp) = object [ "type" .= String "lua",
-                                  "path" .= String (T.pack fp) ]
+ -- toJSON CiteprocFilter = object [ "type" .= String "citeproc" ]
+ -- toJSON (LuaFilter fp) = object [ "type" .= String "lua",
+ --                                  "path" .= String (T.pack fp) ]
  toJSON (JSONFilter fp) = object [ "type" .= String "json",
                                    "path" .= String (T.pack fp) ]
 
--- | Modify the given document using a filter.
+-- Modify the given document using a filter.
 applyFilters :: (PandocMonad m, MonadIO m)
              => Environment
              -> [Filter]
@@ -83,10 +81,10 @@ applyFilters fenv filters args d = do
  where
   applyFilter doc (JSONFilter f) =
     withMessages f $ JSONFilter.apply fenv args f doc
-  applyFilter doc (LuaFilter f)  =
-    withMessages f $ LuaFilter.apply fenv args f doc
-  applyFilter doc CiteprocFilter =
-    processCitations doc
+  -- applyFilter doc (LuaFilter f)  =
+  --   withMessages f $ LuaFilter.apply fenv args f doc
+  -- applyFilter doc CiteprocFilter =
+  --   processCitations doc
   withMessages f action = do
     verbosity <- getVerbosity
     when (verbosity == INFO) $ report $ RunningFilter f
@@ -97,8 +95,8 @@ applyFilters fenv filters args d = do
     return res
   toMilliseconds picoseconds = picoseconds `div` 1000000000
 
--- | Expand paths of filters, searching the data directory.
+-- Expand paths of filters, searching the data directory.
 expandFilterPath :: (PandocMonad m, MonadIO m) => Filter -> m Filter
-expandFilterPath (LuaFilter fp) = LuaFilter <$> Path.expandFilterPath fp
+-- expandFilterPath (LuaFilter fp) = LuaFilter <$> Path.expandFilterPath fp
 expandFilterPath (JSONFilter fp) = JSONFilter <$> Path.expandFilterPath fp
-expandFilterPath CiteprocFilter = return CiteprocFilter
+-- expandFilterPath CiteprocFilter = return CiteprocFilter

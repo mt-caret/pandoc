@@ -20,7 +20,7 @@ module Text.Pandoc.App.CommandLineOptions (
           , parseOptionsFromArgs
           , options
           , engines
-          , lookupHighlightStyle
+          -- , lookupHighlightStyle
           , setVariable
           ) where
 import Control.Monad
@@ -38,7 +38,7 @@ import Data.List (isPrefixOf)
 import Data.Maybe (fromMaybe, isJust)
 import Data.Text (Text)
 import Safe (tailDef)
-import Skylighting (Style, Syntax (..), defaultSyntaxMap, parseTheme)
+-- import Skylighting (Style, Syntax (..), defaultSyntaxMap, parseTheme)
 import System.Console.GetOpt
 import System.Environment (getArgs, getProgName)
 import System.Exit (exitSuccess)
@@ -51,7 +51,7 @@ import Text.Pandoc.App.Opt (Opt (..), LineEnding (..), IpynbOutput (..),
                             DefaultsState (..), applyDefaults,
                             fullDefaultsPath)
 import Text.Pandoc.Filter (Filter (..))
-import Text.Pandoc.Highlighting (highlightingStyles)
+-- import Text.Pandoc.Highlighting (highlightingStyles)
 import Text.Pandoc.Shared (ordNub, elemText, safeStrRead, defaultUserDataDir)
 import Text.Printf
 
@@ -123,7 +123,7 @@ engines = map ("html",) htmlEngines ++
 pdfEngines :: [String]
 pdfEngines = ordNub $ map snd engines
 
--- | A list of functions, each transforming the options data structure
+-- A list of functions, each transforming the options data structure
 --   in response to a command-line option.
 options :: [OptDescr (Opt -> IO Opt)]
 options =
@@ -320,18 +320,18 @@ options =
                   "FILE")
                  "" -- "File to include after document body"
 
-    , Option "" ["no-highlight"]
-                (NoArg
-                 (\opt -> return opt { optHighlightStyle = Nothing }))
-                 "" -- "Don't highlight source code"
+    -- , Option "" ["no-highlight"]
+    --             (NoArg
+    --              (\opt -> return opt { optHighlightStyle = Nothing }))
+    --              "" -- "Don't highlight source code"
 
-    , Option "" ["highlight-style"]
-                (ReqArg
-                 (\arg opt ->
-                     return opt{ optHighlightStyle = Just $
-                                 T.pack $ normalizePath arg })
-                 "STYLE|FILE")
-                 "" -- "Style for highlighted code"
+    -- , Option "" ["highlight-style"]
+    --             (ReqArg
+    --              (\arg opt ->
+    --                  return opt{ optHighlightStyle = Just $
+    --                              T.pack $ normalizePath arg })
+    --              "STYLE|FILE")
+    --              "" -- "Style for highlighted code"
 
     , Option "" ["syntax-definition"]
                 (ReqArg
@@ -462,12 +462,12 @@ options =
                   "PROGRAM")
                  "" -- "External JSON filter"
 
-    , Option "L" ["lua-filter"]
-                 (ReqArg
-                  (\arg opt -> return opt { optFilters =
-                      optFilters opt ++ [LuaFilter (normalizePath arg)] })
-                  "SCRIPTPATH")
-                 "" -- "Lua filter"
+    -- , Option "L" ["lua-filter"]
+    --              (ReqArg
+    --               (\arg opt -> return opt { optFilters =
+    --                   optFilters opt ++ [LuaFilter (normalizePath arg)] })
+    --               "SCRIPTPATH")
+    --              "" -- "Lua filter"
 
     , Option "" ["shift-heading-level-by"]
                  (ReqArg
@@ -683,11 +683,11 @@ options =
                  "all|none|best")
                  "" -- "Starting number for sections, subsections, etc."
 
-    , Option "C" ["citeproc"]
-                 (NoArg
-                  (\opt -> return opt { optFilters =
-                      optFilters opt ++ [CiteprocFilter] }))
-                 "" -- "Process citations"
+    -- , Option "C" ["citeproc"]
+    --              (NoArg
+    --               (\opt -> return opt { optFilters =
+    --                   optFilters opt ++ [CiteprocFilter] }))
+    --              "" -- "Process citations"
 
     , Option "" ["bibliography"]
                  (ReqArg
@@ -800,24 +800,24 @@ options =
                 "FILE")
                 "" -- "Log messages in JSON format to this file."
 
-    , Option "" ["bash-completion"]
-                 (NoArg
-                  (\_ -> do
-                     datafiles <- getDataFileNames
-                     tpl <- runIOorExplode $
-                              UTF8.toString <$>
-                                readDefaultDataFile "bash_completion.tpl"
-                     let optnames (Option shorts longs _ _) =
-                           map (\c -> ['-',c]) shorts ++
-                           map ("--" ++) longs
-                     let allopts = unwords (concatMap optnames options)
-                     UTF8.hPutStrLn stdout $ T.pack $ printf tpl allopts
-                         (T.unpack $ T.unwords readersNames)
-                         (T.unpack $ T.unwords writersNames)
-                         (T.unpack $ T.unwords $ map fst highlightingStyles)
-                         (unwords datafiles)
-                     exitSuccess ))
-                 "" -- "Print bash completion script"
+    -- , Option "" ["bash-completion"]
+    --              (NoArg
+    --               (\_ -> do
+    --                  datafiles <- getDataFileNames
+    --                  tpl <- runIOorExplode $
+    --                           UTF8.toString <$>
+    --                             readDefaultDataFile "bash_completion.tpl"
+    --                  let optnames (Option shorts longs _ _) =
+    --                        map (\c -> ['-',c]) shorts ++
+    --                        map ("--" ++) longs
+    --                  let allopts = unwords (concatMap optnames options)
+    --                  UTF8.hPutStrLn stdout $ T.pack $ printf tpl allopts
+    --                      (T.unpack $ T.unwords readersNames)
+    --                      (T.unpack $ T.unwords writersNames)
+    --                      (T.unpack $ T.unwords $ map fst highlightingStyles)
+    --                      (unwords datafiles)
+    --                  exitSuccess ))
+    --              "" -- "Print bash completion script"
 
     , Option "" ["list-input-formats"]
                  (NoArg
@@ -862,24 +862,24 @@ options =
                   "FORMAT")
                  ""
 
-    , Option "" ["list-highlight-languages"]
-                 (NoArg
-                  (\_ -> do
-                     let langs = [ T.unpack (T.toLower (sShortname s))
-                                 | s <- M.elems defaultSyntaxMap
-                                 , sShortname s `notElem`
-                                    [T.pack "Alert", T.pack "Alert_indent"]
-                                 ]
-                     mapM_ (UTF8.hPutStrLn stdout . T.pack) (sort langs)
-                     exitSuccess ))
-                 ""
+    -- , Option "" ["list-highlight-languages"]
+    --              (NoArg
+    --               (\_ -> do
+    --                  let langs = [ T.unpack (T.toLower (sShortname s))
+    --                              | s <- M.elems defaultSyntaxMap
+    --                              , sShortname s `notElem`
+    --                                 [T.pack "Alert", T.pack "Alert_indent"]
+    --                              ]
+    --                  mapM_ (UTF8.hPutStrLn stdout . T.pack) (sort langs)
+    --                  exitSuccess ))
+    --              ""
 
-    , Option "" ["list-highlight-styles"]
-                 (NoArg
-                  (\_ -> do
-                     mapM_ (UTF8.hPutStrLn stdout . fst) highlightingStyles
-                     exitSuccess ))
-                 ""
+    -- , Option "" ["list-highlight-styles"]
+    --              (NoArg
+    --               (\_ -> do
+    --                  mapM_ (UTF8.hPutStrLn stdout . fst) highlightingStyles
+    --                  exitSuccess ))
+    --              ""
 
     , Option "D" ["print-default-template"]
                  (ReqArg
@@ -913,28 +913,28 @@ options =
                   "FILE")
                   "" -- "Print default data file"
 
-    , Option "" ["print-highlight-style"]
-                 (ReqArg
-                  (\arg opt -> do
-                     let write = maybe B.putStr B.writeFile $ optOutputFile opt
-                     sty <- runIOorExplode $ lookupHighlightStyle arg
-                     write $ encodePretty'
-                       defConfig{confIndent = Spaces 4
-                                ,confCompare = keyOrder
-                                  (map T.pack
-                                   ["text-color"
-                                   ,"background-color"
-                                   ,"line-number-color"
-                                   ,"line-number-background-color"
-                                   ,"bold"
-                                   ,"italic"
-                                   ,"underline"
-                                   ,"text-styles"])
-                                ,confNumFormat = Generic
-                                ,confTrailingNewline = True} sty
-                     exitSuccess)
-                  "STYLE|FILE")
-                 "" -- "Print default template for FORMAT"
+    --, Option "" ["print-highlight-style"]
+    --             (ReqArg
+    --              (\arg opt -> do
+    --                 let write = maybe B.putStr B.writeFile $ optOutputFile opt
+    --                 sty <- runIOorExplode $ lookupHighlightStyle arg
+    --                 write $ encodePretty'
+    --                   defConfig{confIndent = Spaces 4
+    --                            ,confCompare = keyOrder
+    --                              (map T.pack
+    --                               ["text-color"
+    --                               ,"background-color"
+    --                               ,"line-number-color"
+    --                               ,"line-number-background-color"
+    --                               ,"bold"
+    --                               ,"italic"
+    --                               ,"underline"
+    --                               ,"text-styles"])
+    --                            ,confNumFormat = Generic
+    --                            ,confTrailingNewline = True} sty
+    --                 exitSuccess)
+    --              "STYLE|FILE")
+    --             "" -- "Print default template for FORMAT"
 
 
     , Option "v" ["version"]
@@ -983,8 +983,8 @@ copyrightMessage = intercalate "\n" [
 compileInfo :: String
 compileInfo =
   "\nCompiled with pandoc-types " ++ VERSION_pandoc_types ++
-  ", texmath " ++ VERSION_texmath ++ ", skylighting " ++
-  VERSION_skylighting ++ ",\nciteproc " ++ VERSION_citeproc ++
+  ", texmath " ++ VERSION_texmath ++ -- ", skylighting " ++
+  -- VERSION_skylighting ++ ",\nciteproc " ++ VERSION_citeproc ++
   ", ipynb " ++ VERSION_ipynb
 
 handleUnrecognizedOption :: String -> [String] -> [String]
@@ -1026,19 +1026,19 @@ writersNames = sort
 splitField :: String -> (String, String)
 splitField = second (tailDef "true") . break (`elemText` ":=")
 
-lookupHighlightStyle :: PandocMonad m => String -> m Style
-lookupHighlightStyle s
-  | takeExtension s == ".theme" = -- attempt to load KDE theme
-    do contents <- readFileLazy s
-       case parseTheme contents of
-            Left _    -> throwError $ PandocOptionError $ T.pack $
-                           "Could not read highlighting theme " ++ s
-            Right sty -> return sty
-  | otherwise =
-  case lookup (T.toLower $ T.pack s) highlightingStyles of
-       Just sty -> return sty
-       Nothing  -> throwError $ PandocOptionError $ T.pack $
-                      "Unknown highlight-style " ++ s
+--lookupHighlightStyle :: PandocMonad m => String -> m Style
+--lookupHighlightStyle s
+--  | takeExtension s == ".theme" = -- attempt to load KDE theme
+--    do contents <- readFileLazy s
+--       case parseTheme contents of
+--            Left _    -> throwError $ PandocOptionError $ T.pack $
+--                           "Could not read highlighting theme " ++ s
+--            Right sty -> return sty
+--  | otherwise =
+--  case lookup (T.toLower $ T.pack s) highlightingStyles of
+--       Just sty -> return sty
+--       Nothing  -> throwError $ PandocOptionError $ T.pack $
+--                      "Unknown highlight-style " ++ s
 
 deprecatedOption :: String -> String -> IO ()
 deprecatedOption o msg =
@@ -1047,7 +1047,7 @@ deprecatedOption o msg =
        Right () -> return ()
        Left e   -> E.throwIO e
 
--- | Set text value in text context.
+-- Set text value in text context.
 setVariable :: Text -> Text -> Context Text -> Context Text
 setVariable key val (Context ctx) = Context $ M.alter go key ctx
   where go Nothing             = Just $ toVal val

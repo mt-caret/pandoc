@@ -35,7 +35,7 @@ import qualified Data.Text as T
 import qualified Text.Pandoc.Builder as B
 import Control.Monad (guard)
 
--- | Parses a @<col>@ element, returning the column's width.
+-- Parses a @<col>@ element, returning the column's width.
 -- An Either value is used:  Left i means a "relative length" with
 -- integral value i (see https://www.w3.org/TR/html4/types.html#h-6.6);
 -- Right w means a regular width.  Defaults to @'Right ColWidthDefault'@
@@ -119,11 +119,11 @@ pCell block celltype = try $ do
         _ -> kv : acc
   return (celltype, B.cellWith (toAttr attribs') align rowspan colspan res)
 
--- | Create a style attribute string from a list of CSS attributes
+-- Create a style attribute string from a list of CSS attributes
 toStyleString :: [(Text, Text)] -> Text
 toStyleString = T.intercalate "; " . map (\(k, v) -> k <> ": " <> v)
 
--- | Parses a normal table row; returns the row together with the number
+-- Parses a normal table row; returns the row together with the number
 -- of header cells at the beginning of the row.
 pRow :: PandocMonad m
      => TagParser m Blocks
@@ -137,7 +137,7 @@ pRow block = try $ do
          , Row (toAttr attribs) $ map snd cells
          )
 
--- | Parses a header row, i.e., a row which containing nothing but
+-- Parses a header row, i.e., a row which containing nothing but
 -- @<th>@ elements.
 pHeaderRow :: PandocMonad m
            => TagParser m Blocks
@@ -148,7 +148,7 @@ pHeaderRow block = try $ do
   let mkRow (attribs, cells) = Row (toAttr attribs) cells
   mkRow <$> pInTagWithAttribs TagsRequired "tr" pThs
 
--- | Parses a table head. If there is no @thead@ element, this looks for
+-- Parses a table head. If there is no @thead@ element, this looks for
 -- a row of @<th>@-only elements as the first line of the table.
 pTableHead :: PandocMonad m
            => TagParser m Blocks
@@ -167,7 +167,7 @@ pTableHead block = try $ do
                    Just row@(Row _ (_:_)) -> [row]
                    _                      -> []
 
--- | Parses a table foot
+-- Parses a table foot
 pTableFoot :: PandocMonad m
            => TagParser m Blocks
            -> TagParser m TableFoot
@@ -178,7 +178,7 @@ pTableFoot block = try $ do
   optional $ pSatisfy (matchTagClose "tfoot")
   return $ TableFoot (toAttr attribs) rows
 
--- | Parses a table body
+-- Parses a table body
 pTableBody :: PandocMonad m
            => TagParser m Blocks
            -> TagParser m TableBody
@@ -196,7 +196,7 @@ pTableBody block = try $ do
     getAttribs (TagOpen _ attribs) = attribs
     getAttribs _ = []
 
--- | Parses a simple HTML table
+-- Parses a simple HTML table
 pTable :: PandocMonad m
        => TagParser m Blocks -- ^ Caption and cell contents parser
        -> TagParser m Blocks

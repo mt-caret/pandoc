@@ -80,7 +80,7 @@ instance Default WriterState
 evalMuse :: PandocMonad m => Muse m a -> WriterEnv -> WriterState -> m a
 evalMuse document env = evalStateT $ runReaderT document env
 
--- | Convert Pandoc to Muse.
+-- Convert Pandoc to Muse.
 writeMuse :: PandocMonad m
           => WriterOptions
           -> Pandoc
@@ -98,7 +98,7 @@ writeMuse opts document =
                         , envNearAsterisks = False
                         }
 
--- | Return Muse representation of document.
+-- Return Muse representation of document.
 pandocToMuse :: PandocMonad m
              => Pandoc
              -> Muse m Text
@@ -120,8 +120,8 @@ pandocToMuse (Pandoc meta blocks) = do
        Nothing  -> main
        Just tpl -> renderTemplate tpl context
 
--- | Helper function for flatBlockListToMuse
--- | Render all blocks and insert blank lines between the first two
+-- Helper function for flatBlockListToMuse
+-- Render all blocks and insert blank lines between the first two
 catWithBlankLines :: PandocMonad m
                   => [Block]       -- ^ List of block elements
                   -> Int           -- ^ Number of blank lines
@@ -132,8 +132,8 @@ catWithBlankLines (b : bs) n = do
   return $ b' <> blanklines n <> bs'
 catWithBlankLines _ _ = error "Expected at least one block"
 
--- | Convert list of Pandoc block elements to Muse
--- | without setting envTopLevel.
+-- Convert list of Pandoc block elements to Muse
+-- without setting envTopLevel.
 flatBlockListToMuse :: PandocMonad m
                 => [Block]       -- ^ List of block elements
                 -> Muse m (Doc Text)
@@ -174,7 +174,7 @@ simpleTable caption headers rows = do
   where noHeaders = all null headers
         rowSeparator = if noHeaders then " | " else " |  "
 
--- | Convert list of Pandoc block elements to Muse.
+-- Convert list of Pandoc block elements to Muse.
 blockListToMuse :: PandocMonad m
                 => [Block]       -- ^ List of block elements
                 -> Muse m (Doc Text)
@@ -183,7 +183,7 @@ blockListToMuse =
                      , envInsideBlock = True
                      }) . flatBlockListToMuse
 
--- | Convert Pandoc block element to Muse.
+-- Convert Pandoc block element to Muse.
 blockToMuse :: PandocMonad m
             => Block         -- ^ Block element
             -> Muse m (Doc Text)
@@ -277,7 +277,7 @@ blockToMuse (Table _ blkCapt specs thead tbody tfoot) =
 blockToMuse (Div _ bs) = flatBlockListToMuse bs
 blockToMuse Null = return empty
 
--- | Return Muse representation of notes collected so far.
+-- Return Muse representation of notes collected so far.
 currentNotesToMuse :: PandocMonad m
                    => Muse m (Doc Text)
 currentNotesToMuse = do
@@ -285,7 +285,7 @@ currentNotesToMuse = do
   modify $ \st -> st { stNotes = mempty }
   notesToMuse notes
 
--- | Return Muse representation of notes.
+-- Return Muse representation of notes.
 notesToMuse :: PandocMonad m
             => Notes
             -> Muse m (Doc Text)
@@ -294,7 +294,7 @@ notesToMuse notes = do
   modify $ \st -> st { stNoteNum = stNoteNum st + length notes }
   vsep <$> zipWithM noteToMuse [n ..] notes
 
--- | Return Muse representation of a note.
+-- Return Muse representation of a note.
 noteToMuse :: PandocMonad m
            => Int
            -> [Block]
@@ -309,7 +309,7 @@ noteToMuse num note = do
   where
     marker = "[" <> tshow num <> "] "
 
--- | Return Muse representation of block and accumulated notes.
+-- Return Muse representation of block and accumulated notes.
 blockToMuseWithNotes :: PandocMonad m
                      => Block
                      -> Muse m (Doc Text)
@@ -332,14 +332,14 @@ blockToMuseWithNotes blk = do
            return $ b $+$ notes <> blankline
     else return b
 
--- | Escape special characters for Muse.
+-- Escape special characters for Muse.
 escapeText :: Text -> Text
 escapeText s =
   "<verbatim>" <>
   T.replace "</verbatim>" "<</verbatim><verbatim>/verbatim>" s <>
   "</verbatim>"
 
--- | Replace newlines with spaces
+-- Replace newlines with spaces
 replaceNewlines :: Text -> Text
 replaceNewlines = T.map $ \c ->
   if c == '\n' then ' ' else c
@@ -368,7 +368,7 @@ containsNotes left right = p . T.unpack -- This ought to be a parser
           | otherwise = p xs
         s []      = False
 
--- | Return True if string should be escaped with <verbatim> tags
+-- Return True if string should be escaped with <verbatim> tags
 shouldEscapeText :: PandocMonad m
                    => Text
                    -> Muse m Bool
@@ -384,7 +384,7 @@ shouldEscapeText s = do
            containsNotes '[' ']' s ||
            containsNotes '{' '}' s
 
--- | Escape special characters for Muse if needed.
+-- Escape special characters for Muse if needed.
 conditionalEscapeText :: PandocMonad m
                         => Text
                         -> Muse m Text
@@ -507,7 +507,7 @@ inlineListStartsWithAlnum (Str s:_) = do
   return $ esc || isAlphaNum (T.head s)
 inlineListStartsWithAlnum _ = return False
 
--- | Convert list of Pandoc inline elements to Muse
+-- Convert list of Pandoc inline elements to Muse
 renderInlineList :: PandocMonad m
                  => [Inline]
                  -> Muse m (Doc Text)
@@ -537,7 +537,7 @@ renderInlineList (x:xs) = do
     then pure (literal "<verbatim></verbatim>" <> r <> lst')
     else pure (r <> lst')
 
--- | Normalize and convert list of Pandoc inline elements to Muse.
+-- Normalize and convert list of Pandoc inline elements to Muse.
 inlineListToMuse :: PandocMonad m
                  => [Inline]
                  -> Muse m (Doc Text)
@@ -566,7 +566,7 @@ emphasis b e lst = do
   where inAsterisks = T.last b == '*' || T.head e == '*'
         useTags = T.last e /= '>'
 
--- | Convert Pandoc inline element to Muse.
+-- Convert Pandoc inline element to Muse.
 inlineToMuse :: PandocMonad m
              => Inline
              -> Muse m (Doc Text)
@@ -597,7 +597,7 @@ inlineToMuse (Strong [Emph lst]) = do
     else if null lst' || startsWithSpace lst' || endsWithSpace lst'
            then emphasis "**<em>" "</em>**" lst'
            else emphasis "***" "***" lst'
--- | Underline is only supported in Emacs Muse mode.
+-- Underline is only supported in Emacs Muse mode.
 inlineToMuse (Underline lst) = do
   opts <- asks envOptions
   contents <- inlineListToMuse lst

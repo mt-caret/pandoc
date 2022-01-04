@@ -23,7 +23,7 @@ import Text.Pandoc.Shared (stringify)
 import Text.Pandoc.Sources (ToSources(..), sourcesToText)
 import qualified Text.Jira.Markup as Jira
 
--- | Read Jira wiki markup.
+-- Read Jira wiki markup.
 readJira :: (PandocMonad m, ToSources a)
          => ReaderOptions
          -> a
@@ -42,7 +42,7 @@ jiraToPandoc (Jira.Doc blks) = doc $ foldMap jiraToPandocBlocks blks
 -- Blocks
 --
 
--- | Converts a Jira block to a Pandoc block.
+-- Converts a Jira block to a Pandoc block.
 jiraToPandocBlocks :: Jira.Block -> Blocks
 jiraToPandocBlocks = \case
   Jira.BlockQuote blcks -> blockQuote $ foldMap jiraToPandocBlocks blcks
@@ -57,7 +57,7 @@ jiraToPandocBlocks = \case
   Jira.Para inlns       -> para $ foldMap jiraToPandocInlines inlns
   Jira.Table rows       -> toPandocTable rows
 
--- | Create a pandoc list – either to a @'BulletList'@ or an @'OrderedList'@.
+-- Create a pandoc list – either to a @'BulletList'@ or an @'OrderedList'@.
 toPandocList :: Jira.ListStyle -> [[Jira.Block]] -> Blocks
 toPandocList style items =
   let items' = map (foldMap jiraToPandocBlocks) items
@@ -65,7 +65,7 @@ toPandocList style items =
      then orderedList items'
      else bulletList items'
 
--- | Create a pandoc @'CodeBlock'@
+-- Create a pandoc @'CodeBlock'@
 toPandocCodeBlocks :: Maybe Jira.Language -> [Jira.Parameter] -> Text -> Blocks
 toPandocCodeBlocks langMay params txt =
   let classes = case langMay of
@@ -73,7 +73,7 @@ toPandocCodeBlocks langMay params txt =
                   Nothing                   -> []
   in codeBlockWith ("", classes, map paramToPair params) txt
 
--- | Create a pandoc @'Div'@ from a panel.
+-- Create a pandoc @'Div'@ from a panel.
 toPandocDiv :: [Jira.Parameter] -> [Jira.Block] -> Blocks
 toPandocDiv params =
   divWith ("", ["panel"], map paramToPair params) . foldMap jiraToPandocBlocks
@@ -81,11 +81,11 @@ toPandocDiv params =
 paramToPair :: Jira.Parameter -> (Text, Text)
 paramToPair (Jira.Parameter key value) = (key, value)
 
--- | Give textual representation of a color.
+-- Give textual representation of a color.
 colorName :: Jira.ColorName -> Text
 colorName (Jira.ColorName name) = name
 
--- | Create a pandoc @'Table'@.
+-- Create a pandoc @'Table'@.
 -- This relies on 'simpleTable' to sanitize the table.
 toPandocTable :: [Jira.Row] -> Blocks
 toPandocTable rows =
@@ -116,7 +116,7 @@ splitIntoHeaderAndBody rows@(first@(Jira.Row cells) : rest) =
 -- Inlines
 --
 
--- | Converts a Jira inline to a Pandoc block.
+-- Converts a Jira inline to a Pandoc block.
 jiraToPandocInlines :: Jira.Inline -> Inlines
 jiraToPandocInlines = \case
   Jira.Anchor t          -> spanWith (t, [], []) mempty
@@ -160,7 +160,7 @@ jiraToPandocInlines = \case
         _           -> let kv = (Jira.parameterKey p, Jira.parameterValue p)
                        in (title, (ident, classes, kv:kvs))
 
--- | Convert a Jira link to pandoc inlines.
+-- Convert a Jira link to pandoc inlines.
 jiraLinkToPandoc :: Jira.LinkType -> [Jira.Inline] -> Jira.URL -> Inlines
 jiraLinkToPandoc linkType alias url =
   let url' = (if linkType == Jira.User then ("~" <>) else id) $ Jira.fromURL url
@@ -175,7 +175,7 @@ jiraLinkToPandoc linkType alias url =
     Jira.SmartCard  -> linkWith ("", ["smart-card"], []) url' "" alias'
     Jira.SmartLink  -> linkWith ("", ["smart-link"], []) url' "" alias'
 
--- | Get unicode representation of a Jira icon.
+-- Get unicode representation of a Jira icon.
 iconUnicode :: Jira.Icon -> Text
 iconUnicode = \case
   Jira.IconSlightlySmiling -> "🙂"

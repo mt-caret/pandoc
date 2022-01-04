@@ -22,7 +22,7 @@ import qualified Data.Text as T
 import System.FilePath (isValid, takeExtension)
 import Text.Pandoc.Shared (elemText)
 
--- | Check whether the given string looks like the path to of URL of an image.
+-- Check whether the given string looks like the path to of URL of an image.
 isImageFilename :: Text -> Bool
 isImageFilename fp = hasImageExtension && (isValid (T.unpack fp) || isKnownProtocolUri)
  where
@@ -33,7 +33,7 @@ isImageFilename fp = hasImageExtension && (isValid (T.unpack fp) || isKnownProto
    imageExtensions = [ ".jpeg", ".jpg", ".png", ".gif", ".svg" ]
    protocols = [ "file", "http", "https" ]
 
--- | Cleanup and canonicalize a string describing a link.  Return @Nothing@ if
+-- Cleanup and canonicalize a string describing a link.  Return @Nothing@ if
 -- the string does not appear to be a link.
 cleanLinkText :: Text -> Maybe Text
 cleanLinkText s
@@ -50,17 +50,17 @@ cleanLinkText s
       in T.all (\c -> isAlphaNum c || c `elemText` ".-") scheme
          && not (T.null path)
 
--- | Creates an key-value pair marking the original language name specified for
+-- Creates an key-value pair marking the original language name specified for
 -- a piece of source code.
 
--- | Creates an key-value attributes marking the original language name
+-- Creates an key-value attributes marking the original language name
 -- specified for a piece of source code.
 originalLang :: Text -> [(Text, Text)]
 originalLang lang =
   let transLang = translateLang lang
   in [("org-language", lang) | transLang /= lang]
 
--- | Translate from Org-mode's programming language identifiers to those used
+-- Translate from Org-mode's programming language identifiers to those used
 -- by Pandoc.  This is useful to allow for proper syntax highlighting in
 -- Pandoc output.
 translateLang :: Text -> Text

@@ -57,7 +57,7 @@ type MarkdownParser m = ParserT Sources ParserState m
 
 type F = Future ParserState
 
--- | Read markdown from an input string and return a Pandoc document.
+-- Read markdown from an input string and return a Pandoc document.
 readMarkdown :: (PandocMonad m, ToSources a)
              => ReaderOptions -- ^ Reader options
              -> a             -- ^ Input
@@ -69,7 +69,7 @@ readMarkdown opts s = do
     Right result -> return result
     Left e       -> throwError e
 
--- | Read a YAML string and convert it to pandoc metadata.
+-- Read a YAML string and convert it to pandoc metadata.
 -- String scalars in the YAML are parsed as Markdown.
 yamlToMeta :: PandocMonad m
            => ReaderOptions
@@ -88,7 +88,7 @@ yamlToMeta opts mbfp bstr = do
     Right result -> return result
     Left e       -> throwError e
 
--- | Read a YAML string and extract references from the
+-- Read a YAML string and extract references from the
 -- 'references' field, filter using an id predicate and
 -- parsing fields as Markdown.
 yamlToRefs :: PandocMonad m
@@ -141,7 +141,7 @@ isBlank _    = False
 -- auxiliary functions
 --
 
--- | Succeeds when we're in list context.
+-- Succeeds when we're in list context.
 inList :: PandocMonad m => MarkdownParser m ()
 inList = do
   ctx <- stateParserContext <$> getState
@@ -184,7 +184,7 @@ litChar = escapedChar'
        <|> noneOf "\n"
        <|> try (newline >> notFollowedBy blankline >> return ' ')
 
--- | Parse a sequence of inline elements between square brackets,
+-- Parse a sequence of inline elements between square brackets,
 -- including inlines between balanced pairs of square brackets.
 inlinesInBalancedBrackets :: PandocMonad m => MarkdownParser m (F Inlines)
 inlinesInBalancedBrackets =
@@ -381,7 +381,7 @@ quotedTitle c = try $ do
   let nestedChunk = (\x -> T.singleton c <> x <> T.singleton c) <$> quotedTitle c
   T.unwords . T.words . T.concat <$> manyTill (nestedChunk <|> regChunk) pEnder
 
--- | PHP Markdown Extra style abbreviation key.  Currently
+-- PHP Markdown Extra style abbreviation key.  Currently
 -- we just skip them, since Pandoc doesn't have an element for
 -- an abbreviation.
 abbrevKey :: PandocMonad m => MarkdownParser m (F Blocks)
@@ -1431,7 +1431,7 @@ scanForPipe = do
        (_, T.uncons -> Just ('|', _)) -> return ()
        _                              -> mzero
 
--- | Parse a table using 'headerParser', 'rowParser',
+-- Parse a table using 'headerParser', 'rowParser',
 -- 'lineParser', and 'footerParser'.  Variant of the version in
 -- Text.Pandoc.Parsing.
 tableWith :: PandocMonad m
@@ -1680,7 +1680,7 @@ one c prefix' = do
 strongOrEmph :: PandocMonad m => MarkdownParser m (F Inlines)
 strongOrEmph =  enclosure '*' <|> enclosure '_'
 
--- | Parses a list of inlines between start and end delimiters.
+-- Parses a list of inlines between start and end delimiters.
 inlinesBetween :: PandocMonad m
                => (Show b)
                => MarkdownParser m a
@@ -1833,7 +1833,7 @@ bracketedSpan = do
                         then B.underline <$> lab
                         else B.spanWith attr <$> lab
 
--- | We treat a span as SmallCaps if class is "smallcaps" (and
+-- We treat a span as SmallCaps if class is "smallcaps" (and
 -- no other attributes are set or if style is "font-variant:small-caps"
 -- (and no other attributes are set).
 isSmallCaps :: Attr -> Bool
@@ -1845,7 +1845,7 @@ isSmallCaps ("",[],kvs) =
        Nothing -> False
 isSmallCaps _ = False
 
--- | We treat a span as Underline if class is "ul" or
+-- We treat a span as Underline if class is "ul" or
 -- "underline" (and no other attributes are set).
 isUnderline :: Attr -> Bool
 isUnderline ("",["ul"],[]) = True
@@ -1937,7 +1937,7 @@ autoLink = try $ do
   return $ return $ B.linkWith attr (src <> escapeURI extra) ""
                      (B.str $ orig <> extra)
 
--- | Rebase a relative path, by adding the (relative) directory
+-- Rebase a relative path, by adding the (relative) directory
 -- of the containing source position.  Absolute links and URLs
 -- are untouched.
 rebasePath :: SourcePos -> Text -> Text

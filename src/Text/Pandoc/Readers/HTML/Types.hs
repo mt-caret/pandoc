@@ -37,13 +37,13 @@ import Text.Pandoc.Parsing
   )
 import Text.Pandoc.Readers.LaTeX.Types (Macro)
 
--- | HTML parser type
+-- HTML parser type
 type HTMLParser m s = ParserT s HTMLState (ReaderT HTMLLocal m)
 
--- | HTML parser, expecting @Tag Text@ as tokens.
+-- HTML parser, expecting @Tag Text@ as tokens.
 type TagParser m = HTMLParser m [Tag Text]
 
--- | Global HTML parser state
+-- Global HTML parser state
 data HTMLState = HTMLState
   { parserState :: ParserState
   , noteTable   :: [(Text, Blocks)]
@@ -54,7 +54,7 @@ data HTMLState = HTMLState
   , readerOpts  :: ReaderOptions
   }
 
--- | Local HTML parser state
+-- Local HTML parser state
 data HTMLLocal = HTMLLocal
   { quoteContext :: QuoteContext
   , inChapter    :: Bool -- ^ Set if in chapter section

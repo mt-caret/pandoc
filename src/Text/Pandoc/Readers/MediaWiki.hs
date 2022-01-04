@@ -41,7 +41,7 @@ import Text.Pandoc.Shared (safeRead, stringify, stripTrailingNewlines,
 import Text.Pandoc.Walk (walk)
 import Text.Pandoc.XML (fromEntities)
 
--- | Read mediawiki from an input string and return a Pandoc document.
+-- Read mediawiki from an input string and return a Pandoc document.
 readMediaWiki :: (PandocMonad m, ToSources a)
               => ReaderOptions
               -> a
@@ -495,8 +495,8 @@ listItem c = try $ do
 
 -- The point of this is to handle stuff like
 -- * {{cite book
--- | blah
--- | blah
+-- blah
+-- blah
 -- }}
 -- * next list item
 -- which seems to be valid mediawiki.
@@ -689,7 +689,7 @@ url = do
   (orig, src) <- uri
   return $ B.link src "" (B.str orig)
 
--- | Parses a list of inlines between start and end delimiters.
+-- Parses a list of inlines between start and end delimiters.
 inlinesBetween :: (PandocMonad m, Show b) => MWParser m a -> MWParser m b -> MWParser m Inlines
 inlinesBetween start end =
   trimInlines . mconcat <$> try (start >> many1Till inline end)

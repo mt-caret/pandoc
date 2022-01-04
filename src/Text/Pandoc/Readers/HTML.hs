@@ -68,7 +68,7 @@ import Text.Pandoc.Walk
 import Text.Parsec.Error
 import Text.TeXMath (readMathML, writeTeX)
 
--- | Convert HTML-formatted string to 'Pandoc' document.
+-- Convert HTML-formatted string to 'Pandoc' document.
 readHtml :: (PandocMonad m, ToSources a)
          => ReaderOptions -- ^ Reader options
          -> a             -- ^ Input to parse
@@ -973,7 +973,7 @@ isCommentTag = tagComment (const True)
 
 --- parsers for use in markdown, textile readers
 
--- | Matches a stretch of HTML in balanced tags.
+-- Matches a stretch of HTML in balanced tags.
 htmlInBalanced :: Monad m
                => (Tag Text -> Bool)
                -> ParserT Sources st m Text
@@ -1022,7 +1022,7 @@ hasTagWarning :: [Tag Text] -> Bool
 hasTagWarning (TagWarning _:_) = True
 hasTagWarning _                = False
 
--- | Matches a tag meeting a certain condition.
+-- Matches a tag meeting a certain condition.
 htmlTag :: (HasReaderOptions st, Monad m)
         => (Tag Text -> Bool)
         -> ParserT Sources st m (Tag Text, Text)
@@ -1095,7 +1095,7 @@ htmlTag f = try $ do
 
 -- Utilities
 
--- | Adjusts a url according to the document's base URL.
+-- Adjusts a url according to the document's base URL.
 canonicalizeUrl :: PandocMonad m => Text -> TagParser m Text
 canonicalizeUrl url = do
   mbBaseHref <- baseHref <$> getState

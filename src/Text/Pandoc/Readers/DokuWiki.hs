@@ -31,7 +31,7 @@ import Text.Pandoc.Options
 import Text.Pandoc.Parsing hiding (enclosed, nested)
 import Text.Pandoc.Shared (trim, stringify, tshow)
 
--- | Read DokuWiki from an input string and return a Pandoc document.
+-- Read DokuWiki from an input string and return a Pandoc document.
 readDokuWiki :: (PandocMonad m, ToSources a)
              => ReaderOptions
              -> a
@@ -48,7 +48,7 @@ type DWParser = ParserT Sources ParserState
 
 -- * Utility functions
 
--- | Parse end-of-line, which can be either a newline or end-of-file.
+-- Parse end-of-line, which can be either a newline or end-of-file.
 eol :: (Stream s m Char, UpdateSourcePos s Char) => ParserT s st m ()
 eol = void newline <|> eof
 
@@ -64,12 +64,12 @@ nested p = do
 guardColumnOne :: PandocMonad m => DWParser m ()
 guardColumnOne = getPosition >>= \pos -> guard (sourceColumn pos == 1)
 
--- | Parse DokuWiki document.
+-- Parse DokuWiki document.
 parseDokuWiki :: PandocMonad m => DWParser m Pandoc
 parseDokuWiki =
   B.doc . mconcat <$> many block <* spaces <* eof
 
--- | Parse <code> and <file> attributes
+-- Parse <code> and <file> attributes
 codeLanguage :: PandocMonad m => DWParser m (Text, [Text], [(Text, Text)])
 codeLanguage = try $ do
   rawLang <- option "-" (spaceChar *> manyTillChar anyChar (lookAhead (spaceChar <|> char '>')))
@@ -78,7 +78,7 @@ codeLanguage = try $ do
                l -> [l]
   return ("", attr, [])
 
--- | Generic parser for <code> and <file> tags
+-- Generic parser for <code> and <file> tags
 codeTag :: PandocMonad m
         => ((Text, [Text], [(Text, Text)]) -> Text -> a)
         -> Text
@@ -93,7 +93,7 @@ codeTag f tag = try $ f
 
 -- * Inline parsers
 
--- | Parse any inline element but softbreak.
+-- Parse any inline element but softbreak.
 inline' :: PandocMonad m => DWParser m B.Inlines
 inline' = whitespace
       <|> br
@@ -121,7 +121,7 @@ inline' = whitespace
       <|> symbol
       <?> "inline"
 
--- | Parse any inline element, including soft break.
+-- Parse any inline element, including soft break.
 inline :: PandocMonad m => DWParser m B.Inlines
 inline = endline <|> inline'
 
@@ -189,7 +189,7 @@ superscript = try $ B.superscript <$> between (string "<sup>") (try $ string "</
 deleted :: PandocMonad m => DWParser m B.Inlines
 deleted = try $ B.strikeout <$> between (string "<del>") (try $ string "</del>") nestedInlines
 
--- | Parse a footnote.
+-- Parse a footnote.
 footnote :: PandocMonad m => DWParser m B.Inlines
 footnote = try $ B.note . B.para <$> between (string "((") (try $ string "))") nestedInlines
 
@@ -299,8 +299,8 @@ parseLink f l r = f
   <*> optionMaybe (B.trimInlines . mconcat <$> (char '|' *> manyTill inline (try $ lookAhead $ textStr r)))
   <*  textStr r
 
--- | Split Interwiki link into left and right part
--- | Return Nothing if it is not Interwiki link
+-- Split Interwiki link into left and right part
+-- Return Nothing if it is not Interwiki link
 splitInterwiki :: Text -> Maybe (Text, Text)
 splitInterwiki path =
   case T.span (\c -> isAlphaNum c || c == '.') path of

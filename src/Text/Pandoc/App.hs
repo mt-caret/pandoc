@@ -60,7 +60,7 @@ import Text.Pandoc.App.CommandLineOptions (parseOptions, parseOptionsFromArgs,
                                            options)
 import Text.Pandoc.App.OutputSettings (OutputSettings (..), optToOutputSettings)
 import Text.Collate.Lang (Lang (..), parseLang)
-import Text.Pandoc.Filter (Filter (JSONFilter, LuaFilter), Environment (..),
+import Text.Pandoc.Filter (Filter (JSONFilter), Environment (..),
                            applyFilters)
 import Text.Pandoc.PDF (makePDF)
 import Text.Pandoc.SelfContained (makeSelfContained)
@@ -69,7 +69,7 @@ import Text.Pandoc.Shared (eastAsianLineBreakFilter, stripEmptyParagraphs,
          defaultUserDataDir, tshow)
 import Text.Pandoc.Writers.Shared (lookupMetaString)
 import Text.Pandoc.Readers.Markdown (yamlToMeta)
-import Text.Pandoc.Readers.Custom (readCustom)
+-- import Text.Pandoc.Readers.Custom (readCustom)
 import qualified Text.Pandoc.UTF8 as UTF8
 #ifndef _WINDOWS
 import System.Posix.IO (stdOutput)
@@ -154,13 +154,14 @@ convertWithOpts opts = do
                             -> ByteStringReader $ \o t -> sandbox files (r o t)
 
     (reader, readerExts) <-
-      if ".lua" `T.isSuffixOf` readerName
-         then return (TextReader (readCustom (T.unpack readerName)), mempty)
-         else if optSandbox opts
-                 then case runPure (getReader readerName) of
-                        Left e -> throwError e
-                        Right (r, rexts) -> return (makeSandboxed r, rexts)
-                 else getReader readerName
+      --if ".lua" `T.isSuffixOf` readerName
+      --   then return (TextReader (readCustom (T.unpack readerName)), mempty)
+      --   else
+        if optSandbox opts
+          then case runPure (getReader readerName) of
+                Left e -> throwError e
+                Right (r, rexts) -> return (makeSandboxed r, rexts)
+          else getReader readerName
 
     outputSettings <- optToOutputSettings opts
     let format = outputFormat outputSettings

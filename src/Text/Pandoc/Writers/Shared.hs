@@ -62,7 +62,7 @@ import Text.Pandoc.XML (escapeStringForXML)
 import Text.DocTemplates (Context(..), Val(..), TemplateTarget,
                           ToContext(..), FromContext(..))
 
--- | Create template Context from a 'Meta' and an association list
+-- Create template Context from a 'Meta' and an association list
 -- of variables, specified at the command line or in the writer.
 -- Variables overwrite metadata fields with the same names.
 -- If multiple variables are set with the same name, a list is
@@ -79,7 +79,7 @@ metaToContext opts blockWriter inlineWriter meta =
     Just _  -> addVariablesToContext opts <$>
                 metaToContext' blockWriter inlineWriter meta
 
--- | Like 'metaToContext, but does not include variables and is
+-- Like 'metaToContext, but does not include variables and is
 -- not sensitive to 'writerTemplate'.
 metaToContext' :: (Monad m, TemplateTarget a)
            => ([Block] -> m (Doc a))     -- ^ block writer
@@ -89,7 +89,7 @@ metaToContext' :: (Monad m, TemplateTarget a)
 metaToContext' blockWriter inlineWriter (Meta metamap) =
   Context <$> mapM (metaValueToVal blockWriter inlineWriter) metamap
 
--- | Add variables to a template Context, using monoidal append.
+-- Add variables to a template Context, using monoidal append.
 -- Also add `meta-json`.  Note that metadata values are used
 -- in template contexts only when like-named variables aren't set.
 addVariablesToContext :: TemplateTarget a
@@ -102,7 +102,7 @@ addVariablesToContext opts c1 =
                                mempty
    jsonrep = UTF8.toText $ BL.toStrict $ encode $ toJSON c1
 
--- | Converts a 'MetaValue' into a doctemplate 'Val', using the given
+-- Converts a 'MetaValue' into a doctemplate 'Val', using the given
 -- converter functions.
 metaValueToVal :: (Monad m, TemplateTarget a)
                => ([Block] -> m (Doc a))    -- ^ block writer
@@ -120,11 +120,11 @@ metaValueToVal blockWriter _ (MetaBlocks bs) = SimpleVal <$> blockWriter bs
 metaValueToVal _ inlineWriter (MetaInlines is) = SimpleVal <$> inlineWriter is
 
 
--- | Retrieve a field value from a template context.
+-- Retrieve a field value from a template context.
 getField   :: FromContext a b => Text -> Context a -> Maybe b
 getField field (Context m) = M.lookup field m >>= fromVal
 
--- | Set a field of a template context.  If the field already has a value,
+-- Set a field of a template context.  If the field already has a value,
 -- convert it into a list with the new value appended to the old value(s).
 -- This is a utility function to be used in preparing template contexts.
 setField   :: ToContext a b => Text -> b -> Context a -> Context a
@@ -134,14 +134,14 @@ setField field val (Context m) =
   combine newval (ListVal xs)   = ListVal (xs ++ [newval])
   combine newval x              = ListVal [x, newval]
 
--- | Reset a field of a template context.  If the field already has a
+-- Reset a field of a template context.  If the field already has a
 -- value, the new value replaces it.
 -- This is a utility function to be used in preparing template contexts.
 resetField :: ToContext a b => Text -> b -> Context a -> Context a
 resetField field val (Context m) =
   Context (M.insert field (toVal val) m)
 
--- | Set a field of a template context if it currently has no value.
+-- Set a field of a template context if it currently has no value.
 -- If it has a value, do nothing.
 -- This is a utility function to be used in preparing template contexts.
 defField   :: ToContext a b => Text -> b -> Context a -> Context a
@@ -150,7 +150,7 @@ defField field val (Context m) =
   where
     f _newval oldval = oldval
 
--- | Get the contents of the `lang` metadata field or variable.
+-- Get the contents of the `lang` metadata field or variable.
 getLang :: WriterOptions -> Meta -> Maybe Text
 getLang opts meta =
   case lookupContext "lang" (writerVariables opts) of
@@ -163,7 +163,7 @@ getLang opts meta =
                Just (MetaString s)               -> Just s
                _                                 -> Nothing
 
--- | Produce an HTML tag with the given pandoc attributes.
+-- Produce an HTML tag with the given pandoc attributes.
 tagWithAttrs :: HasChars a => Text -> Attr -> Doc a
 tagWithAttrs tag (ident,classes,kvs) = hsep
   ["<" <> text (T.unpack tag)
@@ -177,21 +177,21 @@ tagWithAttrs tag (ident,classes,kvs) = hsep
                 doubleQuotes (text $ T.unpack (escapeStringForXML v))) kvs)
   ] <> ">"
 
--- | Returns 'True' iff the argument is an inline 'Math' element of type
+-- Returns 'True' iff the argument is an inline 'Math' element of type
 -- 'DisplayMath'.
 isDisplayMath :: Inline -> Bool
 isDisplayMath (Math DisplayMath _)          = True
 isDisplayMath (Span _ [Math DisplayMath _]) = True
 isDisplayMath _                             = False
 
--- | Remove leading and trailing 'Space' and 'SoftBreak' elements.
+-- Remove leading and trailing 'Space' and 'SoftBreak' elements.
 stripLeadingTrailingSpace :: [Inline] -> [Inline]
 stripLeadingTrailingSpace = go . reverse . go . reverse
   where go (Space:xs)     = xs
         go (SoftBreak:xs) = xs
         go xs             = xs
 
--- | Put display math in its own block (for ODT/DOCX).
+-- Put display math in its own block (for ODT/DOCX).
 fixDisplayMath :: Block -> Block
 fixDisplayMath (Plain lst)
   | any isDisplayMath lst && not (all isDisplayMath lst) =
@@ -213,7 +213,7 @@ fixDisplayMath (Para lst)
                          not (isDisplayMath x || isDisplayMath y)) lst
 fixDisplayMath x = x
 
--- | Converts a Unicode character into the ASCII sequence used to
+-- Converts a Unicode character into the ASCII sequence used to
 -- represent the character in "smart" Markdown.
 unsmartify :: WriterOptions -> Text -> Text
 unsmartify opts = T.concatMap $ \c -> case c of
@@ -345,7 +345,7 @@ gridTable opts blocksToDoc headless aligns widths headers rows = do
            body $$
            border '-' (repeat AlignDefault) widthsInChars
 
--- | Retrieve the metadata value for a given @key@
+-- Retrieve the metadata value for a given @key@
 -- and convert to Bool.
 lookupMetaBool :: Text -> Meta -> Bool
 lookupMetaBool key meta =
@@ -356,7 +356,7 @@ lookupMetaBool key meta =
       Just (MetaBool True) -> True
       _                    -> False
 
--- | Retrieve the metadata value for a given @key@
+-- Retrieve the metadata value for a given @key@
 -- and extract blocks.
 lookupMetaBlocks :: Text -> Meta -> [Block]
 lookupMetaBlocks key meta =
@@ -366,7 +366,7 @@ lookupMetaBlocks key meta =
          Just (MetaString s)    -> [Plain [Str s]]
          _                      -> []
 
--- | Retrieve the metadata value for a given @key@
+-- Retrieve the metadata value for a given @key@
 -- and extract inlines.
 lookupMetaInlines :: Text -> Meta -> [Inline]
 lookupMetaInlines key meta =
@@ -377,7 +377,7 @@ lookupMetaInlines key meta =
          Just (MetaBlocks [Para ils])  -> ils
          _                             -> []
 
--- | Retrieve the metadata value for a given @key@
+-- Retrieve the metadata value for a given @key@
 -- and convert to String.
 lookupMetaString :: Text -> Meta -> Text
 lookupMetaString key meta =
@@ -388,7 +388,7 @@ lookupMetaString key meta =
          Just (MetaBool b)      -> T.pack (show b)
          _                      -> ""
 
--- | Tries to convert a character into a unicode superscript version of
+-- Tries to convert a character into a unicode superscript version of
 -- the character.
 toSuperscript :: Char -> Maybe Char
 toSuperscript '1' = Just '\x00B9'
@@ -406,7 +406,7 @@ toSuperscript c
   | isSpace c = Just c
   | otherwise = Nothing
 
--- | Tries to convert a character into a unicode subscript version of
+-- Tries to convert a character into a unicode subscript version of
 -- the character.
 toSubscript :: Char -> Maybe Char
 toSubscript '+' = Just '\x208A'
@@ -420,7 +420,7 @@ toSubscript c
   | isSpace c = Just c
   | otherwise = Nothing
 
--- | Construct table of contents (as a bullet list) from document body.
+-- Construct table of contents (as a bullet list) from document body.
 toTableOfContents :: WriterOptions
                   -> [Block]
                   -> Block
@@ -429,7 +429,7 @@ toTableOfContents opts bs =
              $ map (sectionToListItem opts)
              $ makeSections (writerNumberSections opts) Nothing bs
 
--- | Converts a section Div to a list item for a table of contents;
+-- Converts a section Div to a list item for a table of contents;
 -- returns an empty list if the given block is not a section Div.
 sectionToListItem :: WriterOptions -> Block -> [Block]
 sectionToListItem opts (Div (ident,_,_)
@@ -450,7 +450,7 @@ sectionToListItem opts (Div (ident,_,_)
    listContents = filter (not . null) $ map (sectionToListItem opts) subsecs
 sectionToListItem _ _ = []
 
--- | Returns 'True' iff the list of blocks has a @'Plain'@ as its last
+-- Returns 'True' iff the list of blocks has a @'Plain'@ as its last
 -- element.
 endsWithPlain :: [Block] -> Bool
 endsWithPlain xs =
@@ -458,7 +458,7 @@ endsWithPlain xs =
     Just Plain{} -> True
     _            -> False
 
--- | Convert the relevant components of a new-style table (with block
+-- Convert the relevant components of a new-style table (with block
 -- caption, row headers, row and column spans, and so on) to those of
 -- an old-style table (inline caption, table head with one row, no
 -- foot, and so on). Cells with a 'RowSpan' and 'ColSpan' of @(h, w)@

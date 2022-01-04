@@ -43,7 +43,7 @@ import System.FilePath (takeDirectory)
 -- TODO:
 -- [ ] .. parsed-literal
 
--- | Parse reStructuredText string and return Pandoc document.
+-- Parse reStructuredText string and return Pandoc document.
 readRST :: (PandocMonad m, ToSources a)
         => ReaderOptions -- ^ Reader options
         -> a
@@ -79,7 +79,7 @@ isHeader :: Int -> Block -> Bool
 isHeader n (Header x _ _) = x == n
 isHeader _ _              = False
 
--- | Promote all headers in a list of blocks.  (Part of
+-- Promote all headers in a list of blocks.  (Part of
 -- title transformation for RST.)
 promoteHeaders :: Int -> [Block] -> [Block]
 promoteHeaders num (Header level attr text:rest) =
@@ -87,7 +87,7 @@ promoteHeaders num (Header level attr text:rest) =
 promoteHeaders num (other:rest) = other:promoteHeaders num rest
 promoteHeaders _   [] = []
 
--- | If list of blocks starts with a header (or a header and subheader)
+-- If list of blocks starts with a header (or a header and subheader)
 -- of level that are not found elsewhere, return it as a title and
 -- promote all the other headers.  Also process a definition list right
 -- after the title block as metadata.

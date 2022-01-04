@@ -131,7 +131,7 @@ yamlMap pMetaValue o = do
         v' <- fv
         return (k, v')
 
--- | Parse a YAML metadata block using the supplied 'MetaValue' parser.
+-- Parse a YAML metadata block using the supplied 'MetaValue' parser.
 yamlMetaBlock :: (HasLastStrPosition st, PandocMonad m)
               => ParserT Sources st m (Future st MetaValue)
               -> ParserT Sources st m (Future st Meta)

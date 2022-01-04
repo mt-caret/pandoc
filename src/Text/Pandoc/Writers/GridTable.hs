@@ -33,7 +33,7 @@ import Data.STRef
 import Text.Pandoc.Definition hiding (Table)
 import qualified Text.Pandoc.Builder as B
 
--- | A grid cell contains either a real table cell, or is the
+-- A grid cell contains either a real table cell, or is the
 -- continuation of a column or row-spanning cell. In the latter case,
 -- the index of the continued cell is provided.
 data GridCell
@@ -41,15 +41,15 @@ data GridCell
   | ContinuationCell CellIndex
   deriving (Show)
 
--- | Row index in a table part.
+-- Row index in a table part.
 newtype RowIndex = RowIndex Int deriving (Enum, Eq, Ix, Ord, Show)
--- | Column index in a table part.
+-- Column index in a table part.
 newtype ColIndex = ColIndex Int deriving (Enum, Eq, Ix, Ord, Show)
 
--- | Index to a cell in a table part.
+-- Index to a cell in a table part.
 type CellIndex = (RowIndex, ColIndex)
 
--- | Cells are placed on a grid. Row attributes are stored in a separate
+-- Cells are placed on a grid. Row attributes are stored in a separate
 -- array.
 data Part = Part
   { partAttr :: Attr

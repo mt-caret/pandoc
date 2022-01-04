@@ -76,7 +76,7 @@ tableToLaTeX inlnsToLaTeX blksToLaTeX tbl = do
     $$ captNotes
     $$ notes
 
--- | Creates column descriptors for the table.
+-- Creates column descriptors for the table.
 colDescriptors :: Ann.Table -> Doc Text
 colDescriptors (Ann.Table _attr _caption specs thead tbodies tfoot) =
   let (aligns, widths) = unzip specs
@@ -163,7 +163,7 @@ headToLaTeX blocksWriter (Ann.TableHead _attr headerRows) = do
                        headerRows
   return ("\\toprule" $$ vcat rowsContents $$ "\\midrule")
 
--- | Converts a row of table cells into a LaTeX row.
+-- Converts a row of table cells into a LaTeX row.
 rowToLaTeX :: PandocMonad m
            => BlocksWriter m
            -> CellType
@@ -173,7 +173,7 @@ rowToLaTeX blocksWriter celltype row = do
   cellsDocs <- mapM (cellToLaTeX blocksWriter celltype) (fillRow row)
   return $ hsep (intersperse "&" cellsDocs) <> " \\\\"
 
--- | Pads row with empty cells to adjust for rowspans above this row.
+-- Pads row with empty cells to adjust for rowspans above this row.
 fillRow :: [Ann.Cell] -> [Ann.Cell]
 fillRow = go 0
   where
@@ -193,26 +193,26 @@ isEmptyHead :: Ann.TableHead -> Bool
 isEmptyHead (Ann.TableHead _attr []) = True
 isEmptyHead (Ann.TableHead _attr rows) = all (null . headerRowCells) rows
 
--- | Gets all cells in a header row.
+-- Gets all cells in a header row.
 headerRowCells :: Ann.HeaderRow -> [Ann.Cell]
 headerRowCells (Ann.HeaderRow _attr _rownum cells) = cells
 
--- | Gets all cells in a body row.
+-- Gets all cells in a body row.
 bodyRowCells :: Ann.BodyRow -> [Ann.Cell]
 bodyRowCells (Ann.BodyRow _attr _rownum rowhead cells) = rowhead <> cells
 
--- | Gets a list of rows of the table body, where a row is a simple
+-- Gets a list of rows of the table body, where a row is a simple
 -- list of cells.
 bodyRows :: Ann.TableBody -> [[Ann.Cell]]
 bodyRows (Ann.TableBody _attr _rowheads headerRows rows) =
   map headerRowCells headerRows <> map bodyRowCells rows
 
--- | Gets a list of rows of the table head, where a row is a simple
+-- Gets a list of rows of the table head, where a row is a simple
 -- list of cells.
 headRows :: Ann.TableHead -> [[Ann.Cell]]
 headRows (Ann.TableHead _attr rows) = map headerRowCells rows
 
--- | Gets a list of rows from the foot, where a row is a simple list
+-- Gets a list of rows from the foot, where a row is a simple list
 -- of cells.
 footRows :: Ann.TableFoot -> [[Ann.Cell]]
 footRows (Ann.TableFoot _attr rows) = map headerRowCells rows
