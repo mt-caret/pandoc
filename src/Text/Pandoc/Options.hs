@@ -47,7 +47,7 @@ import Text.DocTemplates (Context(..), Template)
 import Text.Pandoc.Extensions
 -- import Text.Pandoc.Highlighting (Style, pygments)
 import Text.Pandoc.UTF8 (toStringLazy)
-import Data.Aeson.TH (deriveJSON)
+-- import Data.Aeson.TH (deriveJSON)
 import Data.Aeson
 
 class HasSyntaxExtensions a where
@@ -371,10 +371,10 @@ defaultMathJaxURL = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.j
 defaultKaTeXURL :: Text
 defaultKaTeXURL = "https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/"
 
--- Update documentation in doc/filters.md if this is changed.
-$(deriveJSON defaultOptions{ fieldLabelModifier =
-                               camelTo2 '-' . drop 6 }
-                            ''ReaderOptions)
-
-$(deriveJSON defaultOptions{ constructorTagModifier = map toLower }
-  ''HTMLSlideVariant)
+--   -- Update documentation in doc/filters.md if this is changed.
+--   $(deriveJSON defaultOptions{ fieldLabelModifier =
+--                                  camelTo2 '-' . drop 6 }
+--                               ''ReaderOptions)
+--   
+--   $(deriveJSON defaultOptions{ constructorTagModifier = map toLower }
+--     ''HTMLSlideVariant)

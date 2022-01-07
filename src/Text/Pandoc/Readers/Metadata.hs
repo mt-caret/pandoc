@@ -23,7 +23,7 @@ import qualified Data.ByteString as B
 import qualified Data.Map as M
 import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Data.Yaml as Yaml
+-- import qualified Data.Yaml as Yaml
 import Data.Aeson (Value(..), Object, Result(..), fromJSON, (.:?), withObject)
 import Data.Aeson.Types (parse)
 import Text.Pandoc.Shared (tshow)
@@ -35,19 +35,23 @@ import Text.Pandoc.Parsing hiding (tableWith, parse)
 
 import qualified Text.Pandoc.UTF8 as UTF8
 
+-- TODO: fixme
+decodeAllEither' = undefined
+prettyPrintParseException = undefined
+
 yamlBsToMeta :: (PandocMonad m, HasLastStrPosition st)
              => ParserT Sources st m (Future st MetaValue)
              -> B.ByteString
              -> ParserT Sources st m (Future st Meta)
 yamlBsToMeta pMetaValue bstr = do
-  case Yaml.decodeAllEither' bstr of
+  case decodeAllEither' bstr of
        Right (Object o:_) -> fmap Meta <$> yamlMap pMetaValue o
        Right [] -> return . return $ mempty
        Right [Null] -> return . return $ mempty
        Right _  -> Prelude.fail "expected YAML object"
        Left err' -> do
          throwError $ PandocParseError
-                    $ T.pack $ Yaml.prettyPrintParseException err'
+                    $ T.pack $ prettyPrintParseException err'
 
 -- Returns filtered list of references.
 yamlBsToRefs :: (PandocMonad m, HasLastStrPosition st)
@@ -56,7 +60,7 @@ yamlBsToRefs :: (PandocMonad m, HasLastStrPosition st)
              -> B.ByteString
              -> ParserT Sources st m (Future st [MetaValue])
 yamlBsToRefs pMetaValue idpred bstr =
-  case Yaml.decodeAllEither' bstr of
+  case decodeAllEither' bstr of
        Right (Object m : _) -> do
          let isSelected (String t) = idpred t
              isSelected _ = False
@@ -72,7 +76,7 @@ yamlBsToRefs pMetaValue idpred bstr =
        Right _ -> return . return $ []
        Left err' -> do
          throwError $ PandocParseError
-                    $ T.pack $ Yaml.prettyPrintParseException err'
+                    $ T.pack $ prettyPrintParseException err'
 
 normalizeMetaValue :: (PandocMonad m, HasLastStrPosition st)
                    => ParserT Sources st m (Future st MetaValue)

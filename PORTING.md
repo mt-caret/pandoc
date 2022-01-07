@@ -1,0 +1,5 @@
+- yaml is an issue
+- does zlib work? do we need ghcjs bindings for it?
+- template haskell is painful to deal with...
+  - It seems like calling Aeson TH just results in extreme memory usage (>128GB)?
+  - ripping out JSON since we use templatehaskell to generate typeclasses

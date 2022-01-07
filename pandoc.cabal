@@ -93,84 +93,84 @@ data-files:
                  data/templates/default.markua
                  -- translations
                  data/translations/*.yaml
-                 -- source files for reference.docx
-                 data/docx/[Content_Types].xml
-                 data/docx/_rels/.rels
-                 data/docx/docProps/app.xml
-                 data/docx/docProps/core.xml
-                 data/docx/docProps/custom.xml
-                 data/docx/word/document.xml
-                 data/docx/word/fontTable.xml
-                 data/docx/word/comments.xml
-                 data/docx/word/footnotes.xml
-                 data/docx/word/numbering.xml
-                 data/docx/word/settings.xml
-                 data/docx/word/webSettings.xml
-                 data/docx/word/styles.xml
-                 data/docx/word/_rels/document.xml.rels
-                 data/docx/word/_rels/footnotes.xml.rels
-                 data/docx/word/theme/theme1.xml
-                 -- source files for reference.odt
-                 data/odt/mimetype
-                 data/odt/manifest.rdf
-                 data/odt/styles.xml
-                 data/odt/content.xml
-                 data/odt/meta.xml
-                 data/odt/settings.xml
-                 data/odt/Configurations2/accelerator/current.xml
-                 data/odt/Thumbnails/thumbnail.png
-                 data/odt/META-INF/manifest.xml
-                 -- source files for reference.pptx
-                 data/pptx/_rels/.rels
-                 data/pptx/docProps/app.xml
-                 data/pptx/docProps/core.xml
-                 data/pptx/ppt/slideLayouts/_rels/slideLayout1.xml.rels
-                 data/pptx/ppt/slideLayouts/_rels/slideLayout2.xml.rels
-                 data/pptx/ppt/slideLayouts/_rels/slideLayout3.xml.rels
-                 data/pptx/ppt/slideLayouts/_rels/slideLayout4.xml.rels
-                 data/pptx/ppt/slideLayouts/_rels/slideLayout5.xml.rels
-                 data/pptx/ppt/slideLayouts/_rels/slideLayout6.xml.rels
-                 data/pptx/ppt/slideLayouts/_rels/slideLayout7.xml.rels
-                 data/pptx/ppt/slideLayouts/_rels/slideLayout8.xml.rels
-                 data/pptx/ppt/slideLayouts/_rels/slideLayout9.xml.rels
-                 data/pptx/ppt/slideLayouts/_rels/slideLayout10.xml.rels
-                 data/pptx/ppt/slideLayouts/_rels/slideLayout11.xml.rels
-                 data/pptx/ppt/slideLayouts/slideLayout1.xml
-                 data/pptx/ppt/slideLayouts/slideLayout2.xml
-                 data/pptx/ppt/slideLayouts/slideLayout3.xml
-                 data/pptx/ppt/slideLayouts/slideLayout4.xml
-                 data/pptx/ppt/slideLayouts/slideLayout5.xml
-                 data/pptx/ppt/slideLayouts/slideLayout6.xml
-                 data/pptx/ppt/slideLayouts/slideLayout7.xml
-                 data/pptx/ppt/slideLayouts/slideLayout8.xml
-                 data/pptx/ppt/slideLayouts/slideLayout9.xml
-                 data/pptx/ppt/slideLayouts/slideLayout10.xml
-                 data/pptx/ppt/slideLayouts/slideLayout11.xml
-                 data/pptx/ppt/_rels/presentation.xml.rels
-                 data/pptx/ppt/theme/theme1.xml
-                 data/pptx/ppt/presProps.xml
-                 data/pptx/ppt/slides/_rels/slide1.xml.rels
-                 data/pptx/ppt/slides/_rels/slide2.xml.rels
-                 data/pptx/ppt/slides/slide2.xml
-                 data/pptx/ppt/slides/slide1.xml
-                 data/pptx/ppt/slides/_rels/slide3.xml.rels
-                 data/pptx/ppt/slides/_rels/slide4.xml.rels
-                 data/pptx/ppt/slides/slide3.xml
-                 data/pptx/ppt/slides/slide4.xml
-                 data/pptx/ppt/viewProps.xml
-                 data/pptx/ppt/tableStyles.xml
-                 data/pptx/ppt/slideMasters/_rels/slideMaster1.xml.rels
-                 data/pptx/ppt/slideMasters/slideMaster1.xml
-                 data/pptx/ppt/presentation.xml
-                 data/pptx/ppt/notesMasters/_rels/notesMaster1.xml.rels
-                 data/pptx/ppt/notesMasters/notesMaster1.xml
-                 data/pptx/ppt/notesSlides/_rels/notesSlide1.xml.rels
-                 data/pptx/ppt/notesSlides/notesSlide1.xml
-                 data/pptx/ppt/notesSlides/_rels/notesSlide2.xml.rels
-                 data/pptx/ppt/notesSlides/notesSlide2.xml
-                 data/pptx/ppt/theme/theme2.xml
-                 data/pptx/[Content_Types].xml
-                  -- stylesheet for EPUB writer
+                 -- -- source files for reference.docx
+                 -- data/docx/[Content_Types].xml
+                 -- data/docx/_rels/.rels
+                 -- data/docx/docProps/app.xml
+                 -- data/docx/docProps/core.xml
+                 -- data/docx/docProps/custom.xml
+                 -- data/docx/word/document.xml
+                 -- data/docx/word/fontTable.xml
+                 -- data/docx/word/comments.xml
+                 -- data/docx/word/footnotes.xml
+                 -- data/docx/word/numbering.xml
+                 -- data/docx/word/settings.xml
+                 -- data/docx/word/webSettings.xml
+                 -- data/docx/word/styles.xml
+                 -- data/docx/word/_rels/document.xml.rels
+                 -- data/docx/word/_rels/footnotes.xml.rels
+                 -- data/docx/word/theme/theme1.xml
+                 -- -- source files for reference.odt
+                 -- data/odt/mimetype
+                 -- data/odt/manifest.rdf
+                 -- data/odt/styles.xml
+                 -- data/odt/content.xml
+                 -- data/odt/meta.xml
+                 -- data/odt/settings.xml
+                 -- data/odt/Configurations2/accelerator/current.xml
+                 -- data/odt/Thumbnails/thumbnail.png
+                 -- data/odt/META-INF/manifest.xml
+                 -- -- source files for reference.pptx
+                 -- data/pptx/_rels/.rels
+                 -- data/pptx/docProps/app.xml
+                 -- data/pptx/docProps/core.xml
+                 -- data/pptx/ppt/slideLayouts/_rels/slideLayout1.xml.rels
+                 -- data/pptx/ppt/slideLayouts/_rels/slideLayout2.xml.rels
+                 -- data/pptx/ppt/slideLayouts/_rels/slideLayout3.xml.rels
+                 -- data/pptx/ppt/slideLayouts/_rels/slideLayout4.xml.rels
+                 -- data/pptx/ppt/slideLayouts/_rels/slideLayout5.xml.rels
+                 -- data/pptx/ppt/slideLayouts/_rels/slideLayout6.xml.rels
+                 -- data/pptx/ppt/slideLayouts/_rels/slideLayout7.xml.rels
+                 -- data/pptx/ppt/slideLayouts/_rels/slideLayout8.xml.rels
+                 -- data/pptx/ppt/slideLayouts/_rels/slideLayout9.xml.rels
+                 -- data/pptx/ppt/slideLayouts/_rels/slideLayout10.xml.rels
+                 -- data/pptx/ppt/slideLayouts/_rels/slideLayout11.xml.rels
+                 -- data/pptx/ppt/slideLayouts/slideLayout1.xml
+                 -- data/pptx/ppt/slideLayouts/slideLayout2.xml
+                 -- data/pptx/ppt/slideLayouts/slideLayout3.xml
+                 -- data/pptx/ppt/slideLayouts/slideLayout4.xml
+                 -- data/pptx/ppt/slideLayouts/slideLayout5.xml
+                 -- data/pptx/ppt/slideLayouts/slideLayout6.xml
+                 -- data/pptx/ppt/slideLayouts/slideLayout7.xml
+                 -- data/pptx/ppt/slideLayouts/slideLayout8.xml
+                 -- data/pptx/ppt/slideLayouts/slideLayout9.xml
+                 -- data/pptx/ppt/slideLayouts/slideLayout10.xml
+                 -- data/pptx/ppt/slideLayouts/slideLayout11.xml
+                 -- data/pptx/ppt/_rels/presentation.xml.rels
+                 -- data/pptx/ppt/theme/theme1.xml
+                 -- data/pptx/ppt/presProps.xml
+                 -- data/pptx/ppt/slides/_rels/slide1.xml.rels
+                 -- data/pptx/ppt/slides/_rels/slide2.xml.rels
+                 -- data/pptx/ppt/slides/slide2.xml
+                 -- data/pptx/ppt/slides/slide1.xml
+                 -- data/pptx/ppt/slides/_rels/slide3.xml.rels
+                 -- data/pptx/ppt/slides/_rels/slide4.xml.rels
+                 -- data/pptx/ppt/slides/slide3.xml
+                 -- data/pptx/ppt/slides/slide4.xml
+                 -- data/pptx/ppt/viewProps.xml
+                 -- data/pptx/ppt/tableStyles.xml
+                 -- data/pptx/ppt/slideMasters/_rels/slideMaster1.xml.rels
+                 -- data/pptx/ppt/slideMasters/slideMaster1.xml
+                 -- data/pptx/ppt/presentation.xml
+                 -- data/pptx/ppt/notesMasters/_rels/notesMaster1.xml.rels
+                 -- data/pptx/ppt/notesMasters/notesMaster1.xml
+                 -- data/pptx/ppt/notesSlides/_rels/notesSlide1.xml.rels
+                 -- data/pptx/ppt/notesSlides/notesSlide1.xml
+                 -- data/pptx/ppt/notesSlides/_rels/notesSlide2.xml.rels
+                 -- data/pptx/ppt/notesSlides/notesSlide2.xml
+                 -- data/pptx/ppt/theme/theme2.xml
+                 -- data/pptx/[Content_Types].xml
+                 -- stylesheet for EPUB writer
                  data/epub.css
                  -- data for dzslides writer
                  data/dzslides/template.html
@@ -470,7 +470,7 @@ library
                  doctemplates          >= 0.10     && < 0.11,
                  emojis                >= 0.1      && < 0.2,
                  exceptions            >= 0.8      && < 0.11,
-                 file-embed            >= 0.0      && < 0.1,
+                 -- file-embed            >= 0.0      && < 0.1,
                  filepath              >= 1.1      && < 1.5,
                  -- haddock-library       >= 1.10     && < 1.11,
                  -- hslua                 >= 2.0.1    && < 2.1,
@@ -513,7 +513,7 @@ library
                  unicode-transforms    >= 0.3      && < 0.5,
                  xml                   >= 1.3.12   && < 1.4,
                  -- xml-conduit           >= 1.9.1.1  && < 1.10,
-                 yaml                  >= 0.11     && < 0.12,
+                 -- yaml                  >= 0.11     && < 0.12,
                  zip-archive           >= 0.2.3.4  && < 0.5,
                  zlib                  >= 0.5      && < 0.7
   if !os(windows)
@@ -531,7 +531,7 @@ library
                    Text.Pandoc.Sources,
                    Text.Pandoc.MediaBag,
                    Text.Pandoc.Error,
-                   Text.Pandoc.Filter,
+                   -- Text.Pandoc.Filter,
                    Text.Pandoc.Readers,
                    Text.Pandoc.Readers.HTML,
                    Text.Pandoc.Readers.LaTeX,
@@ -633,7 +633,7 @@ library
                    Text.Pandoc.Class.PandocPure,
                    Text.Pandoc.Class.Sandbox,
                    Text.Pandoc.Filter.Environment,
-                   Text.Pandoc.Filter.JSON,
+                   -- Text.Pandoc.Filter.JSON,
                    -- Text.Pandoc.Filter.Lua,
                    Text.Pandoc.Filter.Path,
                    -- Text.Pandoc.Readers.Docx.Lists,

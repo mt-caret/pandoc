@@ -18,12 +18,12 @@ module Text.Pandoc.App (
             convertWithOpts
           , Opt(..)
           , LineEnding(..)
-          , Filter(..)
+          -- , Filter(..)
           , defaultOpts
           , parseOptions
           , parseOptionsFromArgs
           , options
-          , applyFilters
+          -- , applyFilters
           ) where
 import qualified Control.Exception as E
 import Control.Monad ( (>=>), when, forM_ )
@@ -60,8 +60,8 @@ import Text.Pandoc.App.CommandLineOptions (parseOptions, parseOptionsFromArgs,
                                            options)
 import Text.Pandoc.App.OutputSettings (OutputSettings (..), optToOutputSettings)
 import Text.Collate.Lang (Lang (..), parseLang)
-import Text.Pandoc.Filter (Filter (JSONFilter), Environment (..),
-                           applyFilters)
+-- import Text.Pandoc.Filter (Filter (JSONFilter), Environment (..),
+--                            applyFilters)
 import Text.Pandoc.PDF (makePDF)
 import Text.Pandoc.SelfContained (makeSelfContained)
 import Text.Pandoc.Shared (eastAsianLineBreakFilter, stripEmptyParagraphs,
@@ -88,7 +88,7 @@ convertWithOpts opts = do
                   Just _    -> return $ optDataDir opts
 
   let outputFile = fromMaybe "-" (optOutputFile opts)
-  let filters = optFilters opts
+  -- let filters = optFilters opts
   let verbosity = optVerbosity opts
 
   when (optDumpArgs opts) $
@@ -265,12 +265,12 @@ convertWithOpts opts = do
 
     setNoCheckCertificate (optNoCheckCertificate opts)
 
-    let isPandocCiteproc (JSONFilter f) = takeBaseName f == "pandoc-citeproc"
-        isPandocCiteproc _              = False
+    --let isPandocCiteproc (JSONFilter f) = takeBaseName f == "pandoc-citeproc"
+    let isPandocCiteproc _              = False
 
-    when (any isPandocCiteproc filters) $
-      report $ Deprecated "pandoc-citeproc filter"
-               "Use --citeproc instead."
+    -- when (any isPandocCiteproc filters) $
+    --   report $ Deprecated "pandoc-citeproc filter"
+    --            "Use --citeproc instead."
 
     let cslMetadata =
           maybe id (setMeta "csl") (optCSL opts) .
@@ -280,7 +280,7 @@ convertWithOpts opts = do
           maybe id (setMeta "citation-abbreviations")
                          (optCitationAbbreviations opts) $ mempty
 
-    let filterEnv = Environment readerOpts writerOptions
+    -- let filterEnv = Environment readerOpts writerOptions
 
     inputs <- readSources sources
 
@@ -309,7 +309,7 @@ convertWithOpts opts = do
               >=> return . adjustMetadata (<> optMetadata opts)
               >=> return . adjustMetadata (<> cslMetadata)
               >=> applyTransforms transforms
-              >=> applyFilters filterEnv filters [T.unpack format]
+              -- >=> applyFilters filterEnv filters [T.unpack format]
               >=> maybe return extractMedia (optExtractMedia opts)
               )
 

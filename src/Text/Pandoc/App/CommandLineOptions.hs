@@ -50,7 +50,7 @@ import Text.Pandoc.Builder (setMeta)
 import Text.Pandoc.App.Opt (Opt (..), LineEnding (..), IpynbOutput (..),
                             DefaultsState (..), applyDefaults,
                             fullDefaultsPath)
-import Text.Pandoc.Filter (Filter (..))
+-- import Text.Pandoc.Filter (Filter (..))
 -- import Text.Pandoc.Highlighting (highlightingStyles)
 import Text.Pandoc.Shared (ordNub, elemText, safeStrRead, defaultUserDataDir)
 import Text.Printf
@@ -455,12 +455,12 @@ options =
                    "extension")
                   "" -- "Default extension for extensionless images"
 
-    , Option "F" ["filter"]
-                 (ReqArg
-                  (\arg opt -> return opt { optFilters =
-                      optFilters opt ++ [JSONFilter (normalizePath arg)] })
-                  "PROGRAM")
-                 "" -- "External JSON filter"
+    -- , Option "F" ["filter"]
+    --              (ReqArg
+    --               (\arg opt -> return opt { optFilters =
+    --                   optFilters opt ++ [JSONFilter (normalizePath arg)] })
+    --               "PROGRAM")
+    --              "" -- "External JSON filter"
 
     -- , Option "L" ["lua-filter"]
     --              (ReqArg

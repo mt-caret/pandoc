@@ -40,7 +40,7 @@ import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Safe (readMay)
 import Text.Parsec
-import Data.Aeson.TH (deriveJSON)
+-- import Data.Aeson.TH (deriveJSON)
 import Data.Aeson
 
 -- Individually selectable syntax extensions.
@@ -139,7 +139,7 @@ data Extension =
     | Ext_yaml_metadata_block -- ^ YAML metadata block
     deriving (Show, Read, Enum, Eq, Ord, Bounded, Data, Typeable, Generic)
 
-$(deriveJSON defaultOptions{ constructorTagModifier = drop 4 } ''Extension)
+-- $(deriveJSON defaultOptions{ constructorTagModifier = drop 4 } ''Extension)
 
 newtype Extensions = Extensions Integer
   deriving (Show, Read, Eq, Ord, Data, Typeable, Generic)
@@ -150,13 +150,13 @@ instance Monoid Extensions where
   mempty = Extensions 0
   mappend = (<>)
 
-instance FromJSON Extensions where
-  parseJSON =
-    return . foldr enableExtension emptyExtensions . fromJSON
-
-instance ToJSON Extensions where
-  toJSON exts = toJSON $
-    [ext | ext <- [minBound..maxBound], extensionEnabled ext exts]
+-- instance FromJSON Extensions where
+--   parseJSON =
+--     return . foldr enableExtension emptyExtensions . fromJSON
+-- 
+-- instance ToJSON Extensions where
+--   toJSON exts = toJSON $
+--     [ext | ext <- [minBound..maxBound], extensionEnabled ext exts]
 
 extensionsFromList :: [Extension] -> Extensions
 extensionsFromList = foldr enableExtension emptyExtensions

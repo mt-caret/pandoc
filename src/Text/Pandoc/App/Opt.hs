@@ -32,7 +32,7 @@ import System.Directory ( canonicalizePath )
 import Data.Char (toLower)
 import Data.Maybe (fromMaybe)
 import GHC.Generics hiding (Meta)
-import Text.Pandoc.Filter (Filter (..))
+-- import Text.Pandoc.Filter (Filter (..))
 import Text.Pandoc.Logging (Verbosity (WARNING), LogMessage(..))
 import Text.Pandoc.Options (TopLevelDivision (TopLevelDefault),
                             TrackChanges (AcceptChanges),
@@ -54,17 +54,19 @@ import qualified Data.Text as T
 import qualified Data.Map as M
 import Text.Pandoc.Definition (Meta(..), MetaValue(..))
 import Data.Aeson (defaultOptions, Options(..), Result(..), fromJSON, camelTo2)
-import Data.Aeson.TH (deriveJSON)
+-- import Data.Aeson.TH (deriveJSON)
 import Control.Applicative ((<|>))
-import Data.Yaml
+import Data.Aeson
+import Data.Aeson.Types (Parser)
+-- import Data.Yaml
 
 -- The type of line-endings to be used when writing plain-text.
 data LineEnding = LF | CRLF | Native deriving (Show, Generic)
 
--- see https://github.com/jgm/pandoc/pull/4083
--- using generic deriving caused long compilation times
-$(deriveJSON
-   defaultOptions{ constructorTagModifier = map toLower } ''LineEnding)
+--  -- see https://github.com/jgm/pandoc/pull/4083
+--  -- using generic deriving caused long compilation times
+--  $(deriveJSON
+--     defaultOptions{ constructorTagModifier = map toLower } ''LineEnding)
 
 -- How to handle output blocks in ipynb.
 data IpynbOutput =
@@ -73,8 +75,8 @@ data IpynbOutput =
   | IpynbOutputBest
   deriving (Show, Generic)
 
-$(deriveJSON
-   defaultOptions{ fieldLabelModifier = map toLower . drop 11 } ''IpynbOutput)
+-- $(deriveJSON
+--    defaultOptions{ fieldLabelModifier = map toLower . drop 11 } ''IpynbOutput)
 
 -- Data structure for command line options.
 data Opt = Opt
@@ -120,7 +122,7 @@ data Opt = Opt
     , optDpi                   :: Int     -- ^ Dpi
     , optWrap                  :: WrapOption  -- ^ Options for wrapping text
     , optColumns               :: Int     -- ^ Line length in characters
-    , optFilters               :: [Filter] -- ^ Filters to apply
+    -- , optFilters               :: [Filter] -- ^ Filters to apply
     , optEmailObfuscation      :: ObfuscationMethod
     , optIdentifierPrefix      :: Text
     , optStripEmptyParagraphs  :: Bool -- ^ Strip empty paragraphs
@@ -154,8 +156,8 @@ data Opt = Opt
     , optSandbox               :: Bool
     } deriving (Generic, Show)
 
-$(deriveJSON
-   defaultOptions{ fieldLabelModifier = camelTo2 '-' . drop 3 } ''Opt)
+-- $(deriveJSON
+--    defaultOptions{ fieldLabelModifier = camelTo2 '-' . drop 3 } ''Opt)
 
 instance FromJSON (Opt -> Opt) where
   parseJSON (Object m) =
@@ -202,7 +204,7 @@ resolveVarsInOpt
     , optEpubFonts             = oEpubFonts
     , optEpubCoverImage        = oEpubCoverImage
     , optLogFile               = oLogFile
-    , optFilters               = oFilters
+    -- , optFilters               = oFilters
     , optDataDir               = oDataDir
     , optExtractMedia          = oExtractMedia
     , optCss                   = oCss
@@ -226,7 +228,7 @@ resolveVarsInOpt
       oEpubFonts' <- mapM resolveVars oEpubFonts
       oEpubCoverImage' <- mapM resolveVars oEpubCoverImage
       oLogFile' <- mapM resolveVars oLogFile
-      oFilters' <- mapM resolveVarsInFilter oFilters
+      -- oFilters' <- mapM resolveVarsInFilter oFilters
       oDataDir' <- mapM resolveVars oDataDir
       oExtractMedia' <- mapM resolveVars oExtractMedia
       oCss' <- mapM resolveVars oCss
@@ -248,7 +250,7 @@ resolveVarsInOpt
                 , optEpubFonts             = oEpubFonts'
                 , optEpubCoverImage        = oEpubCoverImage'
                 , optLogFile               = oLogFile'
-                , optFilters               = oFilters'
+                -- , optFilters               = oFilters'
                 , optDataDir               = oDataDir'
                 , optExtractMedia          = oExtractMedia'
                 , optCss                   = oCss'
@@ -290,8 +292,8 @@ resolveVarsInOpt
         report $ EnvironmentVariableUndefined (T.pack v)
         return mempty
       Just x  -> return x
-  resolveVarsInFilter (JSONFilter fp) =
-    JSONFilter <$> resolveVars fp
+  -- resolveVarsInFilter (JSONFilter fp) =
+  --   JSONFilter <$> resolveVars fp
   -- resolveVarsInFilter (LuaFilter fp) =
   --   LuaFilter <$> resolveVars fp
   -- resolveVarsInFilter CiteprocFilter = return CiteprocFilter
@@ -368,8 +370,8 @@ doOpt (k,v) = do
                                                x <> optVariables o })
       -- Note: x comes first because <> for Context is left-biased union
       -- and we want to favor later default files. See #5988.
-    "metadata" ->
-      yamlToMeta v >>= \x -> return (\o -> o{ optMetadata = optMetadata o <> x })
+    -- "metadata" ->
+    --   yamlToMeta v >>= \x -> return (\o -> o{ optMetadata = optMetadata o <> x })
     "metadata-files" ->
       parseJSON v >>= \x ->
                         return (\o -> o{ optMetadataFiles =
@@ -472,8 +474,8 @@ doOpt (k,v) = do
       parseJSON v >>= \x -> return (\o -> o{ optWrap = x })
     "columns" ->
       parseJSON v >>= \x -> return (\o -> o{ optColumns = x })
-    "filters" ->
-      parseJSON v >>= \x -> return (\o -> o{ optFilters = optFilters o <> x })
+    -- "filters" ->
+    --   parseJSON v >>= \x -> return (\o -> o{ optFilters = optFilters o <> x })
     -- "citeproc" ->
     --   parseJSON v >>= \x ->
     --     if x
@@ -550,8 +552,8 @@ doOpt (k,v) = do
     "citation-abbreviations" ->
       parseJSON v >>= \x -> return (\o -> o{ optCitationAbbreviations =
                                                   unpack <$> x })
-    "ipynb-output" ->
-      parseJSON v >>= \x -> return (\o -> o{ optIpynbOutput = x })
+    -- "ipynb-output" ->
+    --   parseJSON v >>= \x -> return (\o -> o{ optIpynbOutput = x })
     "include-before-body" ->
       (parseJSON v >>= \x ->
              return (\o -> o{ optIncludeBeforeBody =
@@ -586,8 +588,8 @@ doOpt (k,v) = do
     "no-check-certificate" ->
       parseJSON v >>= \x ->
              return (\o -> o{ optNoCheckCertificate = x })
-    "eol" ->
-      parseJSON v >>= \x -> return (\o -> o{ optEol = x })
+    -- "eol" ->
+    --   parseJSON v >>= \x -> return (\o -> o{ optEol = x })
     "strip-comments" ->
       parseJSON v >>= \x -> return (\o -> o  { optStripComments = x })
     "sandbox" ->
@@ -639,7 +641,7 @@ defaultOpts = Opt
     , optDpi                   = 96
     , optWrap                  = WrapAuto
     , optColumns               = 72
-    , optFilters               = []
+    -- ., optFilters               = []
     , optEmailObfuscation      = NoObfuscation
     , optIdentifierPrefix      = ""
     , optStripEmptyParagraphs  = False
@@ -673,15 +675,19 @@ defaultOpts = Opt
     , optSandbox               = False
     }
 
-yamlToMeta :: Value -> Parser Meta
-yamlToMeta (Object o) =
-  either (fail . show) return $ runEverything (yamlMap pMetaString o)
- where
-  pMetaString = pure . MetaString <$> P.manyChar P.anyChar
-  runEverything p =
-      runPure (P.readWithM p (def :: P.ParserState) ("" :: Text))
-      >>= fmap (Meta . flip P.runF def)
-yamlToMeta _ = return mempty
+-- yamlToMeta :: Value -> Parser Meta
+-- yamlToMeta (Object o) =
+--   either (fail . show) return $ runEverything (yamlMap pMetaString o)
+--  where
+--   pMetaString = pure . MetaString <$> P.manyChar P.anyChar
+--   runEverything p =
+--       runPure (P.readWithM p (def :: P.ParserState) ("" :: Text))
+--       >>= fmap (Meta . flip P.runF def)
+-- yamlToMeta _ = return mempty
+
+-- TODO: fixme
+decodeEither' = undefined
+prettyPrintParseException = undefined
 
 -- Apply defaults from --defaults file.
 applyDefaults :: (PandocMonad m, MonadIO m)
@@ -696,7 +702,7 @@ applyDefaults opt file = do
       Right f -> f opt
       Left err'  -> throwError $
          PandocParseError
-             $ T.pack $ Data.Yaml.prettyPrintParseException err'
+             $ T.pack $ prettyPrintParseException err'
 
 fullDefaultsPath :: (PandocMonad m, MonadIO m)
                  => Maybe FilePath

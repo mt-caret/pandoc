@@ -33,11 +33,16 @@ import Data.Aeson.Types (Value(..), FromJSON(..))
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Map as M
 import qualified Data.Text as T
-import qualified Data.Yaml as Yaml
+-- import qualified Data.Yaml as Yaml
 import GHC.Generics (Generic)
 import Text.Pandoc.Shared (safeRead)
 import qualified Text.Pandoc.UTF8 as UTF8
-import Data.Yaml (prettyPrintParseException)
+-- import Data.Yaml (prettyPrintParseException)
+
+-- TODO: fixme
+decodeAllEither' = undefined
+prettyPrintParseException = undefined
+
 
 data Term =
     Abstract
@@ -92,7 +97,7 @@ lookupTerm t (Translations tm) = M.lookup t tm
 
 readTranslations :: T.Text -> Either T.Text Translations
 readTranslations s =
-  case Yaml.decodeAllEither' $ UTF8.fromText s of
+  case decodeAllEither' $ UTF8.fromText s of
        Left err' -> Left $ T.pack $ prettyPrintParseException err'
        Right (t:_)     -> Right t
        Right []        -> Left "empty YAML document"

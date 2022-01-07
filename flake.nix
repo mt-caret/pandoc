@@ -1,7 +1,6 @@
-# SPDX-FileCopyrightText: 2021 Serokell <https://serokell.io/>
-#
-# SPDX-License-Identifier: CC0-1.0
-
+# Below flake is based off of Serokell's template as introduced in the
+# following blog post:
+# https://serokell.io/blog/practical-nix-flakes#packaging-existing-applications
 {
   description = "pandoc porting attempt";
 
@@ -13,77 +12,71 @@
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
+        #compiler = "ghc8107";
+        compiler = "ghcjs";
 
-        #haskellPackages = pkgs.haskellPackages;
+        overlay =
+          self: super:
+          let inherit (super.haskell.lib) dontCheck dontHaddock overrideCabal; in
+          {
+            haskell = super.haskell // {
+              packages = super.haskell.packages // {
+                ghcjs = super.haskell.packages.ghcjs.override {
+                  overrides = newpkgs: oldpkgs: {
+                    # tests break
+                    tasty-golden = dontCheck oldpkgs.tasty-golden;
+                    unliftio = dontCheck oldpkgs.unliftio;
+                    conduit = dontCheck oldpkgs.conduit;
+
+                    # TODO: takes too long to run test, maybe retry afterwards?
+                    vector = dontCheck oldpkgs.vector;
+                    mono-traversable = dontCheck oldpkgs.mono-traversable;
+                    zlib = dontCheck oldpkgs.zlib;
+
+                    # linking test binary overflows stack
+                    doclayout = dontCheck oldpkgs.doclayout;
+                    commonmark = dontCheck oldpkgs.commonmark;
+                    texmath = dontCheck oldpkgs.texmath;
+
+                    # test depends on doctest, which doesn't work on ghcjs
+                    foldl = dontCheck oldpkgs.foldl;
+                  };
+                };
+              };
+            };
+          };
+
+        pkgs = import nixpkgs { inherit system; overlays = [ overlay ]; };
+
         haskellPackages = pkgs.haskell.packages.${compiler};
 
         #jailbreakUnbreak = pkg:
         #  pkgs.haskell.lib.doJailbreak (pkg.overrideAttrs (_: { meta = { }; }));
-        compiler = "ghc8107";
 
         packageName = "pandoc";
       in
-      let inherit (pkgs.haskell.lib) dontHaddock; in
+      let
+        inherit (pkgs.haskell.lib) dontHaddock dontCheck;
+        inherit (pkgs.haskell.lib.compose) overrideCabal;
+      in
+      let
+        # hit this issue when linking TH stuff for pandoc:
+        # https://github.com/reflex-frp/reflex-platform/issues/422
+        enbiggenStack =
+          overrideCabal (drv:
+            {
+              buildFlags =
+                (drv.buildFlags or [ ]) ++
+                [ "--ghcjs-options=+RTS --ghcjs-options=-K2G --ghcjs-options=-RTS" ];
+            });
+      in
       {
         packages.${packageName} =
-          dontHaddock (haskellPackages.callCabal2nix packageName self rec {
+          dontHaddock (enbiggenStack (haskellPackages.callCabal2nix packageName self rec {
             # Dependency overrides go here
             doctemplates = haskellPackages."doctemplates_0_10_0_1";
-            ipynb = haskellPackages.callPackage
-              ({ lib
-               , fetchFromGitHub
-               , mkDerivation
-               , aeson
-               , base
-               , base64-bytestring
-               , bytestring
-               , containers
-               , directory
-               , filepath
-               , microlens
-               , microlens-aeson
-               , tasty
-               , tasty-hunit
-               , text
-               , unordered-containers
-               }:
-                mkDerivation {
-                  pname = "ipynb";
-                  version = "0.2";
-                  src = fetchFromGitHub {
-                    owner = "jgm";
-                    repo = "ipynb";
-                    # 2022-01-04
-                    rev = "00246af10885c2ad4413ace4f69a7e6c88297a08";
-                    sha256 = "e7Z5DleDzUqkfVv7B39O3tP2Hd5Ty9WvdIPhKsUq6Lo=";
-                  };
-                  libraryHaskellDepends = [
-                    aeson
-                    base
-                    base64-bytestring
-                    bytestring
-                    containers
-                    text
-                    unordered-containers
-                  ];
-                  testHaskellDepends = [
-                    aeson
-                    base
-                    bytestring
-                    directory
-                    filepath
-                    microlens
-                    microlens-aeson
-                    tasty
-                    tasty-hunit
-                    text
-                  ];
-                  description = "Data structure for working with Jupyter notebooks (ipynb)";
-                  license = lib.licenses.bsd3;
-                })
-              { };
-          });
+            ipynb = haskellPackages.callPackage ./ipynb.nix { };
+          }));
 
         defaultPackage = self.packages.${system}.${packageName};
 
