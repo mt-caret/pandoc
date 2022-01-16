@@ -50,9 +50,6 @@
 
         haskellPackages = pkgs.haskell.packages.${compiler};
 
-        #jailbreakUnbreak = pkg:
-        #  pkgs.haskell.lib.doJailbreak (pkg.overrideAttrs (_: { meta = { }; }));
-
         packageName = "pandoc";
       in
       let
@@ -65,9 +62,14 @@
         enbiggenStack =
           overrideCabal (drv:
             {
-              buildFlags =
-                (drv.buildFlags or [ ]) ++
-                [ "--ghcjs-options=+RTS --ghcjs-options=-K2G --ghcjs-options=-RTS" ];
+              configureFlags =
+                ((drv.configureFlags or [ ]) ++
+                  [
+                    "--ghcjs-option=+RTS"
+                    "--ghcjs-option=-K0"
+                    "--ghcjs-option=-RTS"
+                    "--ghcjs-options=-dedupe"
+                  ]);
             });
       in
       {
