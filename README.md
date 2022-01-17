@@ -48,9 +48,12 @@ unable to get either to fully work.
 - Believe it or not, [asterius](https://github.com/tweag/asterius) actually
   successfully seems to build pandoc as-is (there's even a demo). Naively
   writing a demo for this resulted in very large wasm sizes (<40MB) which I
-  couldn't reduce. Checking the demo I see that it's much smaller at around
-  7.72MB, maybe I'm missing something here. Regardless, it'll be nice to be
-  able to seamlessly build pandoc using asterius via a Nix flake as well.
+  couldn't reduce. Regardless, it'll be nice to be able to seamlessly build
+  pandoc using asterius via a Nix flake as well.
+  - The [official demo](https://asterius.netlify.app/demo/pandoc/pandoc.html)
+    and what looks like an
+    [app similar to markup.rocks](https://github.com/y-taka-23/wasm-pandoc)
+    weigh in at 87.19MB and 60.47MB, respectively.
 - Wondering what sort of breakage will occur when (if?) ghcjs is unified with
   ghc as mentioned here: [Is GHCJS stuck on GHC
   8.6.5?](https://www.reddit.com/r/haskell/comments/msmv4l/is_ghcjs_stuck_on_ghc_865/gutn13h/).
